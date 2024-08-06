@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
+
+:root {
+    --blue: #39A7FF;
+    --blue-light: #DEEEFE;
+    --dark: #303030;
+    --dark-opacity-50: rgb(48, 48, 48, 0.5);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #E0E0E0;
+}
+
+img {
+    width: 100%;
+}
+
+/******************** Custom class ********************/
+.h-70px {
+    height: 70px;
+}
+
+.bg-dark {
+    background-color: var(--dark);
+    color: #FFF;
+}
+
+.scroll-x-view {
+    overflow-x: auto;
+}
+
+.scroll-x-view::-webkit-scrollbar {
+    height: 4px;
+    background-color: #F5F5F5;
+    border-radius: 8px;
+}
+
+.scroll-x-view::-webkit-scrollbar-thumb {
+    background-color: #F90;
+    border-radius: 8px;
+}
+
+/******************** Header ********************/
+
+.header__img {
+    width: 38px;
+}
+
+/******************** Navbar ********************/
+.nav {
+    display: flex;
+    flex-wrap: unset;
+}
+
+.nav>.nav__item>.nav__link {
+    height: 100%;
+    color: #FFFFFF;
+    padding: 16px;
+    text-decoration: none;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav>.nav__item>.nav__link:hover {
+    background-color: var(--blue);
+}
+
+.nav>.nav__item>.nav__link i {
+    margin-right: 6px;
+}
+
+.nav__item:hover .nav__submenu {
+    display: block;
+}
+
+.nav__submenu {
+    position: absolute;
+    width: 225px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    display: none;
+    z-index: 9;
+}
+
+.nav__submenu>.nav__item>.nav__link {
+    background-color: #FFFFFF;
+    color: #000000;
+    padding: 16px;
+    display: block;
+    text-decoration: none;
+}
+
+.nav__submenu>.nav__item>.nav__link:hover {
+    background-color: var(--blue-light);
+}
+
+.nav__submenu>.nav__item>.nav__link i {
+    margin-right: 6px;
+}
+
+/******************** Input ********************/
+.input-custom {
+    background-color: #F5F5F5;
+    padding: 0 12px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-custom label.form-label {
+    font-size: 10px;
+    margin: 0;
+}
+
+.input-custom input.form-control,
+.input-custom select.form-select {
+    background-color: transparent;
+    padding: 0;
+    border: none;
+}
+
+
+.input-custom select.form-select {
+    min-width: 150px;
+}
+
+.input-custom input.form-control:focus,
+.input-custom select.form-select:focus {
+    box-shadow: none;
+}
+
+.input-custom .form-delete {
+    color: red;
+}
+
+.tab-content {
+    height: 450px;
+    overflow-y: auto;
+    overflow-x: clip;
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
