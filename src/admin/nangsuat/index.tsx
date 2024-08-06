@@ -1,69 +1,47 @@
 import MenuComponent from "../../Menu";
-
+import React, { useState } from "react";
+import axios from 'axios'; 
 function AdminPage() {
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [result, setResult] = useState(null); // Để lưu trữ kết quả từ API  
+    // Xử lý sự kiện thay đổi giá trị của input
+    const handleDateChange = (e) => {
+      setDate(e.target.value);
+    };  
+    // Hàm xử lý khi nhấn nút "Tìm"
+    const handleSearch = async () => {
+      try {
+        // Gửi yêu cầu đến API Express
+        const response = await axios.post('http://localhost:5000/api/search', { date });
+        setResult(response.data); // Lưu trữ kết quả trả về từ API
+      } catch (error) {
+        console.error('Lỗi khi gửi yêu cầu:', error);
+      }
+    };
   return (
     <>
       <MenuComponent>
         <div className="d-flex align-items-center bg-white px-4 py-1">
           <h4 className="fw-normal text-primary m-0">
-            Công việc nè <i className="far fa-question-circle"></i>
+            Dữ liệu năng suất <i className="far fa-question-circle"></i>
           </h4>
           <div className="d-flex ms-auto">
             <div className="input-custom ms-2">
               <div>
                 <label className="form-label text-secondary">Vật liệu</label>
                 <input
-                  type="text"
+                  type="date"
                   className="form-control"
-                  value="26118FN000_04"
+                  value={date}
+                  onChange={handleDateChange}
                 />
-              </div>
-              <div className="form-delete">
-                <i className="fas fa-times"></i>
-              </div>
-            </div>
-            <div className="input-custom ms-2">
-              <div>
-                <label className="form-label text-secondary">Mã lot</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value="26118FN000_04"
-                />
-              </div>
-              <div className="form-delete">
-                <i className="fas fa-times"></i>
-              </div>
-            </div>
-            <div className="input-custom ms-2">
-              <div>
-                <label className="form-label text-secondary">Vật liệu</label>
-                <select className="form-select">
-                  <option selected>all</option>
-                  <option value="1">One</option>
-                  <option value="2">Two</option>
-                  <option value="3">Three</option>
-                </select>
-              </div>
-              <div className="form-delete">
-                <i className="fas fa-times"></i>
-              </div>
-            </div>
+              </div>             
+            </div>                     
             <div className="d-flex align-items-center justify-content-center p-2">
-              <button className="btn btn-primary">
-                <i className="fas fa-download"></i> Tải báo cáo
+              <button className="btn btn-primary" onClick={handleSearch}>
+                <i className="fas fa-download"></i> Tìm
               </button>
-            </div>
-            <div className="d-flex align-items-center justify-content-center p-2">
-              <button className="btn btn-primary">
-                <i className="fas fa-list"></i> Sản phẩm mẫu
-              </button>
-            </div>
-            <div className="d-flex align-items-center justify-content-center p-2 border-start">
-              <button className="btn">
-                <i className="fas fa-redo"></i>
-              </button>
-            </div>
+            </div>               
           </div>
         </div>
         <div className="p-3">
