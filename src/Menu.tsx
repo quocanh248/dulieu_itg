@@ -12,11 +12,18 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
         </div>
         <div className="nav flex-grow-1 scroll-x-view">
           <div className="nav__item">
-            <Link to={"/"} className="nav__link">
-              <i className="fas fa-sticky-note"></i>
-              <span>Admin nè</span>
-            </Link>
-          </div>
+            <a href="#" className="nav__link">
+              <i className="far fa-user"></i>
+              <span>Quản trị</span>
+            </a>
+            <div className="nav__submenu">
+              <div className="nav__item">
+                <Link to={"/"} className="nav__link">
+                  <span>Danh sách tài khoản</span>
+                </Link>
+              </div>
+            </div>
+          </div>         
           <div className="nav__item">
             <Link to={"/congviec"} className="nav__link">
               <i className="fas fa-sticky-note"></i>
@@ -33,9 +40,14 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                 <Link to={"/du_lieu_nang_suat"} className="nav__link">
                   <span>Dữ liệu năng suất</span>
                 </Link>
-              </div>       
+              </div>
+              <div className="nav__item">
+                <Link to={"/them_du_lieu_nang_suat"} className="nav__link">
+                  <span>Thêm dữ liệu năng suất</span>
+                </Link>
+              </div>
             </div>
-          </div>       
+          </div>
         </div>
         <div className="flex text-nowrap p-3">
           <img
