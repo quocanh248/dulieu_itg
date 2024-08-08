@@ -498,7 +498,7 @@ function AdminPage() {
         </div>
       </div>
       <div className="p-3">
-        <div className="bg-white p-3">
+        <div className="bg-white">
           <table
             className="table table-bordered text-center"
             style={{ width: "100%", fontSize: "14px" }}

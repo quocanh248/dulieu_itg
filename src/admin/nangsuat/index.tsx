@@ -12,10 +12,31 @@ function AdminPage() {
     setDate(e.target.value);
   };
   const handleExport = async () => {
-    await fetchnangsuat({ date }); 
-    if (result.length > 0) {
-      var filename = `Dữ liệu năng suất ngày ${date}.xlsx`;
-      exportToExcel(result, filename);
+    try {
+      // Gọi fetchnangsuat và đợi kết quả
+      const res = await fetchexcel({ date });
+      if (res && res.length > 0) {
+        const filename = `Dữ liệu năng suất ngày ${date}.xlsx`;
+        await exportToExcel(res, filename);
+      } else {
+        console.log("Không có dữ liệu để xuất");
+      }
+    } catch (error) {
+      console.error("Đã xảy ra lỗi:", error);
+    }
+  };
+  const fetchexcel = async (filters = {}) => {
+    try {
+      const response = await axios.get(
+        "http://localhost:3000/nang_suat/search",
+        {
+          params: filters,
+        }
+      );
+      return response.data; // Trả về dữ liệu nhận được từ API
+    } catch (error) {
+      console.error("Lỗi khi lấy dữ liệu năng suất:", error);
+      return []; // Trả về mảng rỗng nếu có lỗi
     }
   };
   const fetchnangsuat = async (filters = {}) => {
@@ -28,7 +49,7 @@ function AdminPage() {
       );
       setResult(response.data);
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách tài khoản:", error);
+      console.error("Lỗi khi lấy dữ liệu năng suất:", error);
     }
   };
 
@@ -62,26 +83,26 @@ function AdminPage() {
           </div>
           <div className="d-flex align-items-center justify-content-center p-2">
             <button className="btn btn-success" onClick={handleExport}>
-              <i className="fas fa-download"></i> Xuất
+              <i className="fas fa-download"></i> Excel
             </button>
           </div>
         </div>
       </div>
       <div className="p-3">
-        <div className="bg-white p-3">
+        <div className="bg-white">
           <table
-            className="table table-bordered"
+            className="table table-bordered text-center"
             style={{ width: "100%", fontSize: "14px" }}
           >
             <thead>
               <tr>
                 <th>Mã nhân viên</th>
-                <th>Tên nhân viên</th>
+                <th style={{ minWidth: "220px"}}>Tên nhân viên</th>
                 <th>Bộ phận</th>
                 <th>Model</th>
                 <th>Lot</th>
                 <th>Ngày</th>
-                <th>Công đoạn</th>
+                <th style={{ minWidth: "220px"}}>Công đoạn</th>
                 <th>Vị trí</th>
                 <th>Số lượng</th>
                 <th>Thời gian thực hiện</th>
@@ -101,7 +122,7 @@ function AdminPage() {
                   <td>{item.congdoan}</td>
                   <td>{item.vitri}</td>
                   <td>{item.soluong}</td>
-                  <td>{item.thoigianthuchien}</td>
+                  <td>{(parseFloat(item.thoigianthuchien) || 0).toFixed(2)}</td>
                   <td>
                     {item.sum_time !== 0
                       ? (
