@@ -315,9 +315,38 @@ router.get("/chi_tiet_label", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+router.get("/listcongdoan", async (req, res) => {
+  try {
+    const { macongdoan, tencongdoan } = req.query;
+    let sql = `
+            SELECT * FROM congdoan
+            WHERE 1 = 1
+        `;
+    const params = [];
+    const results = await queryMySQL(sql, params);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 const formatDate = (dateStr) => {
   const [year, month, day] = dateStr.split("-");
   return `${day}/${month}/${year}`;
 };
+router.get("/chitietcongdoan", async (req, res) => {
+  const { macongdoan } = req.query;
+  try {
+    let sql = `
+            SELECT *
+            FROM congdoan            
+            WHERE macongdoan = ?       
+        `;
+    const results = await queryMySQL(sql, [macongdoan]);
+    console.log(results);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 app.use("/api", router);
 export default router;

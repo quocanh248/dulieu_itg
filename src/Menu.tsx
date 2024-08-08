@@ -22,6 +22,11 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                   <span>Danh sách tài khoản</span>
                 </Link>
               </div>
+              <div className="nav__item">
+                <Link to={"/danh_sach_cong_doan"} className="nav__link">
+                  <span>Danh sách công đoạn</span>
+                </Link>
+              </div>
             </div>
           </div>             
           <div className="nav__item">
