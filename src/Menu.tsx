@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 
 interface Props {
-  children: React.ReactNode;
+  children?: React.ReactNode; // `children` có thể không được truyền vào, vì vậy đánh dấu là tùy chọn.
 }
+
 const MenuComponent: React.FC<Props> = ({ children }) => {
   return (
     <>
@@ -18,12 +19,12 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
             </a>
             <div className="nav__submenu">
               <div className="nav__item">
-                <Link to={"/"} className="nav__link">
+                <Link to="/" className="nav__link">
                   <span>Danh sách tài khoản</span>
                 </Link>
               </div>
               <div className="nav__item">
-                <Link to={"/danh_sach_cong_doan"} className="nav__link">
+                <Link to="/danh_sach_cong_doan" className="nav__link">
                   <span>Danh sách công đoạn</span>
                 </Link>
               </div>
@@ -31,17 +32,17 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
           </div>             
           <div className="nav__item">
             <a href="#" className="nav__link">
-            <i className="fas fa-sticky-note"></i>
+              <i className="fas fa-sticky-note"></i>
               <span>Năng suất</span>
             </a>
             <div className="nav__submenu">
               <div className="nav__item">
-                <Link to={"/du_lieu_nang_suat"} className="nav__link">
+                <Link to="/du_lieu_nang_suat" className="nav__link">
                   <span>Dữ liệu năng suất</span>
                 </Link>
               </div>
               <div className="nav__item">
-                <Link to={"/them_du_lieu_nang_suat"} className="nav__link">
+                <Link to="/them_du_lieu_nang_suat" className="nav__link">
                   <span>Thêm dữ liệu năng suất</span>
                 </Link>
               </div>
@@ -49,17 +50,17 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
           </div>
           <div className="nav__item">
             <a href="#" className="nav__link">
-            <i className="fas fa-sticky-note"></i>           
+              <i className="fas fa-sticky-note"></i>
               <span>Truy nguyên</span>
             </a>
             <div className="nav__submenu">
               <div className="nav__item">
-                <Link to={"/get_api_itg_model_lot"} className="nav__link">
+                <Link to="/get_api_itg_model_lot" className="nav__link">
                   <span>Dữ liệu chạy hàng Model - lot</span>
                 </Link>
               </div>
               <div className="nav__item">
-                <Link to={"/them_du_lieu_nang_suat"} className="nav__link">
+                <Link to="/them_du_lieu_nang_suat" className="nav__link">
                   <span>Thêm dữ liệu năng suất</span>
                 </Link>
               </div>

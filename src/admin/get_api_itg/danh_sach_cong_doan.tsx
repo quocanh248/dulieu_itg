@@ -94,7 +94,7 @@ function AdminPage() {
             <tr>
               <td colSpan={3}>
                 <label style={{ marginLeft: "120px" }}>
-                  Công đoạn không có sử dụng thiết bị
+                  Công đoạn không có thuộc tính
                 </label>
               </td>
             </tr>
@@ -123,14 +123,13 @@ function AdminPage() {
     }
   };
   const showEditForm = async (macongdoan: string) => {
-    try {
-      const response = await axios.get(
-        "http://localhost:3000/truynguyen/chitietcongdoan",
-        {
-          params: { macongdoan },
-        }
-      );
-      const congdoanData = response.data[0];
+    try {      
+      const response = await sendAPIRequest(
+        "/truynguyen/chitietcongdoan?macongdoan=" + macongdoan,
+        "GET",
+        undefined
+      );      
+      const congdoanData = response[0];
       setThuoctinhIp("");
       setMacongdoanEdit(congdoanData.macongdoan);
       setTencongdoanEdit(congdoanData.tencongdoan);
@@ -294,27 +293,28 @@ function AdminPage() {
     thuoctinhEdit: string
   ) => {
     try {
-      if (thuoctinhIp.trim() !== "") {
-        let thuoctinhObj: Thuoctinh = {};
+      if (thuoctinhIp && typeof thuoctinhIp === "string") {
+        if (thuoctinhIp.trim() !== "") {
+          let thuoctinhObj: Thuoctinh = {};
 
-        if (thuoctinhEdit.trim() !== "") {
-          thuoctinhObj = JSON.parse(thuoctinhEdit);
+          if (thuoctinhEdit != null && thuoctinhEdit.trim() !== "") {
+            thuoctinhObj = JSON.parse(thuoctinhEdit);
+          }
+
+          thuoctinhObj[thuoctinhIp] = "OK";
+          console.log(thuoctinhObj);
+          const data = {
+            macongdoan: macongdoanEdit,
+            thuoctinh: JSON.stringify(thuoctinhObj),
+          };
+          await axios.put(
+            "http://localhost:3000/truynguyen/capnhatcongdoan",
+            data
+          );
+          showEditForm(macongdoanEdit);
         }
-
-        thuoctinhObj[thuoctinhIp] = "OK";
-        console.log(thuoctinhObj);
-
-        const data = {
-          macongdoan: macongdoanEdit,
-          thuoctinh: JSON.stringify(thuoctinhObj),
-        };
-
-        await axios.put(
-          "http://localhost:3000/truynguyen/capnhatcongdoan",
-          data
-        );
-
-        showEditForm(macongdoanEdit);
+      } else {
+        console.error("Giá trị không hợp lệ hoặc là null");
       }
     } catch (error) {
       console.error("Lỗi khi thêm thuộc tính công đoạn:", error);

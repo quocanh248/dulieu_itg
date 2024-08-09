@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, MouseEvent } from "react";
+import { useState, ChangeEvent, MouseEvent } from "react";
 import axios from "axios";
 import MenuComponent from "../../Menu";
 import ExcelJS from "exceljs";
@@ -8,44 +8,52 @@ interface RowData {
   [key: number]: any;
 }
 
-
-
 function AdminPage() {
-  const [result, setResult] = useState<RowData[][]>([]); // Mảng hai chiều
   const [file, setFile] = useState<File | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
     }
   };
 
-  const handle_import = async (e: MouseEvent<HTMLButtonElement>) => {
+  const handleImport = async (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault(); // Ngăn chặn hành vi mặc định của nút bấm
     try {
       let rows: RowData[][] = []; // Đổi thành mảng hai chiều
+
       // Xử lý tệp Excel nếu có
       if (file) {
-        const workbook = new ExcelJS.Workbook();
-        await workbook.xlsx.load(file);
-        const worksheet = workbook.worksheets[0];
-        let startRow = 12;
-        worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
-          if (rowNumber >= startRow) {
-            rows.push([...(row.values as RowData[])]); // Chuyển đổi thành mảng hai chiều
+        const fileReader = new FileReader();
+        fileReader.readAsArrayBuffer(file);
+
+        fileReader.onload = async () => {
+          const buffer = fileReader.result as ArrayBuffer;
+          const workbook = new ExcelJS.Workbook();
+          await workbook.xlsx.load(buffer); // Sử dụng buffer thay vì file
+          const worksheet = workbook.worksheets[0];
+          let startRow = 12;
+          worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+            if (rowNumber >= startRow) {
+              rows.push(row.values as RowData[]); // Chuyển đổi thành mảng hai chiều
+            }
+          });
+          // Gửi dữ liệu đến API để lưu vào cơ sở dữ liệu
+          if (rows.length > 0) {
+            await axios.post("http://localhost:3000/nang_suat/upload", rows);
+            alert("Dữ liệu đã được lưu thành công");
           }
-        });
-        setResult(rows); // Lưu mảng hai chiều vào state
-      } 
-      // Gửi dữ liệu đến API để lưu vào cơ sở dữ liệu
-      if (rows.length > 0) {
-        await axios.post("http://localhost:3000/nang_suat/upload", rows);
-        alert("Dữ liệu đã được lưu thành công");
+        };
+
+        fileReader.onerror = (error) => {
+          console.error("Lỗi khi đọc tệp:", error);
+        };
       }
     } catch (error) {
       console.error("Lỗi khi gửi yêu cầu hoặc xử lý tệp:", error);
     }
   };
+
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">
@@ -66,7 +74,7 @@ function AdminPage() {
             </div>
           </div>
           <div className="d-flex align-items-center justify-content-center p-2">
-            <button className="btn btn-primary" onClick={handle_import}>
+            <button className="btn btn-primary" onClick={handleImport}>
               <i className="fas fa-search"></i> Thêm
             </button>
           </div>

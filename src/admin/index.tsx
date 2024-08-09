@@ -1,35 +1,53 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, ChangeEvent } from "react";
 import MenuComponent from "../Menu";
 import axios from "axios";
+
+// Định nghĩa kiểu dữ liệu cho tài khoản
+interface Account {
+  manhansu: string;
+  tennhansu: string;
+  tennhom: string;
+  role: string;
+  id: string;
+}
+
+// Định nghĩa kiểu dữ liệu cho người dùng không có tài khoản
+interface NoAccount {
+  manhansu: string;
+  tennhansu: string;
+}
+
+// Định nghĩa kiểu dữ liệu cho component
 function AdminPage() {
-  const [accounts, setAccounts] = useState([]);
-  const [Noaccounts, setNoAccounts] = useState([]);
-  const [manhansu, setManhansu] = useState("");
-  const [tennhansu, setTennhansu] = useState("");
-  const [tennhom, setTennhom] = useState("");
-  const [matkhau, setMatkhau] = useState("");
-  const [xacnhanmatkhau, setXacnhanMatkhau] = useState("");
-  const [vaitro, setVaitro] = useState("admin");
-  const [manhansu_acc, setManhansu_acc] = useState("");
-  const [tennhansu_acc, setTennhansu_acc] = useState("");
-  const [isFormAdd, setIsFormAdd] = useState(false);
-  const [isFormEdit, setIsFormEdit] = useState(false);
-  const [manhansu_edit, setManhansu_edit] = useState("");
-  const [tennhansu_edit, setTennhansu_edit] = useState("");
-  const [xacnhanmatkhau_edit, setXacnhanMatkhau_edit] = useState("");
-  const [matkhau_edit, setMatkhau_edit] = useState("");
-  const [vaitro_edit, setVaitro_edit] = useState("admin");
-  const handleManhansuChange = (e) => {
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [noAccounts, setNoAccounts] = useState<NoAccount[]>([]);
+  const [manhansu, setManhansu] = useState<string>("");
+  const [tennhansu, setTennhansu] = useState<string>("");
+  const [tennhom, setTennhom] = useState<string>("");
+  const [matkhau, setMatkhau] = useState<string>("");
+  const [xacnhanmatkhau, setXacnhanMatkhau] = useState<string>("");
+  const [vaitro, setVaitro] = useState<string>("admin");
+  const [manhansuAcc, setManhansuAcc] = useState<string>("");
+  const [tennhansuAcc, setTennhansuAcc] = useState<string>("");
+  const [isFormAdd, setIsFormAdd] = useState<boolean>(false);
+  const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
+  const [matkhau_edit, setMatkhau_edit] = useState<string>("");
+  const [xacnhanmatkhau_edit, setXacnhanMatkhau_edit] = useState<string>("");
+  const [vaitro_edit, setVaitro_edit] = useState<string>("");
+  const [manhansu_edit, setManhansu_edit] = useState<string>("");
+  const [tennhansu_edit, setTennhansu_edit] = useState<string>("");
+
+  const handleManhansuChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedManhansu = e.target.value;
-    setManhansu_acc(selectedManhansu);
+    setManhansuAcc(selectedManhansu);
     const selectedTennhansu =
-      Noaccounts.find(
-        (item) => (item as { manhansu: string }).manhansu === selectedManhansu
-      )?.tennhansu || "";
-    setTennhansu_acc(selectedTennhansu);
+      noAccounts.find((item) => item.manhansu === selectedManhansu)
+        ?.tennhansu || "";
+    setTennhansuAcc(selectedTennhansu);
   };
+
   // Fetch accounts with optional filters
-  const fetchAccounts = async (filters = {}) => {
+  const fetchAccounts = async (filters: Record<string, string> = {}) => {
     try {
       const response = await axios.get("http://localhost:3000/users/list", {
         params: filters,
@@ -39,42 +57,45 @@ function AdminPage() {
       console.error("Lỗi khi lấy danh sách tài khoản:", error);
     }
   };
-  const fetch_No_Accounts = async (filters = {}) => {
+
+  const fetchNoAccounts = async (filters: Record<string, string> = {}) => {
     try {
-      const res_noacc = await axios.get(
+      const response = await axios.get(
         "http://localhost:3000/users/list_nouser",
-        {
-          params: filters,
-        }
+        { params: filters }
       );
-      setNoAccounts(res_noacc.data);
+      setNoAccounts(response.data);
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách tài khoản:", error);
+      console.error(
+        "Lỗi khi lấy danh sách tài khoản không có người dùng:",
+        error
+      );
     }
   };
-  // Fetch accounts when component mounts or filters change
+
+  // Fetch accounts when component mounts
   useEffect(() => {
     fetchAccounts();
   }, []);
 
-  // Handle search button click
   const handleSearch = () => {
     fetchAccounts({ manhansu, tennhansu, tennhom });
   };
+
   const openAddForm = () => {
-    fetch_No_Accounts();
+    fetchNoAccounts();
     setMatkhau("");
     setXacnhanMatkhau("");
     setVaitro("admin");
-    setManhansu_acc("");
-    setTennhansu_acc("");
+    setManhansuAcc("");
+    setTennhansuAcc("");
     setIsFormAdd(true);
   };
+
   const handleSubmit = async () => {
-    // Kiểm tra xem tất cả các trường thông tin đã được điền chưa
     if (
-      !manhansu_acc ||
-      !tennhansu_acc ||
+      !manhansuAcc ||
+      !tennhansuAcc ||
       !matkhau ||
       !xacnhanmatkhau ||
       !vaitro
@@ -83,16 +104,14 @@ function AdminPage() {
       return;
     }
 
-    // Kiểm tra mật khẩu có khớp không
     if (matkhau !== xacnhanmatkhau) {
       alert("Mật khẩu và xác nhận mật khẩu không khớp.");
       return;
     }
 
-    // Gửi yêu cầu đến API
     try {
       await axios.post("http://localhost:3000/users/add", {
-        manhansu_acc,
+        manhansu_acc: manhansuAcc,
         matkhau,
         vaitro,
       });
@@ -104,8 +123,8 @@ function AdminPage() {
       alert("Có lỗi xảy ra khi thêm tài khoản.");
     }
   };
-  // Modal content
-  const htmlAddForm = (): React.ReactNode => {
+
+  const htmlAddForm = (): JSX.Element => {
     return (
       <div className={`modal ${isFormAdd ? "d-block" : "d-none"}`}>
         <div
@@ -146,16 +165,13 @@ function AdminPage() {
                         autoComplete="off"
                         list="list_nhan_su"
                         id="manhansu"
-                        value={manhansu_acc}
+                        value={manhansuAcc}
                         onChange={handleManhansuChange}
                       />
                       <datalist id="list_nhan_su">
-                        {Noaccounts.map((item) => (
-                          <option
-                            key={(item as { manhansu: string }).manhansu}
-                            value={(item as { manhansu: string }).manhansu}
-                          >
-                            {(item as { tennhansu: string }).tennhansu}
+                        {noAccounts.map((item) => (
+                          <option key={item.manhansu} value={item.manhansu}>
+                            {item.tennhansu}
                           </option>
                         ))}
                       </datalist>
@@ -167,9 +183,8 @@ function AdminPage() {
                       <input
                         type="text"
                         className="form-control"
-                        readOnly
-                        id="tennhansu"
-                        value={tennhansu_acc}
+                        readOnly                       
+                        value={tennhansuAcc}
                       />
                     </div>
                   </div>
@@ -182,8 +197,7 @@ function AdminPage() {
                       <input
                         type="password"
                         className="form-control"
-                        autoComplete="off"
-                        id="matkhau"
+                        autoComplete="off"                        
                         value={matkhau}
                         onChange={(e) => setMatkhau(e.target.value)}
                       />
@@ -197,8 +211,7 @@ function AdminPage() {
                       <input
                         type="password"
                         className="form-control"
-                        autoComplete="off"
-                        id="xacnhanmatkhau"
+                        autoComplete="off"                        
                         value={xacnhanmatkhau}
                         onChange={(e) => setXacnhanMatkhau(e.target.value)}
                       />
@@ -228,26 +241,20 @@ function AdminPage() {
               </div>
             </div>
             <div className="modal-footer">
-              <button type="button" className="btn btn-danger">
-                Xóa
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setIsFormAdd(false)}
+              >
+                Đóng
               </button>
-              <div className="ms-auto">
-                <button
-                  type="button"
-                  className="btn btn-light"
-                  data-bs-dismiss="modal"
-                  onClick={() => setIsFormAdd(false)}
-                >
-                  Đóng
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleSubmit}
-                >
-                  Thêm
-                </button>
-              </div>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handleSubmit}
+              >
+                Thêm tài khoản
+              </button>
             </div>
           </div>
         </div>
@@ -346,8 +353,7 @@ function AdminPage() {
                       <input
                         type="text"
                         className="form-control"
-                        readOnly
-                        id="tennhansu"
+                        readOnly                        
                         value={tennhansu_edit}
                         onChange={(e) => setTennhansu_edit(e.target.value)}
                       />
@@ -362,8 +368,7 @@ function AdminPage() {
                       <input
                         type="password"
                         className="form-control"
-                        autoComplete="off"
-                        id="matkhau"
+                        autoComplete="off"                        
                         value={matkhau_edit}
                         onChange={(e) => setMatkhau_edit(e.target.value)}
                       />
@@ -377,8 +382,7 @@ function AdminPage() {
                       <input
                         type="password"
                         className="form-control"
-                        autoComplete="off"
-                        id="xacnhanmatkhau"
+                        autoComplete="off"                        
                         value={xacnhanmatkhau_edit}
                         onChange={(e) => setXacnhanMatkhau_edit(e.target.value)}
                       />
@@ -437,19 +441,18 @@ function AdminPage() {
   const handleTrash = async (id: string) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa user này không?")) {
       console.log(id);
-      const response = await axios.get("http://localhost:3000/users/delete", {
+      await axios.get("http://localhost:3000/users/delete", {
         params: { id }, // Đặt id vào đối tượng params
       });
       fetchAccounts();
       alert("Xóa user thành công");
     }
   };
-
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">
         <h4 className="fw-normal text-primary m-0">
-          Danh sách user <i className="far fa-question-circle"></i>
+          Danh sách tài khoản <i className="far fa-question-circle"></i>
         </h4>
         <div className="d-flex ms-auto">
           <div className="input-custom ms-2">
@@ -458,6 +461,7 @@ function AdminPage() {
               <input
                 type="text"
                 className="form-control"
+                placeholder="Mã nhân sự"
                 value={manhansu}
                 onChange={(e) => setManhansu(e.target.value)}
               />
@@ -469,6 +473,7 @@ function AdminPage() {
               <input
                 type="text"
                 className="form-control"
+                placeholder="Tên nhân sự"
                 value={tennhansu}
                 onChange={(e) => setTennhansu(e.target.value)}
               />
@@ -476,10 +481,11 @@ function AdminPage() {
           </div>
           <div className="input-custom ms-2">
             <div>
-              <label className="form-label text-secondary">Tên bộ phận</label>
+              <label className="form-label text-secondary">Tên nhóm</label>
               <input
                 type="text"
                 className="form-control"
+                placeholder="Tên nhóm"
                 value={tennhom}
                 onChange={(e) => setTennhom(e.target.value)}
               />
@@ -487,12 +493,12 @@ function AdminPage() {
           </div>
           <div className="d-flex align-items-center justify-content-center p-2">
             <button className="btn btn-primary" onClick={handleSearch}>
-              <i className="fas fa-search"></i> Tìm
+              Tìm kiếm
             </button>
           </div>
           <div className="d-flex align-items-center justify-content-center p-2 border-start">
-            <button className="btn btn-success" onClick={openAddForm}>
-              <i className="fas fa-plus"></i> Thêm
+            <button className="btn btn-primary" onClick={openAddForm}>
+              Tìm kiếm
             </button>
           </div>
         </div>
@@ -507,41 +513,41 @@ function AdminPage() {
               <tr>
                 <th>Mã nhân sự</th>
                 <th>Tên nhân sự</th>
-                <th>Bộ phận</th>
-                <th></th>               
+                <th>Tên nhóm</th>               
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              {accounts.map((item) => (
-                <tr key={(item as { manhansu: string }).manhansu}>
-                  <td>{(item as { manhansu: string }).manhansu}</td>
-                  <td>{(item as { tennhansu: string }).tennhansu}</td>
-                  <td>{(item as { tennhom: string }).tennhom}</td>
+              {accounts.map((account) => (
+                <tr key={account.id}>
+                  <td>{account.manhansu}</td>
+                  <td>{account.tennhansu}</td>
+                  <td>{account.tennhom}</td>                 
                   <td>
                     <button
                       className="btn btn-info"
                       role={"button"}
-                      onClick={() => showEditForm((item as { id: string }).id)}
+                      onClick={() => showEditForm(account.id)}
                     >
                       Chi tiết
                     </button>
                     <button
                       className="btn btn-danger"
-                      style={{ marginLeft: "5px"}}
+                      style={{ marginLeft: "5px" }}
                       role={"button"}
-                      onClick={() => handleTrash((item as { id: string }).id)}
+                      onClick={() => handleTrash(account.id)}
                     >
                       Xóa
                     </button>
-                  </td>                 
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {htmlAddForm()}
+          {htmlEditForm()}
         </div>
       </div>
-      {isFormAdd && htmlAddForm()}
-      {isFormEdit && htmlEditForm()}
     </MenuComponent>
   );
 }
