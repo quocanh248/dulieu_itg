@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import exportToExcel from "../../utils/exportToExcel";
 import MenuComponent from "../../Menu";
 
 function AdminPage() {
@@ -10,14 +9,19 @@ function AdminPage() {
   const [result_model, setrResModel] = useState([]);
   const [result_lot, setrResLot] = useState([]);
   const [result_congdoan, setrRescongdoan] = useState([]);
-  const [result_label, setrReslabel] = useState([]); // Khởi tạo là mảng để dễ xử lý
-
+  const [result_label, setrReslabel] = useState<RowData[]>([]);
+  interface RowData {
+    label: string;    
+  }   
   // Xử lý sự kiện thay đổi giá trị của input
-  const handleModelChange = (e) => {
+  const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const model_change = e.target.value;
     setModel(model_change);
-    fetchlot({ model });
+    if (model_change !== "") {
+      fetchlot({ model_change });
+    }
   };
+
   const fetchmodel = async (filters = {}) => {
     try {
       const response = await axios.get(
@@ -52,6 +56,7 @@ function AdminPage() {
         { params: filters }
       );
       const data = response.data;
+      console.log(data.results);
       setrRescongdoan(data.congdoan);
       setrReslabel(data.results);
     } catch (error) {
@@ -124,7 +129,7 @@ function AdminPage() {
         {loading ? (
           <div
             className="d-flex align-items-center justify-content-center"
-            style={{ minHeight: "300px" }}
+            style={{ minHeight: "400px" }}
           >
             <div className="loader"></div>
           </div>

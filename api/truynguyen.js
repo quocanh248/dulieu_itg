@@ -40,12 +40,31 @@ router.get("/get_api_model_lot", async (req, res) => {
       },
     });
     cap_nhat_model_lot(response.data, res);
+    // thong_tin_model_lot(model, lot, res);
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu:", error);
     res.status(500).json({ error: error.message });
   }
 });
-
+router.put('/capnhatcongdoan', async (req, res) => {
+  const { macongdoan, thuoctinh } = req.body;
+  console.log(macongdoan, thuoctinh);
+  try {
+    const sql = `
+      UPDATE 
+        congdoan 
+      SET 
+        thuoctinh = ? 
+      WHERE 
+        macongdoan = ?
+    `;
+    await queryMySQL(sql, [thuoctinh, macongdoan]);   
+    res.status(200).json({ message: 'Cập nhật công đoạn thành công' });
+  } catch (error) {
+    console.error('Lỗi khi cập nhật công đoạn:', error);
+    res.status(500).json({ message: 'Lỗi khi cập nhật công đoạn' });
+  }
+});
 router.get("/list_model", async (req, res) => {
   try {
     let sql = `
@@ -61,17 +80,13 @@ router.get("/list_model", async (req, res) => {
 });
 router.get("/list_lot", async (req, res) => {
   try {
-    const { model } = req.query;
+    const { model_change } = req.query;
     let sql = `
               SELECT distinct lot FROM model  
               WHERE 1 = 1
-          `;
-    const params = [];
-    if (model) {
-      sql += " AND model = ?";
-      params.push(model);
-    }
-    const results = await queryMySQL(sql, params);
+              AND model = ?
+          `;    
+    const results = await queryMySQL(sql, [model_change]);   
     res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -137,30 +152,15 @@ async function cap_nhat_model_lot(data, res) {
   try {
     const sql = `
         SELECT 
-	        t1.label, t1.congdoan, t1.ttcongdoan, t1.ketqua 
+          label, congdoan, ttcongdoan, ketqua, MAX(ngay) AS max_ngay, MAX(giobatdau) AS max_giobatdau 
         FROM 
-            dulieu_itg_get_api t1 
-        JOIN 
-            ( 
-            SELECT 
-                label, congdoan, ttcongdoan, MAX(ngay) AS max_ngay, MAX(giobatdau) AS max_giobatdau 
-            FROM 
-                dulieu_itg_get_api 
-            where 
-                model = ? and 
-                lot = ?
-            GROUP BY 
-                label, congdoan, ttcongdoan 
-            ) t2 ON t1.label = t2.label 
-            AND t1.congdoan = t2.congdoan 
-            AND t1.ttcongdoan = t2.ttcongdoan 
-            AND t1.ngay = t2.max_ngay 
-            AND t1.giobatdau = t2.max_giobatdau 
+          dulieu_itg_get_api 
+        where 
+          model = ? and 
+          lot = ? 
         GROUP BY 
-            t1.label, t1.congdoan, t1.ttcongdoan
-        ORDER BY
-            t1.label,
-            t1.ttcongdoan;`;
+          label, congdoan, ttcongdoan 
+        ORDER BY label, ttcongdoan;`;
     const sql_congdoan = `
         SELECT 
 	        distinct congdoan, ttcongdoan
@@ -230,7 +230,77 @@ async function delete_model(model, lot) {
     res.status(500).json({ error: err.message });
   }
 }
-
+async function thong_tin_model_lot(model, lot, res) {
+  // const sql = `
+  // SELECT
+  //   t1.label, t1.congdoan, t1.ttcongdoan, t1.ketqua
+  // FROM
+  //     dulieu_itg_get_api t1
+  // JOIN
+  //     (
+  //     SELECT
+  //         label, congdoan, ttcongdoan, MAX(ngay) AS max_ngay, MAX(giobatdau) AS max_giobatdau
+  //     FROM
+  //         dulieu_itg_get_api
+  //     where
+  //         label = "KCPE-67-060A_07_53202407130035" and
+  //         model = ? and
+  //         lot = ?
+  //     GROUP BY
+  //         label, congdoan, ttcongdoan
+  //     ) t2 ON t1.label = t2.label
+  //     AND t1.congdoan = t2.congdoan
+  //     AND t1.ttcongdoan = t2.ttcongdoan
+  //     AND t1.ngay = t2.max_ngay
+  //     AND t1.giobatdau = t2.max_giobatdau
+  // GROUP BY
+  //     t1.label, t1.congdoan, t1.ttcongdoan
+  // ORDER BY
+  //     t1.label,
+  //     t1.ttcongdoan;`;
+  const sql = `
+      SELECT 
+        label, congdoan, ttcongdoan, ketqua, MAX(ngay) AS max_ngay, MAX(giobatdau) AS max_giobatdau 
+      FROM 
+        dulieu_itg_get_api 
+      where 
+        model = ? and 
+        lot = ? 
+      GROUP BY 
+        label, congdoan, ttcongdoan 
+      ORDER BY label, ttcongdoan;`;
+  const sql_congdoan = `
+      SELECT 
+        distinct congdoan, ttcongdoan
+      FROM 
+          dulieu_itg_get_api  
+      where 
+          model = ? and 
+          lot = ? 
+      ORDER BY           
+          ttcongdoan;`;
+  const result = await queryMySQL(sql, [model, lot]);
+  const result_congdoan = await queryMySQL(sql_congdoan, [model, lot]);
+  const congdoanMap = result_congdoan.reduce((map, item) => {
+    map[item.congdoan] = item.ttcongdoan;
+    return map;
+  }, {});
+  const groupedResults = result.reduce((acc, item) => {
+    const { label, congdoan, ketqua } = item;
+    if (!acc[label]) {
+      acc[label] = { label };
+    }
+    acc[label][congdoan] = ketqua;
+    return acc;
+  }, {});
+  const finalResults = Object.values(groupedResults);
+  console.log(result);
+  console.log(finalResults);
+  res.json({
+    results: finalResults,
+    congdoan: Object.keys(congdoanMap), // Danh sách công đoạn để hiển thị tiêu đề cột
+  });
+}
 function add_data(values) {
   try {
     const sql = `

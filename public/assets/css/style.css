@@ -301,9 +301,29 @@ img {
 .ng{
     background-color: rgb(255, 51, 0);
 }
+.img_packed{
+    /* height: 46px; */
+    width: 84px;
+}
+.img_info {
+    height: 32px;
+    width: 32px;
+    margin-left: 120px;
+}
 
+.border-start {
+    border-left: 3px solid #dee2e6 !important;
+}
+
+.table_label tr td {
+    padding-bottom: 20px;
+}
+
+.p-3a {
+    padding: 3rem !important;
+}
 .loader {
-    width: 50px;
+    width: 240px;
     aspect-ratio: 1;
     display: grid;
     animation: l14 4s infinite;
@@ -312,7 +332,7 @@ img {
   .loader::after {    
     content: "";
     grid-area: 1/1;
-    border: 8px solid;
+    border: 24px solid;
     border-radius: 50%;
     border-color: red red #0000 #0000;
     mix-blend-mode: darken;

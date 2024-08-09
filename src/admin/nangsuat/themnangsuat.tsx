@@ -1,18 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, ChangeEvent, MouseEvent } from "react";
 import axios from "axios";
 import MenuComponent from "../../Menu";
 import ExcelJS from "exceljs";
 
+// Định nghĩa kiểu cho dữ liệu hàng trong file Excel
+interface RowData {
+  [key: number]: any;
+}
+
+
+
 function AdminPage() {
-  const [result, setResult] = useState([]); // Khởi tạo là mảng để dễ xử lý
-  const [file, setFile] = useState(null); // Thêm state để lưu tệp
-  // Xử lý sự kiện thay đổi giá trị của input file
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]); // Lưu tệp vào state
+  const [result, setResult] = useState<RowData[][]>([]); // Mảng hai chiều
+  const [file, setFile] = useState<File | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
   };
-  const handle_import = async () => {
+
+  const handle_import = async (e: MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault(); // Ngăn chặn hành vi mặc định của nút bấm
     try {
-      let rows = [];
+      let rows: RowData[][] = []; // Đổi thành mảng hai chiều
       // Xử lý tệp Excel nếu có
       if (file) {
         const workbook = new ExcelJS.Workbook();
@@ -21,10 +32,10 @@ function AdminPage() {
         let startRow = 12;
         worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
           if (rowNumber >= startRow) {
-            rows.push(row.values);
+            rows.push([...(row.values as RowData[])]); // Chuyển đổi thành mảng hai chiều
           }
         });
-        setResult(rows);
+        setResult(rows); // Lưu mảng hai chiều vào state
       } 
       // Gửi dữ liệu đến API để lưu vào cơ sở dữ liệu
       if (rows.length > 0) {
@@ -35,7 +46,6 @@ function AdminPage() {
       console.error("Lỗi khi gửi yêu cầu hoặc xử lý tệp:", error);
     }
   };
-
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">

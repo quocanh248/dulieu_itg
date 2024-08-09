@@ -68,6 +68,21 @@ router.get("/user_info", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+router.get("/ten_nhan_su", async (req, res) => {
+  const { manhansu } = req.query;
+  try {
+    let sql = `
+            SELECT ns.tennhansu, ns.hinhanh
+            FROM nhansu ns           
+            WHERE manhansu = ?       
+        `;
+    const results = await queryMySQL(sql, [manhansu]);
+    const res_info = results[0].tennhansu + "+" + results[0].hinhanh;   
+    res.json(res_info);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 const hashPassword = (password) => {
   return crypto.createHash("md5").update(password).digest("hex");
 };
