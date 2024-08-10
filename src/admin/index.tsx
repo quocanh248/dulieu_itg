@@ -1,6 +1,6 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import MenuComponent from "../Menu";
-import axios from "axios";
+import { sendAPIRequest } from "../utils/util";
 
 // Định nghĩa kiểu dữ liệu cho tài khoản
 interface Account {
@@ -49,10 +49,13 @@ function AdminPage() {
   // Fetch accounts with optional filters
   const fetchAccounts = async (filters: Record<string, string> = {}) => {
     try {
-      const response = await axios.get("http://localhost:3000/users/list", {
-        params: filters,
-      });
-      setAccounts(response.data);
+      const queryString = new URLSearchParams(filters).toString();
+      const response = await sendAPIRequest(
+        "/users/list?" + queryString,
+        "GET",
+        undefined
+      );
+      setAccounts(response);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách tài khoản:", error);
     }
@@ -60,11 +63,13 @@ function AdminPage() {
 
   const fetchNoAccounts = async (filters: Record<string, string> = {}) => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/users/list_nouser",
-        { params: filters }
+      const queryString = new URLSearchParams(filters).toString();
+      const response = await sendAPIRequest(
+        "/users/list_nouser?" + queryString,
+        "GET",
+        undefined
       );
-      setNoAccounts(response.data);
+      setNoAccounts(response);
     } catch (error) {
       console.error(
         "Lỗi khi lấy danh sách tài khoản không có người dùng:",
@@ -108,13 +113,14 @@ function AdminPage() {
       alert("Mật khẩu và xác nhận mật khẩu không khớp.");
       return;
     }
-
     try {
-      await axios.post("http://localhost:3000/users/add", {
+      const data = {
         manhansu_acc: manhansuAcc,
-        matkhau,
-        vaitro,
-      });
+        matkhau: matkhau,
+        vaitro: vaitro,
+      };
+
+      await sendAPIRequest("/users/add", "POST", data);
       alert("Thêm tài khoản thành công!");
       fetchAccounts();
       setIsFormAdd(false);
@@ -183,7 +189,7 @@ function AdminPage() {
                       <input
                         type="text"
                         className="form-control"
-                        readOnly                       
+                        readOnly
                         value={tennhansuAcc}
                       />
                     </div>
@@ -197,7 +203,7 @@ function AdminPage() {
                       <input
                         type="password"
                         className="form-control"
-                        autoComplete="off"                        
+                        autoComplete="off"
                         value={matkhau}
                         onChange={(e) => setMatkhau(e.target.value)}
                       />
@@ -211,7 +217,7 @@ function AdminPage() {
                       <input
                         type="password"
                         className="form-control"
-                        autoComplete="off"                        
+                        autoComplete="off"
                         value={xacnhanmatkhau}
                         onChange={(e) => setXacnhanMatkhau(e.target.value)}
                       />
@@ -263,14 +269,12 @@ function AdminPage() {
   };
   const showEditForm = async (id: string) => {
     try {
-      // Gửi yêu cầu GET để lấy thông tin người dùng
-      const response = await axios.get(
-        "http://localhost:3000/users/user_info",
-        {
-          params: { id }, // Đặt id vào đối tượng params
-        }
-      );
-      const userData = response.data[0];
+      const response = await sendAPIRequest(
+        "/users/user_info?id=" + id,
+        "GET",
+        undefined
+      );     
+      const userData = response[0];
       // console.log(userData);
       setXacnhanMatkhau_edit("");
       setMatkhau_edit("");
@@ -291,11 +295,12 @@ function AdminPage() {
       }
     }
     try {
-      await axios.post("http://localhost:3000/users/edit", {
-        manhansu_edit,
-        matkhau_edit,
-        vaitro_edit,
-      });
+      const data = {
+        manhansu_edit: manhansu_edit,
+        matkhau_edit: matkhau_edit,
+        vaitro_edit: vaitro_edit,
+      };
+      await sendAPIRequest("/users/edit", "POST", data);
       alert("Cập nhật tài khoản thành công!");
       setIsFormEdit(false);
     } catch (error) {
@@ -353,7 +358,7 @@ function AdminPage() {
                       <input
                         type="text"
                         className="form-control"
-                        readOnly                        
+                        readOnly
                         value={tennhansu_edit}
                         onChange={(e) => setTennhansu_edit(e.target.value)}
                       />
@@ -368,7 +373,7 @@ function AdminPage() {
                       <input
                         type="password"
                         className="form-control"
-                        autoComplete="off"                        
+                        autoComplete="off"
                         value={matkhau_edit}
                         onChange={(e) => setMatkhau_edit(e.target.value)}
                       />
@@ -382,7 +387,7 @@ function AdminPage() {
                       <input
                         type="password"
                         className="form-control"
-                        autoComplete="off"                        
+                        autoComplete="off"
                         value={xacnhanmatkhau_edit}
                         onChange={(e) => setXacnhanMatkhau_edit(e.target.value)}
                       />
@@ -440,10 +445,7 @@ function AdminPage() {
   };
   const handleTrash = async (id: string) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa user này không?")) {
-      console.log(id);
-      await axios.get("http://localhost:3000/users/delete", {
-        params: { id }, // Đặt id vào đối tượng params
-      });
+      await sendAPIRequest('/users/delete', 'DELETE', { id });     
       fetchAccounts();
       alert("Xóa user thành công");
     }
@@ -460,8 +462,7 @@ function AdminPage() {
               <label className="form-label text-secondary">Mã nhân sự</label>
               <input
                 type="text"
-                className="form-control"
-                placeholder="Mã nhân sự"
+                className="form-control"                
                 value={manhansu}
                 onChange={(e) => setManhansu(e.target.value)}
               />
@@ -472,8 +473,7 @@ function AdminPage() {
               <label className="form-label text-secondary">Tên nhân sự</label>
               <input
                 type="text"
-                className="form-control"
-                placeholder="Tên nhân sự"
+                className="form-control"               
                 value={tennhansu}
                 onChange={(e) => setTennhansu(e.target.value)}
               />
@@ -484,8 +484,7 @@ function AdminPage() {
               <label className="form-label text-secondary">Tên nhóm</label>
               <input
                 type="text"
-                className="form-control"
-                placeholder="Tên nhóm"
+                className="form-control"                
                 value={tennhom}
                 onChange={(e) => setTennhom(e.target.value)}
               />
@@ -496,9 +495,9 @@ function AdminPage() {
               Tìm kiếm
             </button>
           </div>
-          <div className="d-flex align-items-center justify-content-center p-2 border-start">
-            <button className="btn btn-primary" onClick={openAddForm}>
-              Tìm kiếm
+          <div className="d-flex align-items-center justify-content-center">
+            <button className="btn btn-success" onClick={openAddForm}>
+              Thêm
             </button>
           </div>
         </div>
@@ -513,7 +512,7 @@ function AdminPage() {
               <tr>
                 <th>Mã nhân sự</th>
                 <th>Tên nhân sự</th>
-                <th>Tên nhóm</th>               
+                <th>Tên nhóm</th>
                 <th></th>
               </tr>
             </thead>
@@ -522,7 +521,7 @@ function AdminPage() {
                 <tr key={account.id}>
                   <td>{account.manhansu}</td>
                   <td>{account.tennhansu}</td>
-                  <td>{account.tennhom}</td>                 
+                  <td>{account.tennhom}</td>
                   <td>
                     <button
                       className="btn btn-info"

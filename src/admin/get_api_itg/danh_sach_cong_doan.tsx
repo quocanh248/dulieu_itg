@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import MenuComponent from "../../Menu";
-import axios from "axios";
 import { sendAPIRequest } from "../../utils/util";
 
 // Định nghĩa kiểu cho các đối tượng
@@ -32,13 +31,13 @@ function AdminPage() {
 
   const fetchCongdoan = async (filters: Record<string, any> = {}) => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/truynguyen/listcongdoan",
-        {
-          params: filters,
-        }
-      );
-      setCongdoans(response.data);
+      const queryString = new URLSearchParams(filters).toString();
+      const response = await sendAPIRequest(
+        "/truynguyen/listcongdoan?"+queryString,
+        "GET",
+        undefined
+      );   
+      setCongdoans(response);        
     } catch (error) {
       console.error("Lỗi khi lấy danh sách công đoạn:", error);
     }
@@ -307,10 +306,7 @@ function AdminPage() {
             macongdoan: macongdoanEdit,
             thuoctinh: JSON.stringify(thuoctinhObj),
           };
-          await axios.put(
-            "http://localhost:3000/truynguyen/capnhatcongdoan",
-            data
-          );
+          await sendAPIRequest('/truynguyen/capnhatcongdoan', 'PUT', data);          
           showEditForm(macongdoanEdit);
         }
       } else {

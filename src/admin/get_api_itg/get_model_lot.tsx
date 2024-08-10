@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import MenuComponent from "../../Menu";
+import { sendAPIRequest } from "../../utils/util";
+import { Link } from "react-router-dom";
 
 function AdminPage() {
   const [model, setModel] = useState("");
@@ -11,8 +12,8 @@ function AdminPage() {
   const [result_congdoan, setrRescongdoan] = useState([]);
   const [result_label, setrReslabel] = useState<RowData[]>([]);
   interface RowData {
-    label: string;    
-  }   
+    label: string;
+  }
   // Xử lý sự kiện thay đổi giá trị của input
   const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const model_change = e.target.value;
@@ -24,26 +25,26 @@ function AdminPage() {
 
   const fetchmodel = async (filters = {}) => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/truynguyen/list_model",
-        {
-          params: filters,
-        }
+      const queryString = new URLSearchParams(filters).toString();
+      const response = await sendAPIRequest(
+        "/truynguyen/list_model?" + queryString,
+        "GET",
+        undefined
       );
-      setrResModel(response.data);
+      setrResModel(response);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu năng suất:", error);
     }
   };
   const fetchlot = async (filters = {}) => {
     try {
-      const response = await axios.get(
-        "http://localhost:3000/truynguyen/list_lot",
-        {
-          params: filters,
-        }
+      const queryString = new URLSearchParams(filters).toString();
+      const response = await sendAPIRequest(
+        "/truynguyen/list_lot?" + queryString,
+        "GET",
+        undefined
       );
-      setrResLot(response.data);
+      setrResLot(response);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu năng suất:", error);
     }
@@ -51,14 +52,14 @@ function AdminPage() {
   const get_api_itg = async (filters = {}) => {
     setLoading(true); // Bắt đầu loading
     try {
-      const response = await axios.get(
-        "http://localhost:3000/truynguyen/get_api_model_lot",
-        { params: filters }
+      const queryString = new URLSearchParams(filters).toString();
+      const response = await sendAPIRequest(
+        "/truynguyen/get_api_model_lot?" + queryString,
+        "GET",
+        undefined
       );
-      const data = response.data;
-      console.log(data.results);
-      setrRescongdoan(data.congdoan);
-      setrReslabel(data.results);
+      setrRescongdoan(response.congdoan);
+      setrReslabel(response.results);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu:", error);
     } finally {
@@ -151,15 +152,11 @@ function AdminPage() {
                 {result_label.map((row, index) => (
                   <tr key={index}>
                     <td>
-                      <a
-                        href={`/chi_tiet_label/${encodeURIComponent(
-                          row.label
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <Link                     
+                        to={`/chi_tiet_label/${encodeURIComponent(row.label)}`}
                       >
                         {row.label}
-                      </a>
+                      </Link>
                     </td>
                     {result_congdoan.map((congdoanItem) => (
                       <td key={congdoanItem}>

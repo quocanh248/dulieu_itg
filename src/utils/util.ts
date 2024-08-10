@@ -215,7 +215,8 @@ export const sendAPIRequest = async (
 ) => {
     try {
         const response = await axios({
-            baseURL: 'http://localhost:3000' + url,
+            // baseURL: 'http://30.0.2.12:3001' + url,
+            baseURL: 'http://localhost:3001' + url,
             method: method,
             headers: {
                 'Content-Type': 'application/json',

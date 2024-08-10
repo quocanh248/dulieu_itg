@@ -28,6 +28,11 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                   <span>Danh sách công đoạn</span>
                 </Link>
               </div>
+              <div className="nav__item">
+                <Link to="/danh_sach_thiet_bi" className="nav__link">
+                  <span>Danh sách thiết bị</span>
+                </Link>
+              </div>
             </div>
           </div>             
           <div className="nav__item">
@@ -70,14 +75,13 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
         <div className="flex text-nowrap p-3">
           <img
             className="header__img rounded-pill"
-            src="./assets/img/logo.png"
+            src="./assets/img/user.png"
             alt="Logo"
           />
-          <span className="mx-1">QH</span>
+          <span className="mx-1">User</span>
           <i className="fas fa-chevron-down"></i>
         </div>
       </header>
-
       {children}
     </>
   );

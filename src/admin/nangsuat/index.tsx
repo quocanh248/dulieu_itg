@@ -1,7 +1,7 @@
 import { ChangeEvent, useState } from "react";
-import axios from "axios";
 import exportToExcel from "../../utils/exportToExcel";
 import MenuComponent from "../../Menu";
+import { sendAPIRequest } from "../../utils/util";
 
 // Định nghĩa kiểu cho dữ liệu hàng trong bảng
 interface ItemData {
@@ -48,11 +48,13 @@ function AdminPage() {
     filters: Record<string, any>
   ): Promise<ItemData[]> => {
     try {
-      const response = await axios.get<ItemData[]>(
-        "http://localhost:3000/nang_suat/search",
-        { params: filters }
-      );
-      return response.data; // Trả về dữ liệu nhận được từ API
+      const queryString = new URLSearchParams(filters).toString();
+      const response = await sendAPIRequest(
+        "/nang_suat/search?"+queryString,
+        "GET",
+        undefined
+      );      
+      return response; // Trả về dữ liệu nhận được từ API
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu năng suất:", error);
       return []; // Trả về mảng rỗng nếu có lỗi
@@ -61,11 +63,13 @@ function AdminPage() {
 
   const fetchnangsuat = async (filters: Record<string, any>): Promise<void> => {
     try {
-      const response = await axios.get<ItemData[]>(
-        "http://localhost:3000/nang_suat/search",
-        { params: filters }
-      );
-      setResult(response.data);
+      const queryString = new URLSearchParams(filters).toString();
+      const response = await sendAPIRequest(
+        "/nang_suat/search?"+queryString,
+        "GET",
+        undefined
+      );   
+      setResult(response);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu năng suất:", error);
     }
@@ -98,7 +102,7 @@ function AdminPage() {
               <i className="fas fa-search"></i> Tìm
             </button>
           </div>
-          <div className="d-flex align-items-center justify-content-center p-2">
+          <div className="d-flex align-items-center justify-content-center">
             <button className="btn btn-success" onClick={handleExport}>
               <i className="fas fa-download"></i> Excel
             </button>

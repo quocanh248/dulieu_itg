@@ -1,0 +1,214 @@
+form {
+    width: 100%;
+}
+
+.table-new thead tr th {
+    width: 200px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.table-new tbody tr td {
+    text-align: center;
+}
+
+.table-new thead tr th:nth-child(2) {
+    width: 400px;
+}
+
+.table-new thead tr th:nth-child(1),
+.table-new thead tr th:nth-child(2),
+.table-new thead tr th:nth-child(3),
+.table-new thead tr th:nth-child(4),
+.table-new thead tr th:nth-child(5),
+.table-new thead tr th:nth-child(6) {
+    background-color: #738e9e;
+    color: white;
+}
+
+.table-new thead tr th:nth-child(9),
+.table-new thead tr th:nth-child(10),
+.table-new thead tr th:nth-child(11) {
+    background-color: #d6720e;
+    color: white;
+}
+
+.table-new thead tr th:nth-child(8),
+.table-new thead tr th:nth-child(7) {
+    background-color: #18a52d;
+    color: white;
+}
+
+.footer {
+    min-height: calc(100vh - 110px);
+}
+
+tbody tr {
+    color: var(--ball-color);
+}
+
+.paging_simple_numbers,
+.dataTables_info {
+    font-size: 13px;
+}
+.dataTables_length{
+    font-size: 13px;
+}
+
+.ipnum {
+    width: 100%;
+    text-align: center;   
+    outline: none;
+    border: none;
+    height: 44px;
+    font-size: 22px;
+    color: blue;
+}
+.ipnum1{
+    width: 100%;
+    text-align: center;      
+    height: 44px;
+    font-size: 22px;
+    outline: none;
+    border: none;
+    background-color: transparent;
+}
+.fixed_header1 th{
+    height: 60px;
+}
+.fixed_header1 td {
+    text-align: left;
+    padding: 8px 2px;
+    height: 25px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+.fixed_header1 thead tr th:nth-child(5),
+.fixed_header1 thead tr th:nth-child(6),
+.fixed_header1 thead tr th:nth-child(7) {
+    background-color: #d6720e;
+    color: white;
+}
+
+.fixed_header1 thead tr th:nth-child(3),
+.fixed_header1 thead tr th:nth-child(4) {
+    background-color: #18a52d;
+    color: white;
+}
+.fixed_header1 thead tr th:nth-child(1),
+.fixed_header1 thead tr th:nth-child(2),
+.fixed_header1 thead tr th:nth-child(8) {
+    background-color: #738e9e;
+    color: white;
+}
+
+.khoa{
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+.khoa1{
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;   
+    color: #fff;
+    border-radius: 3px;
+}
+.khoa2{
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;   
+    color: #fff;
+    border-radius: 3px;
+}
+.fixed_header1 tr:last-child {
+    background-color: #f2f2f2
+}
+.fixed_header1 td:nth-child(8) {
+    background-color: #f2f2f2
+}
+.dt-buttons{
+    display: inline-block;
+    margin-top: 0px;
+    margin-left: 30px;
+    font-size: 14px;
+}
+.buttons-excel{
+    background-color: #3ac74f;
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    text-align: center;
+    text-decoration: none;
+    vertical-align: middle;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;    
+    border: 1px solid #3ac74f;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    border-radius: 0.25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    color: #fff;    
+}
+.buttons-excel:hover {
+    transform: translateY(-1px);
+  }
+  
+.dt-button{
+    display: inline;
+    margin-right: 18px;
+}
+
+
+.button-5 {
+    align-items: center;
+    background-clip: padding-box;
+    background-color: #1565c0;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
+    box-sizing: border-box;
+    color: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    font-family: system-ui,-apple-system,system-ui,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    justify-content: center;
+    line-height: 1.25;
+    margin-left: 5px;
+    min-height: 3rem;
+    height: 48px;
+    padding: calc(.875rem - 1px) calc(1.5rem - 1px);
+    position: relative;
+    text-decoration: none;
+    transition: all 250ms;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    width: 120px;
+  }
+  
+  .button-5:hover,
+  .button-5:focus {
+    background-color: #fb8332;
+    box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
+  }
+  
+  .button-5:hover {
+    transform: translateY(-1px);
+  }
+  
+  .button-5:active {
+    background-color: #c85000;
+    box-shadow: rgba(0, 0, 0, .06) 0 2px 4px;
+    transform: translateY(0);
+  }
+  

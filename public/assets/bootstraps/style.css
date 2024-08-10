@@ -1,0 +1,303 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
+
+:root {
+    --blue: #1565c0;
+    --blue-light: #DEEEFE;
+    --dark: #303030;
+    --dark-opacity-50: rgb(48, 48, 48, 0.5);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #E0E0E0;
+}
+
+img {
+    width: 100%;
+}
+
+/******************** Custom class ********************/
+.h-70px {
+    height: 70px;
+}
+
+.p-9px {
+    padding: 9px;
+}
+
+.bg-dark {
+    background-color: var(--dark);
+    color: #FFF;
+}
+
+.scroll-x-view {
+    overflow-x: auto;
+}
+
+.scroll-x-view::-webkit-scrollbar {
+    height: 4px;
+    background-color: #F5F5F5;
+    border-radius: 8px;
+}
+
+.scroll-x-view::-webkit-scrollbar-thumb {
+    background-color: #3393ff;
+    border-radius: 8px;
+}
+
+/******************** Header ********************/
+
+.header__img {
+    width: 36px;
+}
+
+/******************** Navbar ********************/
+.nav {
+    display: flex;
+    flex-wrap: unset;
+}
+
+.nav>.nav__item>.nav__link {
+    height: 100%;
+    color: #FFFFFF;
+    padding: 9px;
+    text-decoration: none;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav>.nav__item>.nav__link:hover {
+    background-color: var(--blue);
+}
+
+.nav>.nav__item>.nav__link i {
+    margin-right: 6px;
+}
+
+.nav__item:hover .nav__submenu {
+    display: block;
+}
+
+.nav__submenu {
+    position: absolute;
+    width: 255px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    display: none;
+    z-index: 9;
+}
+
+.nav__submenu>.nav__item>.nav__link {
+    background-color: #FFFFFF;
+    color: #000000;
+    padding: 16px;
+    display: block;
+    text-decoration: none;
+}
+
+.nav__submenu>.nav__item>.nav__link:hover {
+    background-color: var(--blue-light);
+}
+
+.nav__submenu>.nav__item>.nav__link i {
+    margin-right: 6px;
+}
+
+/******************** Input ********************/
+.input-custom {
+    height: 48px;
+    background-color: #F5F5F5;
+    padding: 0 12px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.input-custom label.form-label {
+    font-size: 10px;
+    margin: 0;
+    display: block;
+}
+
+.input-custom input.form-control,
+.input-custom select.form-select {
+    background-color: transparent;
+    padding: 0;
+    border: none;
+}
+
+
+.input-custom select.form-select {
+    min-width: 150px;
+}
+
+.input-custom input.form-control:focus,
+.input-custom select.form-select:focus {
+    box-shadow: none;
+}
+
+.input-custom .form-delete {
+    color: red;
+}
+
+.tab-content {
+    height: 450px;
+    overflow-y: auto;
+    overflow-x: clip;
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+.table-bordered thead tr th{
+    background-color: #8b9ea2;
+    color: white;
+    text-align: center;
+    text-transform: uppercase;
+}
+.table-new{
+    margin: 0 auto;
+    clear: both;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.table-bordered thead tr th {
+    width: 200px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.table-new tbody tr td {
+    text-align: center;
+}
+
+.table-new thead tr th:nth-child(2) {
+    width: 400px;
+}
+
+.table-new thead tr th:nth-child(1),
+.table-new thead tr th:nth-child(2),
+.table-new thead tr th:nth-child(3),
+.table-new thead tr th:nth-child(4),
+.table-new thead tr th:nth-child(5),
+.table-new thead tr th:nth-child(6) {
+    background-color: #738e9e;
+    color: white;
+}
+
+.table-new thead tr th:nth-child(9),
+.table-new thead tr th:nth-child(10),
+.table-new thead tr th:nth-child(11) {
+    background-color: #d6720e;
+    color: white;
+}
+
+.table-new thead tr th:nth-child(8),
+.table-new thead tr th:nth-child(7) {
+    background-color: #18a52d;
+    color: white;
+}
+.ipcheckbox {
+    /* Ẩn giao diện mặc định của checkbox */
+    /* appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none; */
+    width: 20px;
+    height: 20px;
+    margin: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 1px;
+    cursor: pointer;
+  }
+  
+  /* Tạo giao diện checkbox tùy chỉnh khi được chọn */
+  .ipcheckbox:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+  }
+  
+  /* Tạo giao diện checkbox tùy chỉnh khi hover */
+  .ipcheckbox:hover {
+    border-color: #66afe9;
+  }
+  .ipcheckbox1 {
+    width: 20px;
+    height: 20px;
+    margin: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 1px;
+    cursor: pointer;
+  }
+  
+  /* Tạo giao diện checkbox tùy chỉnh khi được chọn */
+  .ipcheckbox1:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+  }
+  
+  /* Tạo giao diện checkbox tùy chỉnh khi hover */
+  .ipcheckbox1:hover {
+    border-color: #66afe9;
+  }
+
+  /******************** Table calendar ********************/
+.table.table-calendar thead tr {
+    background-color: var(--light);
+}
+
+.table.table-calendar tbody tr td:hover {
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+.table.table-calendar tbody tr td .show-hover {
+    display: none;
+}
+
+.table.table-calendar tbody tr td:hover .show-hover {
+    display: block;
+}
+
+.table.table-calendar tbody tr td .hide-hover {
+    display: block;
+}
+
+.table.table-calendar tbody tr td:hover .hide-hover {
+    display: none;
+}
+
+.color-none{
+    color: transparent;
+
+}
+.bt-none{
+    background-color: transparent;
+    border: none;
+}
+.bt-none_1{
+    background-color: transparent;
+    border: none;
+}
+.td-maluong{
+    background-color: rgba(169,255,198,.25) !important;
+}
+.bt-tt-none{
+    background-color: transparent;
+    border: none;
+}
+.img-thumbnail{
+    width: 140px;
+}
+.ng{
+    background-color: rgb(255, 51, 0);
+}

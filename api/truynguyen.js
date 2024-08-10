@@ -31,22 +31,27 @@ router.get("/get_api_model_lot", async (req, res) => {
         },
       },
     };
-    // Gửi yêu cầu POST đến API bên ngoài
-    const response = await axios.post(url, body, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-    });
-    cap_nhat_model_lot(response.data, res);
+    const check = await check_don_hang(model, lot);
+    if (check == 0) {
+      const response = await axios.post(url, body, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      });
+      cap_nhat_model_lot(response.data, res);
+    } else {
+      thong_tin_model_lot(model, lot, res);
+    }
+
     // thong_tin_model_lot(model, lot, res);
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu:", error);
     res.status(500).json({ error: error.message });
   }
 });
-router.put('/capnhatcongdoan', async (req, res) => {
+router.put("/capnhatcongdoan", async (req, res) => {
   const { macongdoan, thuoctinh } = req.body;
   console.log(macongdoan, thuoctinh);
   try {
@@ -58,11 +63,11 @@ router.put('/capnhatcongdoan', async (req, res) => {
       WHERE 
         macongdoan = ?
     `;
-    await queryMySQL(sql, [thuoctinh, macongdoan]);   
-    res.status(200).json({ message: 'Cập nhật công đoạn thành công' });
+    await queryMySQL(sql, [thuoctinh, macongdoan]);
+    res.status(200).json({ message: "Cập nhật công đoạn thành công" });
   } catch (error) {
-    console.error('Lỗi khi cập nhật công đoạn:', error);
-    res.status(500).json({ message: 'Lỗi khi cập nhật công đoạn' });
+    console.error("Lỗi khi cập nhật công đoạn:", error);
+    res.status(500).json({ message: "Lỗi khi cập nhật công đoạn" });
   }
 });
 router.get("/list_model", async (req, res) => {
@@ -85,14 +90,35 @@ router.get("/list_lot", async (req, res) => {
               SELECT distinct lot FROM model  
               WHERE 1 = 1
               AND model = ?
-          `;    
-    const results = await queryMySQL(sql, [model_change]);   
+          `;
+    const results = await queryMySQL(sql, [model_change]);
     res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-
+async function check_don_hang(model, lot) {
+  try {
+    const sql = `
+      SELECT 
+        * 
+      FROM 
+        model 
+      WHERE 
+        model = ? and 
+        lot = ? and 
+        trangthai = 'Hoàn tất'
+    `;
+    const result = await queryMySQL(sql, [model, lot]);
+    if (result.length > 0) {
+      return 1;
+    }
+    return 0;
+  } catch (err) {
+    // Xử lý lỗi, có thể cần phải ném lại lỗi để hàm gọi bên ngoài biết
+    throw new Error(err.message);
+  }
+}
 async function cap_nhat_model_lot(data, res) {
   delete_model(data[0].product_code, data[0].lot);
   for (let i = 0; i < data.length; i++) {
@@ -151,16 +177,38 @@ async function cap_nhat_model_lot(data, res) {
   }
   try {
     const sql = `
-        SELECT 
-          label, congdoan, ttcongdoan, ketqua, MAX(ngay) AS max_ngay, MAX(giobatdau) AS max_giobatdau 
-        FROM 
-          dulieu_itg_get_api 
-        where 
-          model = ? and 
-          lot = ? 
-        GROUP BY 
-          label, congdoan, ttcongdoan 
-        ORDER BY label, ttcongdoan;`;
+    SELECT
+      a.label,
+      a.congdoan,
+      a.ttcongdoan,
+      a.ngay,
+      a.giobatdau,
+      a.gioketthuc,
+      a.ketqua
+    FROM
+      dulieu_itg_get_api a
+    INNER JOIN 
+    (
+      SELECT
+        label,
+        congdoan,
+        ttcongdoan,
+        MAX(ngay) AS max_ngay,
+        MAX(giobatdau) AS max_giobatdau
+      FROM
+        dulieu_itg_get_api
+      WHERE
+        model = ? AND
+        lot = ?
+      GROUP BY
+        label, congdoan, ttcongdoan
+    ) b ON a.label = b.label
+      AND a.congdoan = b.congdoan
+      AND a.ttcongdoan = b.ttcongdoan
+      AND a.ngay = b.max_ngay
+      AND a.giobatdau = b.max_giobatdau
+    ORDER BY
+      a.label, a.ttcongdoan;`;
     const sql_congdoan = `
         SELECT 
 	        distinct congdoan, ttcongdoan

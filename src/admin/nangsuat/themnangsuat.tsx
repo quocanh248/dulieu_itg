@@ -1,7 +1,7 @@
 import { useState, ChangeEvent, MouseEvent } from "react";
-import axios from "axios";
 import MenuComponent from "../../Menu";
 import ExcelJS from "exceljs";
+import { sendAPIRequest } from "../../utils/util";
 
 // Định nghĩa kiểu cho dữ liệu hàng trong file Excel
 interface RowData {
@@ -40,7 +40,7 @@ function AdminPage() {
           });
           // Gửi dữ liệu đến API để lưu vào cơ sở dữ liệu
           if (rows.length > 0) {
-            await axios.post("http://localhost:3000/nang_suat/upload", rows);
+            await sendAPIRequest("/nang_suat/upload", "POST", rows);           
             alert("Dữ liệu đã được lưu thành công");
           }
         };

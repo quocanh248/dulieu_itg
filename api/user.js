@@ -29,8 +29,9 @@ router.get("/list", async (req, res) => {
       sql += " AND b.manhansu = ?";
       params.push(manhansu);
     }
+    console.log(sql, req.query);
     const results = await queryMySQL(sql, params);
-    console.log(results);
+    // console.log(results);
     res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -118,9 +119,8 @@ router.post("/edit", async (req, res) => {
   }
 });
 
-router.get("/delete", async (req, res) => {
-  const { id } = req.query;
-  console.log([id]);
+router.delete('/delete', async (req, res) => {
+  const { id } = req.body;
   try {
     const sql = "DELETE FROM users WHERE id = ?";
     const result = await queryMySQL(sql, [id]);
