@@ -1,7 +1,7 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import MenuComponent from "../Menu";
 import { sendAPIRequest } from "../utils/util";
-
+import DataTable from 'react-data-table-component';
 // Định nghĩa kiểu dữ liệu cho tài khoản
 interface Account {
   manhansu: string;
@@ -273,7 +273,7 @@ function AdminPage() {
         "/users/user_info?id=" + id,
         "GET",
         undefined
-      );     
+      );
       const userData = response[0];
       // console.log(userData);
       setXacnhanMatkhau_edit("");
@@ -445,11 +445,48 @@ function AdminPage() {
   };
   const handleTrash = async (id: string) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa user này không?")) {
-      await sendAPIRequest('/users/delete', 'DELETE', { id });     
+      await sendAPIRequest("/users/delete", "DELETE", { id });
       fetchAccounts();
       alert("Xóa user thành công");
     }
   };
+  const columns = [
+    {
+      name: 'Mã nhân sự',
+      selector: (row: Account) => row.manhansu,
+      sortable: true,
+    },
+    {
+      name: 'Tên nhân sự',
+      selector: (row: Account) => row.tennhansu,
+      sortable: true,
+    },
+    {
+      name: 'Tên nhóm',
+      selector: (row: Account) => row.tennhom,
+      sortable: true,
+    },
+    {
+      name: '',
+      cell: (row: Account) => (
+        <div>
+          <button
+            className="btn btn-info"
+            onClick={() => showEditForm(row.id)}
+          >
+            Chi tiết
+          </button>
+          <button
+            className="btn btn-danger"
+            style={{ marginLeft: '5px' }}
+            onClick={() => handleTrash(row.id)}
+          >
+            Xóa
+          </button>
+        </div>
+      ),
+    },
+  ];
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">
@@ -461,8 +498,8 @@ function AdminPage() {
             <div>
               <label className="form-label text-secondary">Mã nhân sự</label>
               <input
-                type="text"
-                className="form-control"                
+                type="search"
+                className="form-control"
                 value={manhansu}
                 onChange={(e) => setManhansu(e.target.value)}
               />
@@ -472,8 +509,8 @@ function AdminPage() {
             <div>
               <label className="form-label text-secondary">Tên nhân sự</label>
               <input
-                type="text"
-                className="form-control"               
+                type="search"
+                className="form-control"
                 value={tennhansu}
                 onChange={(e) => setTennhansu(e.target.value)}
               />
@@ -483,8 +520,8 @@ function AdminPage() {
             <div>
               <label className="form-label text-secondary">Tên nhóm</label>
               <input
-                type="text"
-                className="form-control"                
+                type="search"
+                className="form-control"
                 value={tennhom}
                 onChange={(e) => setTennhom(e.target.value)}
               />
@@ -504,45 +541,13 @@ function AdminPage() {
       </div>
       <div className="p-3">
         <div className="bg-white">
-          <table
-            className="table table-bordered text-center"
-            style={{ width: "100%", fontSize: "14px" }}
-          >
-            <thead>
-              <tr>
-                <th>Mã nhân sự</th>
-                <th>Tên nhân sự</th>
-                <th>Tên nhóm</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {accounts.map((account) => (
-                <tr key={account.id}>
-                  <td>{account.manhansu}</td>
-                  <td>{account.tennhansu}</td>
-                  <td>{account.tennhom}</td>
-                  <td>
-                    <button
-                      className="btn btn-info"
-                      role={"button"}
-                      onClick={() => showEditForm(account.id)}
-                    >
-                      Chi tiết
-                    </button>
-                    <button
-                      className="btn btn-danger"
-                      style={{ marginLeft: "5px" }}
-                      role={"button"}
-                      onClick={() => handleTrash(account.id)}
-                    >
-                      Xóa
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="App">
+            <DataTable
+              columns={columns}
+              data={accounts}   
+             
+            />
+          </div>
           {htmlAddForm()}
           {htmlEditForm()}
         </div>

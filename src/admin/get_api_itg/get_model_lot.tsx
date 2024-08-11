@@ -25,11 +25,12 @@ function AdminPage() {
 
   const fetchmodel = async (filters = {}) => {
     try {
+      // const token = localStorage.getItem('token'); 
       const queryString = new URLSearchParams(filters).toString();
       const response = await sendAPIRequest(
         "/truynguyen/list_model?" + queryString,
         "GET",
-        undefined
+        undefined         
       );
       setrResModel(response);
     } catch (error) {

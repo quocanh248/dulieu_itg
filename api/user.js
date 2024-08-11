@@ -2,9 +2,23 @@ import express from "express";
 import { queryMySQL } from "./server.js";
 import bodyParser from "body-parser";
 import crypto from "crypto";
-
+import jwt from "jsonwebtoken";
 const router = express.Router();
 
+router.post('/login', (req, res) => {
+  const { username, password } = req.body;
+  const user = { name: username };
+  const accessToken = jwt.sign(user, process.env.JWT_SECRET);
+  res.json({ accessToken });
+  // if (username === 'user' && password === 'pass') {
+  //   const user = { name: username };
+
+  //   const accessToken = jwt.sign(user, process.env.JWT_SECRET);
+  //   res.json({ accessToken });
+  // } else {
+  //   res.sendStatus(401);
+  // }
+});
 router.get("/list", async (req, res) => {
   try {
     const { manhansu, tennhansu, tennhom } = req.query;

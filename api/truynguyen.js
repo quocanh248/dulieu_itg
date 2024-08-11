@@ -2,6 +2,7 @@ import express from "express";
 import axios from "axios"; // Import axios để gửi yêu cầu HTTP
 import cors from "cors"; // Import cors để xử lý vấn đề CORS
 import { queryMySQL } from "./server.js";
+import authenticateToken from './auth.js'; // Import middleware
 
 const app = express();
 const router = express.Router();

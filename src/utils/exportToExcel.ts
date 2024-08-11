@@ -8,7 +8,7 @@ interface ItemData {
   tennhom: string;
   model: string;
   lot: string;
-  date: string;
+  ngay: string;
   congdoan: string;
   vitri: string;
   soluong: number;
@@ -84,7 +84,7 @@ async function exportToExcel(data: ItemData[], filename: string): Promise<void> 
       item.tennhom,
       item.model,
       item.lot,
-      item.date,
+      item.ngay,
       item.congdoan,
       item.vitri,
       item.soluong,

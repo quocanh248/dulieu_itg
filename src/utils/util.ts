@@ -211,7 +211,8 @@ export function createSlug(text: string): string {
 export const sendAPIRequest = async (
     url: string,
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
-    data = {}
+    data = {},
+    token: string | null = null // Thêm tham số token
 ) => {
     try {
         const response = await axios({
@@ -220,7 +221,8 @@ export const sendAPIRequest = async (
             method: method,
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer 398cd41e91f1f3309713ab3b88b55f9b`,
+                // Authorization: `Bearer 398cd41e91f1f3309713ab3b88b55f9b`,
+                Authorization: token ? `Bearer ${token}` : undefined,
             },
             data: method !== 'GET' ? data : {},
         });

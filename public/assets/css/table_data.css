@@ -1,0 +1,22 @@
+.rdt_Table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  .rdt_Table th, .rdt_Table td {
+    border: 1px solid #ddd; /* Border cho ô */
+    padding: 8px; /* Padding cho ô */
+  }
+  
+  .rdt_Table th {
+    background-color: #f4f4f4; /* Màu nền cho tiêu đề cột */
+    text-align: left;
+  }
+  
+  .rdt_Table tr:nth-child(even) {
+    background-color: #f2f2f2; /* Màu nền cho hàng chẵn */
+  }
+  
+  .rdt_Table tr:hover {
+    background-color: #ddd; /* Màu nền khi hover qua hàng */
+  }

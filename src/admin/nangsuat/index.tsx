@@ -2,6 +2,8 @@ import { ChangeEvent, useState } from "react";
 import exportToExcel from "../../utils/exportToExcel";
 import MenuComponent from "../../Menu";
 import { sendAPIRequest } from "../../utils/util";
+import DataTable from "react-data-table-component";
+import { format } from 'date-fns';
 
 // Định nghĩa kiểu cho dữ liệu hàng trong bảng
 interface ItemData {
@@ -10,7 +12,7 @@ interface ItemData {
   tennhom: string;
   model: string;
   lot: string;
-  date: string;
+  ngay: string;
   congdoan: string;
   vitri: string;
   soluong: number;
@@ -50,10 +52,10 @@ function AdminPage() {
     try {
       const queryString = new URLSearchParams(filters).toString();
       const response = await sendAPIRequest(
-        "/nang_suat/search?"+queryString,
+        "/nang_suat/search?" + queryString,
         "GET",
         undefined
-      );      
+      );
       return response; // Trả về dữ liệu nhận được từ API
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu năng suất:", error);
@@ -65,10 +67,10 @@ function AdminPage() {
     try {
       const queryString = new URLSearchParams(filters).toString();
       const response = await sendAPIRequest(
-        "/nang_suat/search?"+queryString,
+        "/nang_suat/search?" + queryString,
         "GET",
         undefined
-      );   
+      );
       setResult(response);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu năng suất:", error);
@@ -78,7 +80,69 @@ function AdminPage() {
   const handleSearch = () => {
     fetchnangsuat({ date });
   };
-
+  const columns = [
+    {
+      name: "Mã nhân viên",
+      selector: (row: ItemData) => row.manhansu,
+      sortable: true,
+    },
+    {
+      name: "Tên nhân viên",
+      selector: (row: ItemData) => row.tennhansu,
+      sortable: true,
+    },
+    {
+      name: "Bộ phận",
+      selector: (row: ItemData) => row.tennhom,
+      sortable: true,
+    },
+    {
+      name: "Model",
+      selector: (row: ItemData) => row.model,
+      sortable: true,
+    },
+    {
+      name: "Lot",
+      selector: (row: ItemData) => row.lot,
+      sortable: true,
+    },
+    { 
+      name: 'Ngày', 
+      selector: (row: ItemData) => format(new Date(row.ngay), 'dd/MM/yyyy'), // Định dạng ngày
+      sortable: true 
+    },
+    {
+      name: "Công đoạn",
+      selector: (row: ItemData) => row.congdoan,
+      sortable: true,
+    },
+    {
+      name: "Số lượng",
+      selector: (row: ItemData) => row.soluong,
+      sortable: true,
+    },
+    {
+      name: "Thời gian thực hiện",
+      selector: (row: ItemData) => row.thoigianthuchien,
+      sortable: true,
+    },
+    {
+      name: "Thời gian quy đổi",
+      selector: (row: ItemData) =>
+        row.sum_time !== 0
+          ? (
+              (row.thoigianthuchien / row.sum_time) *
+              row.thoigianlamviec
+            ).toFixed(2)
+          : "0.00",
+      sortable: true,
+    },
+    {
+      name: "Thời gian làm việc",
+      selector: (row: ItemData) => row.thoigianlamviec,
+      sortable: true,
+    },
+  ];  
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">
@@ -111,52 +175,13 @@ function AdminPage() {
       </div>
       <div className="p-3">
         <div className="bg-white">
-          <table
-            className="table table-bordered text-center"
-            style={{ width: "100%", fontSize: "14px" }}
-          >
-            <thead>
-              <tr>
-                <th>Mã nhân viên</th>
-                <th style={{ minWidth: "220px" }}>Tên nhân viên</th>
-                <th>Bộ phận</th>
-                <th>Model</th>
-                <th>Lot</th>
-                <th>Ngày</th>
-                <th style={{ minWidth: "220px" }}>Công đoạn</th>
-                <th>Vị trí</th>
-                <th>Số lượng</th>
-                <th>Thời gian thực hiện</th>
-                <th>Thời gian quy đổi</th>
-                <th>Thời gian làm việc</th>
-              </tr>
-            </thead>
-            <tbody>             
-                {result.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.manhansu}</td>
-                    <td>{item.tennhansu}</td>
-                    <td>{item.tennhom}</td>
-                    <td>{item.model}</td>
-                    <td>{item.lot}</td>
-                    <td>{date}</td>
-                    <td>{item.congdoan}</td>
-                    <td>{item.vitri}</td>
-                    <td>{item.soluong}</td>
-                    <td>{item.thoigianthuchien}</td>
-                    <td>
-                      {item.sum_time !== 0
-                        ? (
-                            (item.thoigianthuchien / item.sum_time) *
-                            item.thoigianlamviec
-                          ).toFixed(2)
-                        : "0.00"}
-                    </td>
-                    <td>{item.thoigianlamviec}</td>
-                  </tr>
-                ))}
-              </tbody>            
-          </table>
+          <div className="App">
+            <DataTable
+              columns={columns}
+              data={result}
+              responsive              
+            />
+          </div>
         </div>
       </div>
     </MenuComponent>
