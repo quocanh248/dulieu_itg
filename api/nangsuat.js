@@ -5,36 +5,81 @@ const router = express.Router();
 
 router.get("/search", async (req, res) => {
   try {
+    const { manhansu, date } = req.query;
+    console.log(manhansu);
+    let sql = `
+           SELECT 
+              nangsuat.manhansu, 
+              nhansu.tennhansu, 
+              nangsuat.model, 
+              nangsuat.lot, 
+              nangsuat.congdoan, 
+              nhomlamviec.tennhom,
+              nangsuat.ngay,  
+              nangsuat.soluong, 
+              nangsuat.thoigianquydoi, 
+              nangsuat.thoigianlamviec, 
+              nangsuat.thoigianthuchien, 
+              nangsuat.vitri, 
+              (SELECT SUM(n.thoigianthuchien) 
+              FROM nangsuat AS n 
+              WHERE n.ngay = nangsuat.ngay 
+              AND n.manhansu = nangsuat.manhansu
+              ) AS sum_time
+            FROM 
+                nangsuat 
+            LEFT JOIN 
+                nhansu ON nhansu.manhansu = nangsuat.manhansu 
+            LEFT JOIN 
+                nhomlamviec ON nhomlamviec.manhom = nhansu.manhom     
+            WHERE 1 = 1`;
+    const params = [];
+    if (manhansu) {
+      sql += " AND nangsuat.manhansu = ?";
+      params.push(manhansu);
+    }
+    if (date) {
+      sql += " AND nangsuat.ngay = ?";
+      params.push(date);
+    }    
+    sql += " ORDER BY nangsuat.manhansu;";
+    const results = await queryMySQL(sql, params);
+    console.log(results);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router.get("/search_nhansu", async (req, res) => {
+  try {
     const date = req.query.date;
     const sql = `
-    SELECT 
+      SELECT 
         nangsuat.manhansu, 
-        nhansu.tennhansu, 
-        nangsuat.model, 
-        nangsuat.lot, 
-        nangsuat.congdoan, 
+        nhansu.tennhansu,   
         nhomlamviec.tennhom,
         nangsuat.ngay,  
-        nangsuat.soluong, 
-        nangsuat.thoigianquydoi, 
-        nangsuat.thoigianlamviec, 
-        nangsuat.thoigianthuchien, 
-        nangsuat.vitri, 
+        (SELECT SUM(n.soluong) 
+        FROM nangsuat AS n 
+        WHERE n.ngay = nangsuat.ngay 
+          AND n.manhansu = nangsuat.manhansu
+        ) AS sum_soluong,
         (SELECT SUM(n.thoigianthuchien) 
         FROM nangsuat AS n 
         WHERE n.ngay = nangsuat.ngay 
-        AND n.manhansu = nangsuat.manhansu
+          AND n.manhansu = nangsuat.manhansu
         ) AS sum_time
-    FROM 
-        nangsuat 
-    LEFT JOIN 
-        nhansu ON nhansu.manhansu = nangsuat.manhansu 
-    LEFT JOIN 
-        nhomlamviec ON nhomlamviec.manhom = nhansu.manhom     
-    WHERE 
-        nangsuat.ngay = ?
-    ORDER BY 
-        nangsuat.manhansu;
+      FROM 
+          nangsuat 
+      LEFT JOIN 
+          nhansu ON nhansu.manhansu = nangsuat.manhansu 
+      LEFT JOIN 
+          nhomlamviec ON nhomlamviec.manhom = nhansu.manhom     
+      WHERE 
+          nangsuat.ngay = ?
+      GROUP BY manhansu, tennhansu, tennhom, ngay
+      ORDER BY 
+          nangsuat.manhansu;
   `;
     const results = await queryMySQL(sql, [date]);
     console.log(results);
@@ -43,7 +88,6 @@ router.get("/search", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
 router.get("/list/tags", async (req, res) => {
   const { blog_id } = req.query;
 

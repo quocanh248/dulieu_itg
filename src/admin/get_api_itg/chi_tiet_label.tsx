@@ -38,8 +38,7 @@ interface TableProps {
 
 function AdminPage() {
   const [resultThongtin, setResultThongtin] = useState<ThongtinItem[]>([]);
-  const [resultChitiet, setResultChitiet] = useState<ChitietItem[]>([]);
-  // const [resultRows, setResultRows] = useState<React.ReactNode[]>([]);
+  const [resultChitiet, setResultChitiet] = useState<ChitietItem[]>([]);  
   const { label } = useParams<{ label: string }>();
   const decodedLabel = decodeURIComponent(label || "");
 

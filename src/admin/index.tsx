@@ -313,7 +313,7 @@ function AdminPage() {
       <div className={`modal ${isFormEdit ? "d-block" : "d-none"}`}>
         <div
           className="modal-dialog"
-          style={{ width: "80%", maxWidth: "none" }}
+          style={{ width: "100%", maxWidth: "none" }}
         >
           <div className="modal-content">
             <div className="modal-header">

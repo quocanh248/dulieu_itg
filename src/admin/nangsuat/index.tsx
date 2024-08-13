@@ -3,7 +3,7 @@ import exportToExcel from "../../utils/exportToExcel";
 import MenuComponent from "../../Menu";
 import { sendAPIRequest } from "../../utils/util";
 import DataTable from "react-data-table-component";
-import { format } from 'date-fns';
+import { format } from "date-fns";
 
 // Định nghĩa kiểu cho dữ liệu hàng trong bảng
 interface ItemData {
@@ -22,12 +22,22 @@ interface ItemData {
   thoigianlamviec: number;
 }
 
+interface Data_tonghop {
+  manhansu: string;
+  tennhansu: string;
+  tennhom: string;
+  ngay: string;
+  vitri: string;
+  sum_soluong: number;
+  sum_time: number;
+}
 function AdminPage() {
   const [date, setDate] = useState<string>(
     new Date().toISOString().split("T")[0]
   );
-  const [result, setResult] = useState<ItemData[]>([]); // Khởi tạo với kiểu ItemData
-
+  const [result, setResult] = useState<ItemData[]>([]);
+  const [resultth, setResultTH] = useState<Data_tonghop[]>([]);
+  const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
   const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDate(e.target.value);
   };
@@ -67,11 +77,11 @@ function AdminPage() {
     try {
       const queryString = new URLSearchParams(filters).toString();
       const response = await sendAPIRequest(
-        "/nang_suat/search?" + queryString,
+        "/nang_suat/search_nhansu?" + queryString,
         "GET",
         undefined
       );
-      setResult(response);
+      setResultTH(response);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu năng suất:", error);
     }
@@ -83,19 +93,59 @@ function AdminPage() {
   const columns = [
     {
       name: "Mã nhân viên",
-      selector: (row: ItemData) => row.manhansu,
+      selector: (row: Data_tonghop) => row.manhansu,
       sortable: true,
     },
     {
       name: "Tên nhân viên",
-      selector: (row: ItemData) => row.tennhansu,
+      selector: (row: Data_tonghop) => row.tennhansu,
       sortable: true,
     },
     {
       name: "Bộ phận",
-      selector: (row: ItemData) => row.tennhom,
+      selector: (row: Data_tonghop) => row.tennhom,
       sortable: true,
     },
+    {
+      name: "Ngày",
+      selector: (row: Data_tonghop) => format(new Date(row.ngay), "dd/MM/yyyy"), // Định dạng ngày
+      sortable: true,
+    },
+    {
+      name: "Số lượng",
+      selector: (row: Data_tonghop) => row.sum_soluong,
+      sortable: true,
+    },
+    {
+      name: "Thời gian thực hiện",
+      selector: (row: Data_tonghop) => {
+        const value = Number(row.sum_time);
+        return isNaN(value) ? "N/A" : value.toFixed(2);
+      },
+      sortable: true,
+    },
+    {
+      name: "",
+      cell: (row: Data_tonghop) => (
+        <div>
+          <button
+            className="btn btn-info"
+            onClick={() =>
+              showDetail(row.manhansu, format(new Date(row.ngay), "yyyy-MM-dd"))
+            }
+          >
+            Chi tiết
+          </button>
+        </div>
+      ),
+    },
+  ];
+  const columns_detail = [    
+    {
+      name: "Tên nhân viên",
+      selector: (row: ItemData) => row.tennhansu,
+      sortable: true,
+    },    
     {
       name: "Model",
       selector: (row: ItemData) => row.model,
@@ -105,12 +155,7 @@ function AdminPage() {
       name: "Lot",
       selector: (row: ItemData) => row.lot,
       sortable: true,
-    },
-    { 
-      name: 'Ngày', 
-      selector: (row: ItemData) => format(new Date(row.ngay), 'dd/MM/yyyy'), // Định dạng ngày
-      sortable: true 
-    },
+    },    
     {
       name: "Công đoạn",
       selector: (row: ItemData) => row.congdoan,
@@ -123,7 +168,10 @@ function AdminPage() {
     },
     {
       name: "Thời gian thực hiện",
-      selector: (row: ItemData) => row.thoigianthuchien,
+      selector: (row: ItemData) => {
+        const value = Number(row.thoigianthuchien);
+        return isNaN(value) ? "N/A" : value.toFixed(2);
+      },
       sortable: true,
     },
     {
@@ -142,7 +190,68 @@ function AdminPage() {
       selector: (row: ItemData) => row.thoigianlamviec,
       sortable: true,
     },
-  ];  
+  ];
+  const showDetail = async (manhansu: string, ngay: string) => {
+    try {
+      const response = await sendAPIRequest(
+        `/nang_suat/search?manhansu=${encodeURIComponent(
+          manhansu
+        )}&date=${encodeURIComponent(ngay)}`,
+        "GET",
+        undefined
+      );
+      console.log(response);
+      setResult(response);
+      setIsFormEdit(true);
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin người dùng:", error);
+      // Xử lý lỗi nếu cần thiết
+    }
+  };
+  const htmlDetailForm = (): React.ReactNode => {
+    return (
+      <div className={`modal ${isFormEdit ? "d-block" : "d-none"}`}>
+        <div
+          className="modal-dialog"
+          style={{ width: "80%", maxWidth: "none" }}
+        >
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">Chi tiết năng suất nhân sự</h5>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+                onClick={() => setIsFormEdit(false)}
+              ></button>
+            </div>
+            <div className="modal-body">
+              <div id="basic" className="tab-pane fade show active">
+                <div className="row">
+                  <div className="App">
+                    <DataTable columns={columns_detail} data={result} responsive />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">             
+              <div className="ms-auto">
+                <button
+                  type="button"
+                  className="btn btn-light"
+                  data-bs-dismiss="modal"
+                  onClick={() => setIsFormEdit(false)}
+                >
+                  Đóng
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">
@@ -176,14 +285,11 @@ function AdminPage() {
       <div className="p-3">
         <div className="bg-white">
           <div className="App">
-            <DataTable
-              columns={columns}
-              data={result}
-              responsive              
-            />
+            <DataTable columns={columns} data={resultth} responsive />
           </div>
         </div>
       </div>
+      {htmlDetailForm()}
     </MenuComponent>
   );
 }

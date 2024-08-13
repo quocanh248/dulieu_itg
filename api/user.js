@@ -5,19 +5,28 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 const router = express.Router();
 
-router.post('/login', (req, res) => {
-  const { username, password } = req.body;
-  const user = { name: username };
-  const accessToken = jwt.sign(user, process.env.JWT_SECRET);
-  res.json({ accessToken });
-  // if (username === 'user' && password === 'pass') {
-  //   const user = { name: username };
 
-  //   const accessToken = jwt.sign(user, process.env.JWT_SECRET);
-  //   res.json({ accessToken });
-  // } else {
-  //   res.sendStatus(401);
-  // }
+router.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+  let sql = `
+    SELECT password
+    FROM users
+    WHERE manhansu = ?
+  `;  
+  const results = await queryMySQL(sql, [username]);  
+  if (results.length > 0) {   
+    const hashedPasswordFromDB = results[0].password;
+    const hashedPasswordFromUserInput = hashPassword(password);    
+    if (hashedPasswordFromUserInput === hashedPasswordFromDB) {
+      const user = { name: username };
+      const accessToken = jwt.sign(user, process.env.JWT_SECRET);
+      res.json({ accessToken });
+    } else {
+      res.sendStatus(401); // Unauthorized
+    }
+  } else {
+    res.sendStatus(401); // Unauthorized
+  }
 });
 router.get("/list", async (req, res) => {
   try {
@@ -42,10 +51,9 @@ router.get("/list", async (req, res) => {
     if (manhansu) {
       sql += " AND b.manhansu = ?";
       params.push(manhansu);
-    }
-    console.log(sql, req.query);
+    }    
+    
     const results = await queryMySQL(sql, params);
-    // console.log(results);
     res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -92,7 +100,7 @@ router.get("/ten_nhan_su", async (req, res) => {
             WHERE manhansu = ?       
         `;
     const results = await queryMySQL(sql, [manhansu]);
-    const res_info = results[0].tennhansu + "+" + results[0].hinhanh;   
+    const res_info = results[0].tennhansu + "+" + results[0].hinhanh;
     res.json(res_info);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -103,9 +111,9 @@ const hashPassword = (password) => {
 };
 router.post("/add", async (req, res) => {
   const { manhansu_acc, matkhau, vaitro } = req.body;
-//   if (matkhau.length < 6) {
-//     return res.status(400).json({ error: "Mật khẩu phải có ít nhất 6 ký tự." });
-//   }
+  //   if (matkhau.length < 6) {
+  //     return res.status(400).json({ error: "Mật khẩu phải có ít nhất 6 ký tự." });
+  //   }
   const hashedPassword = hashPassword(matkhau);
   const query = "INSERT INTO users (manhansu, password, role) VALUES (?, ?, ?)";
   await queryMySQL(query, [manhansu_acc, hashedPassword, vaitro]);
@@ -133,7 +141,7 @@ router.post("/edit", async (req, res) => {
   }
 });
 
-router.delete('/delete', async (req, res) => {
+router.delete("/delete", async (req, res) => {
   const { id } = req.body;
   try {
     const sql = "DELETE FROM users WHERE id = ?";
