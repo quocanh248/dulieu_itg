@@ -16,7 +16,8 @@ interface NoAccount {
   manhansu: string;
   tennhansu: string;
 }
-
+//get tonken
+const token = localStorage.getItem('token');
 // Định nghĩa kiểu dữ liệu cho component
 function AdminPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -45,7 +46,6 @@ function AdminPage() {
         ?.tennhansu || "";
     setTennhansuAcc(selectedTennhansu);
   };
-
   // Fetch accounts with optional filters
   const fetchAccounts = async (filters: Record<string, string> = {}) => {
     try {
@@ -53,21 +53,22 @@ function AdminPage() {
       const response = await sendAPIRequest(
         "/users/list?" + queryString,
         "GET",
-        undefined
+        undefined,
+        token
       );
       setAccounts(response);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách tài khoản:", error);
     }
   };
-
   const fetchNoAccounts = async (filters: Record<string, string> = {}) => {
     try {
       const queryString = new URLSearchParams(filters).toString();
       const response = await sendAPIRequest(
         "/users/list_nouser?" + queryString,
         "GET",
-        undefined
+        undefined,
+        token
       );
       setNoAccounts(response);
     } catch (error) {
@@ -77,16 +78,13 @@ function AdminPage() {
       );
     }
   };
-
   // Fetch accounts when component mounts
   useEffect(() => {
     fetchAccounts();
   }, []);
-
   const handleSearch = () => {
     fetchAccounts({ manhansu, tennhansu, tennhom });
   };
-
   const openAddForm = () => {
     fetchNoAccounts();
     setMatkhau("");
@@ -96,7 +94,6 @@ function AdminPage() {
     setTennhansuAcc("");
     setIsFormAdd(true);
   };
-
   const handleSubmit = async () => {
     if (
       !manhansuAcc ||
@@ -129,7 +126,6 @@ function AdminPage() {
       alert("Có lỗi xảy ra khi thêm tài khoản.");
     }
   };
-
   const htmlAddForm = (): JSX.Element => {
     return (
       <div className={`modal ${isFormAdd ? "d-block" : "d-none"}`}>

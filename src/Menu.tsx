@@ -19,7 +19,7 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
             </a>
             <div className="nav__submenu">
               <div className="nav__item">
-                <Link to="/" className="nav__link">
+                <Link to="/danh_sach_tai_khoan" className="nav__link">
                   <span>Danh sách tài khoản</span>
                 </Link>
               </div>

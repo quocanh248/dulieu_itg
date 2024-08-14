@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Default from "./default";
 import AdminPage from "./admin";
 import Admincv from "./admin/congviec";
 import Admin_nang_suat from "./admin/nangsuat";
@@ -12,7 +13,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<AdminPage />} />
+        <Route path="/" element={<Default />} />
+        <Route path="/danh_sach_tai_khoan" element={<AdminPage />} />
         <Route path="/congviec" element={<Admincv />} />
         <Route path="/du_lieu_nang_suat" element={<Admin_nang_suat />} />
         <Route path="/them_du_lieu_nang_suat" element={<Admin_them_nang_suat />} />

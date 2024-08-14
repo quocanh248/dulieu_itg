@@ -4,22 +4,25 @@ import bodyParser from "body-parser";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 const router = express.Router();
+import dotenv from "dotenv";
+dotenv.config();
+import authenticateToken from './auth.js';
 
-
-router.post('/login', async (req, res) => {
+router.post("/login", async (req, res) => {
   const { username, password } = req.body;
   let sql = `
     SELECT password
     FROM users
     WHERE manhansu = ?
-  `;  
-  const results = await queryMySQL(sql, [username]);  
-  if (results.length > 0) {   
+  `;
+  const results = await queryMySQL(sql, [username]);
+  if (results.length > 0) {
     const hashedPasswordFromDB = results[0].password;
-    const hashedPasswordFromUserInput = hashPassword(password);    
+    const hashedPasswordFromUserInput = hashPassword(password);
     if (hashedPasswordFromUserInput === hashedPasswordFromDB) {
       const user = { name: username };
       const accessToken = jwt.sign(user, process.env.JWT_SECRET);
+      console.log(accessToken);
       res.json({ accessToken });
     } else {
       res.sendStatus(401); // Unauthorized
@@ -28,16 +31,11 @@ router.post('/login', async (req, res) => {
     res.sendStatus(401); // Unauthorized
   }
 });
-router.get("/list", async (req, res) => {
+router.get("/list", authenticateToken, async (req, res) => {
   try {
     const { manhansu, tennhansu, tennhom } = req.query;
-    let sql = `
-            SELECT b.id, b.manhansu, ns.tennhansu, nlv.tennhom
-            FROM users b
-            LEFT JOIN nhansu ns ON b.manhansu = ns.manhansu     
-            LEFT JOIN nhomlamviec nlv ON ns.manhom = nlv.manhom       
-            WHERE 1 = 1
-        `;
+    let sql = "SELECT * FROM users WHERE 1=1";
+
     const params = [];
 
     if (tennhansu) {
@@ -51,14 +49,16 @@ router.get("/list", async (req, res) => {
     if (manhansu) {
       sql += " AND b.manhansu = ?";
       params.push(manhansu);
-    }    
-    
+    }
+
     const results = await queryMySQL(sql, params);
     res.json(results);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.sendStatus(500);
   }
 });
+
 router.get("/list_nouser", async (req, res) => {
   try {
     let sql = `

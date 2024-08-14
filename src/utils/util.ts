@@ -226,6 +226,7 @@ export const sendAPIRequest = async (
             },
             data: method !== 'GET' ? data : {},
         });
+        console.log("user" + token);
 
         return response.data;
     } catch (error) {
