@@ -93,6 +93,11 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                 </Link>
               </div>
               <div className="nav__item">
+                <Link to="/danh_sach_don_hang" className="nav__link">
+                  <span>Danh sách đơn hàng</span>
+                </Link>
+              </div>
+              <div className="nav__item">
                 <Link to="/them_du_lieu_nang_suat" className="nav__link">
                   <span>Thêm dữ liệu năng suất</span>
                 </Link>
