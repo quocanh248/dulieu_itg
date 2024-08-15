@@ -2,28 +2,27 @@ import { useState } from "react";
 import "../../../public/assets/css/table_data.css";
 import { sendAPIRequest } from "../../utils/util";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from '../../store/useAuthStore';
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   // const [token, setToken] = useState('');
-
+  const { signIn } = useAuthStore();
   const handleLogin = async () => {
-    try {
-      const data = {
-        username: username,
-        password: password,
-      };
-      const response = await sendAPIRequest("/users/login", "POST", data);
-      console.log(response);
-      // setToken(response.data.accessToken);
-      localStorage.setItem("token", response.accessToken);
+    const data = {
+      username: username,
+      password: password,
+    };
+    const res = await sendAPIRequest("/users/login", "POST", data);    
+    if (res.length > 0) {
+      signIn(res[0]);     
       navigate("/");
-    } catch (error) {
-      console.error("Login failed:", error);
+    } else {
+      console.error("Tài khoản hoặc mật khẩu không hợp lệ");
     }
-  };
+  }; 
   //d-flex align-items-center justify-content-center
   return (
     <div className="body">
@@ -36,7 +35,9 @@ const Login = () => {
               <a className="social" style={{ backgroundColor: "#c8e814" }}></a>
               <a className="social" style={{ backgroundColor: "#2bff59" }}></a>
             </div>
-            <span className="span">Nhập tài khoản và mật khẩu để truy cập vào trang web</span>
+            <span className="span">
+              Nhập tài khoản và mật khẩu để truy cập vào trang web
+            </span>
             <input
               type="text"
               className="input"
@@ -60,13 +61,17 @@ const Login = () => {
           <div className="overlay">
             <div className="overlay-panel overlay-left">
               <h1>Việt Trần</h1>
-              <p className="p">Đường số 1, Kcn Long Đức, Tp Trà Vinh, Trà Vinh</p>
+              <p className="p">
+                Đường số 1, Kcn Long Đức, Tp Trà Vinh, Trà Vinh
+              </p>
               <button className="ghost">Click</button>
             </div>
             <div className="overlay-panel overlay-right">
               <h1>Việt Trần</h1>
-              <p className="p">Đường số 1, Kcn Long Đức, Tp Trà Vinh, Trà Vinh</p>
-              <button className="button ghost" >Click</button>
+              <p className="p">
+                Đường số 1, Kcn Long Đức, Tp Trà Vinh, Trà Vinh
+              </p>
+              <button className="button ghost">Click</button>
             </div>
           </div>
         </div>

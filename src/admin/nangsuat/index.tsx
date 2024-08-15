@@ -32,9 +32,10 @@ interface Data_tonghop {
   sum_time: number;
 }
 function AdminPage() {
-  const [date, setDate] = useState<string>(
-    new Date().toISOString().split("T")[0]
-  );
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const formattedDate = yesterday.toISOString().split("T")[0];
+  const [date, setDate] = useState<string>(formattedDate);
   const [result, setResult] = useState<ItemData[]>([]);
   const [resultth, setResultTH] = useState<Data_tonghop[]>([]);
   const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
@@ -113,7 +114,10 @@ function AdminPage() {
     },
     {
       name: "Số lượng",
-      selector: (row: Data_tonghop) => row.sum_soluong,
+      selector: (row: Data_tonghop) => {
+        const value = Number(row.sum_soluong);
+        return isNaN(value) ? "N/A" : value.toFixed(2);
+      },
       sortable: true,
     },
     {
@@ -140,12 +144,12 @@ function AdminPage() {
       ),
     },
   ];
-  const columns_detail = [    
+  const columns_detail = [
     {
       name: "Tên nhân viên",
       selector: (row: ItemData) => row.tennhansu,
       sortable: true,
-    },    
+    },
     {
       name: "Model",
       selector: (row: ItemData) => row.model,
@@ -155,7 +159,7 @@ function AdminPage() {
       name: "Lot",
       selector: (row: ItemData) => row.lot,
       sortable: true,
-    },    
+    },
     {
       name: "Công đoạn",
       selector: (row: ItemData) => row.congdoan,
@@ -210,41 +214,49 @@ function AdminPage() {
   };
   const htmlDetailForm = (): React.ReactNode => {
     return (
-      <div className={`modal ${isFormEdit ? "d-block" : "d-none"}`}>
-        <div
-          className="modal-dialog"
-          style={{ width: "80%", maxWidth: "none" }}
-        >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Chi tiết năng suất nhân sự</h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-                onClick={() => setIsFormEdit(false)}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <div id="basic" className="tab-pane fade show active">
-                <div className="row">
-                  <div className="App">
-                    <DataTable columns={columns_detail} data={result} responsive />
+      <div className={`modal-overlay ${isFormEdit ? "d-block" : "d-none"}`}>
+        <div className={`modal ${isFormEdit ? "d-block" : "d-none"}`}>
+          <div
+            className="modal-dialog"
+            style={{ width: "80%", maxWidth: "none" }}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Chi tiết năng suất nhân sự</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                  onClick={() => setIsFormEdit(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div id="basic" className="tab-pane fade show active">
+                  <div className="row">
+                    <div className="App">
+                      <DataTable
+                        columns={columns_detail}
+                        data={result}
+                        pagination
+                        paginationPerPage={6}
+                        responsive
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="modal-footer">             
-              <div className="ms-auto">
-                <button
-                  type="button"
-                  className="btn btn-light"
-                  data-bs-dismiss="modal"
-                  onClick={() => setIsFormEdit(false)}
-                >
-                  Đóng
-                </button>
+              <div className="modal-footer">
+                <div className="ms-auto">
+                  <button
+                    type="button"
+                    className="btn btn-light"
+                    data-bs-dismiss="modal"
+                    onClick={() => setIsFormEdit(false)}
+                  >
+                    Đóng
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -285,7 +297,13 @@ function AdminPage() {
       <div className="p-3">
         <div className="bg-white">
           <div className="App">
-            <DataTable columns={columns} data={resultth} responsive />
+            <DataTable
+              columns={columns}
+              data={resultth}
+              pagination
+              paginationPerPage={10}
+              responsive
+            />
           </div>
         </div>
       </div>

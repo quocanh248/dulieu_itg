@@ -213,11 +213,11 @@ export const sendAPIRequest = async (
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     data = {},
     token: string | null = null // Thêm tham số token
-) => {
+) => {   
     try {
         const response = await axios({
-            // baseURL: 'http://30.0.2.12:3001' + url,
-            baseURL: 'http://localhost:3001' + url,
+            baseURL: 'http://30.0.2.8:3001' + url,
+            // baseURL: 'http://localhost:3001' + url,
             method: method,
             headers: {
                 'Content-Type': 'application/json',
@@ -225,11 +225,9 @@ export const sendAPIRequest = async (
                 Authorization: token ? `Bearer ${token}` : undefined,
             },
             data: method !== 'GET' ? data : {},
-        });
-        console.log("user" + token);
-
+        });       
         return response.data;
-    } catch (error) {
+    } catch (error) {      
         console.error('There was a problem with the axios operation:', error);
         throw error;
     }

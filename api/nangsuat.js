@@ -41,7 +41,7 @@ router.get("/search", async (req, res) => {
     if (date) {
       sql += " AND nangsuat.ngay = ?";
       params.push(date);
-    }    
+    }
     sql += " ORDER BY nangsuat.manhansu;";
     const results = await queryMySQL(sql, params);
     console.log(results);
@@ -180,11 +180,16 @@ const formatDate = (dateStr) => {
   const [day, month, year] = dateStr.split("/");
   return `${year}/${month}/${day}`;
 };
+const formatDate_zm = (dateStr) => {
+  var [day, month, year] = dateStr.split(".");
+  year = "20" + year;
+  return `${year}-${month}-${day}`;
+};
 router.post("/upload", async (req, res) => {
   const data = req.body;
   const formattedDate = formatDate(data[0][2]);
   console.log(formattedDate, data[0][2]);
-  const sql_delete = "DELETE FROM nangsuat WHERE ngay = ?";
+  const sql_delete = "DELETE FROM nangsuat WHERE ngay = ? AND type = 'itg'";
   await queryMySQL(sql_delete, [formattedDate]);
   const sql_insert =
     "INSERT INTO nangsuat (ngay, type, congdoan, manhansu, model, lot, soluong, thoigianthuchien, thoigianquydoi, phutroi, vitri) VALUES ?";
@@ -210,5 +215,65 @@ router.post("/upload", async (req, res) => {
     console.error("Lỗi khi thêm dữ liệu:", error);
     res.status(500).json({ message: "Failed to add data" });
   }
+});
+router.post("/upload_zm", async (req, res) => {
+  const data = req.body;
+  const formattedDate = formatDate_zm(data[0][1]);
+  console.log(formattedDate);
+  const sql_delete = "DELETE FROM nangsuat WHERE ngay = ? AND type = 'zm'";
+  await queryMySQL(sql_delete, [formattedDate]);
+  const sql_insert =
+    "INSERT INTO nangsuat (ngay, type, congdoan, manhansu, model, lot, soluong, thoigianthuchien, thoigianquydoi, phutroi, vitri) VALUES ?";
+  const type = "zm";
+  const values = data.map((element) => {
+    const model = `${element[7]}_${element[8]}`;
+    const lot = `5320${element[6]}`;
+    const manhansu = element[4];
+    const congdoan = element[9];
+    const soluong = element[10];
+    const thoigianthuchien = element[11];
+    const thoigianquydoi = element[12];
+    const vitri = element[3];
+  
+    return [
+      formattedDate, // Đảm bảo rằng biến `formattedDate` được định nghĩa ở nơi khác trong mã của bạn
+      type, // Đảm bảo rằng biến `type` được định nghĩa ở nơi khác trong mã của bạn
+      congdoan,
+      manhansu,
+      model,
+      lot,
+      soluong,
+      thoigianthuchien,
+      thoigianquydoi,
+      0, // phutroi
+      vitri,
+    ];
+  });
+
+  try {
+    const result = await queryMySQL(sql_insert, [values]);
+    res.json({ message: "Added successfully", id: formattedDate });
+  } catch (error) {
+    console.error("Lỗi khi thêm dữ liệu:", error);
+    res.status(500).json({ message: "Failed to add data" });
+  }
+});
+router.post("/upload_time", async (req, res) => {
+  const {data, date} = req.body;    
+  data.map((element) => {
+    var manhansu = element[1];
+    var thoigianlamviec = element[3];
+    const sql_update =
+    "update nangsuat set thoigianlamviec = ? where manhansu = ? and ngay = ?";
+    queryMySQL(sql_update, [thoigianlamviec, manhansu, date]);
+  });
+  res.json({ message: "Added successfully", id: date });
+  // try {
+  //   const result = await queryMySQL(sql_update, [values]);
+  //   res.json({ message: "Added successfully", id: formattedDate });
+  // } catch (error) {
+  //   console.error("Lỗi khi thêm dữ liệu:", error);
+  //   res.status(500).json({ message: "Failed to add data" });
+  // }
 });
 export default router;

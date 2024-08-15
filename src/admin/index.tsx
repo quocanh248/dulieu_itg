@@ -2,6 +2,7 @@ import { useEffect, useState, ChangeEvent } from "react";
 import MenuComponent from "../Menu";
 import { sendAPIRequest } from "../utils/util";
 import DataTable from 'react-data-table-component';
+
 // Định nghĩa kiểu dữ liệu cho tài khoản
 interface Account {
   manhansu: string;
@@ -55,9 +56,9 @@ function AdminPage() {
         "GET",
         undefined,
         token
-      );
+      );         
       setAccounts(response);
-    } catch (error) {
+    } catch (error) {   
       console.error("Lỗi khi lấy danh sách tài khoản:", error);
     }
   };

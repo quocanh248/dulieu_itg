@@ -34,7 +34,7 @@ function AdminPage() {
           const worksheet = workbook.worksheets[0];
           let startRow = 12;
           worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
-            if (rowNumber >= startRow) {
+            if (rowNumber >= startRow) {             
               rows.push(row.values as RowData[]); // Chuyển đổi thành mảng hai chiều
             }
           });

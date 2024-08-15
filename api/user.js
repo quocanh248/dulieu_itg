@@ -6,36 +6,45 @@ import jwt from "jsonwebtoken";
 const router = express.Router();
 import dotenv from "dotenv";
 dotenv.config();
-import authenticateToken from './auth.js';
+import authenticateToken from "./auth.js";
 
 router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  let sql = `
-    SELECT password
-    FROM users
-    WHERE manhansu = ?
-  `;
-  const results = await queryMySQL(sql, [username]);
-  if (results.length > 0) {
-    const hashedPasswordFromDB = results[0].password;
-    const hashedPasswordFromUserInput = hashPassword(password);
-    if (hashedPasswordFromUserInput === hashedPasswordFromDB) {
-      const user = { name: username };
-      const accessToken = jwt.sign(user, process.env.JWT_SECRET);
-      console.log(accessToken);
-      res.json({ accessToken });
-    } else {
-      res.sendStatus(401); // Unauthorized
-    }
-  } else {
-    res.sendStatus(401); // Unauthorized
+  try {
+    const { username, password } = req.body;
+    const sql = `SELECT * FROM users WHERE manhansu = ?  AND password = MD5(?)`;
+    const results = await queryMySQL(sql, [username, password]);
+    res.json(results.map(({ password, ...rest }) => ({ ...rest })));
+    // if (results.length > 0) {     
+    //     const user = { name: username };    
+    //     const accessToken = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "1h", });
+    //     const updateSql = `
+    //           UPDATE users
+    //           SET access_token = ?
+    //           WHERE manhansu = ?
+    //         `;
+    //     await queryMySQL(updateSql, [accessToken, username]);
+    //     console.log(accessToken);
+    //     res.json({ accessToken });          
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
-router.get("/list", authenticateToken, async (req, res) => {
+
+router.get("/list", async (req, res) => {
   try {
     const { manhansu, tennhansu, tennhom } = req.query;
-    let sql = "SELECT * FROM users WHERE 1=1";
-
+    let sql = `
+        SELECT 
+          * 
+        FROM 
+          users b
+        LEFT JOIN 
+          nhansu ns ON ns.manhansu = b.manhansu
+        LEFT JOIN 
+          nhomlamviec nlv ON ns.manhom = nlv.manhom
+        WHERE 
+          1=1
+        `;
     const params = [];
 
     if (tennhansu) {
