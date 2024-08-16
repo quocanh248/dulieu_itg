@@ -67,7 +67,41 @@ router.get("/list", async (req, res) => {
     res.sendStatus(500);
   }
 });
+router.get("/list_nhansu", async (req, res) => {
+  try {
+    const { manhansu, tennhansu, tennhom } = req.query;
+    let sql = `
+        SELECT 
+          manhansu, tennhansu, tennhom
+        FROM 
+          nhansu ns       
+        LEFT JOIN 
+          nhomlamviec nlv ON ns.manhom = nlv.manhom
+        WHERE 
+          1=1
+        `;
+    const params = [];
 
+    if (tennhansu) {
+      sql += " AND ns.tennhansu LIKE ?";
+      params.push(`%${tennhansu}%`);
+    }
+    if (tennhom) {
+      sql += " AND nlv.tennhom LIKE ?";
+      params.push(`%${tennhom}%`);
+    }
+    if (manhansu) {
+      sql += " AND b.manhansu = ?";
+      params.push(manhansu);
+    }
+
+    const results = await queryMySQL(sql, params);
+    res.json(results);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.sendStatus(500);
+  }
+});
 router.get("/list_nouser", async (req, res) => {
   try {
     let sql = `

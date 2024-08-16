@@ -314,7 +314,7 @@ img {
 }
 
 .table_label tr td {
-  padding-bottom: 20px;
+  padding-bottom: 10px;
 }
 
 .p-3a {
@@ -376,4 +376,29 @@ img {
     80vh - 100px
   ); /* Điều chỉnh chiều cao tối đa cho DataTable, trừ phần header và footer */
   overflow-y: auto; /* Thêm cuộn dọc nếu nội dung vượt quá chiều cao tối đa */
+}
+.no-scroll {
+  overflow: hidden;
+  height: 100%;
+}
+/* Tùy chỉnh thanh cuộn dọc (Scrollbar) */
+* {
+  scrollbar-width: thin; /* Thanh cuộn mỏng (Firefox) */
+  scrollbar-color: #14539a transparent; /* Màu xanh cho thanh cuộn, trong suốt cho nền */
+}
+
+*::-webkit-scrollbar {
+  width: 8px; /* Độ rộng của thanh cuộn dọc */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #14539a; /* Màu xanh cho thanh kéo */
+  border-radius: 10px; /* Bo tròn góc cho thanh kéo */
+}
+
+*::-webkit-scrollbar-track {
+  background-color: transparent; /* Nền của thanh cuộn */
+}
+.body-table{
+  min-height: calc(100vh - 152px);
 }

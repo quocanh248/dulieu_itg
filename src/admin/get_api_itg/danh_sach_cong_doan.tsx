@@ -33,11 +33,11 @@ function AdminPage() {
     try {
       const queryString = new URLSearchParams(filters).toString();
       const response = await sendAPIRequest(
-        "/truynguyen/listcongdoan?"+queryString,
+        "/truynguyen/listcongdoan?" + queryString,
         "GET",
         undefined
-      );   
-      setCongdoans(response);        
+      );
+      setCongdoans(response);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách công đoạn:", error);
     }
@@ -122,12 +122,12 @@ function AdminPage() {
     }
   };
   const showEditForm = async (macongdoan: string) => {
-    try {      
+    try {
       const response = await sendAPIRequest(
         "/truynguyen/chitietcongdoan?macongdoan=" + macongdoan,
         "GET",
         undefined
-      );      
+      );
       const congdoanData = response[0];
       setThuoctinhIp("");
       setMacongdoanEdit(congdoanData.macongdoan);
@@ -142,143 +142,147 @@ function AdminPage() {
 
   const htmlEditForm = () => {
     return (
-      <div className={`modal ${isFormEdit ? "d-block" : "d-none"}`}>
-        <div
-          className="modal-dialog"
-          style={{ width: "80%", maxWidth: "none" }}
-        >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Cập nhật công đoạn</h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-                onClick={() => setIsFormEdit(false)}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <ul className="nav nav-tabs">
-                <li className="nav-item">
-                  <a
-                    className="nav-link active"
-                    data-bs-toggle="tab"
-                    href="#basic"
-                  >
-                    Cơ bản
-                  </a>
-                </li>
-              </ul>
-              <div id="basic" className="tab-pane fade show active">
-                <div className="row">
-                  <div className="col-md-5">
-                    <div className="row">
-                      <div className="col-md-12">
-                        <div className="mb-3">
-                          <label className="form-label">Mã công đoạn (*)</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            readOnly
-                            value={macongdoanEdit}
-                          />
+      <div className={`modal-overlay ${isFormEdit ? "d-block" : "d-none"}`}>
+        <div className={`modal ${isFormEdit ? "d-block" : "d-none"}`}>
+          <div
+            className="modal-dialog"
+            style={{ width: "80%", maxWidth: "none" }}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Cập nhật công đoạn</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                  onClick={() => setIsFormEdit(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <ul className="nav nav-tabs">
+                  <li className="nav-item">
+                    <a
+                      className="nav-link active"
+                      data-bs-toggle="tab"
+                      href="#basic"
+                    >
+                      Cơ bản
+                    </a>
+                  </li>
+                </ul>
+                <div id="basic" className="tab-pane fade show active">
+                  <div className="row">
+                    <div className="col-md-5">
+                      <div className="row">
+                        <div className="col-md-12">
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Mã công đoạn (*)
+                            </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              readOnly
+                              value={macongdoanEdit}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <div className="mb-3">
+                            <label className="form-label">
+                              Tên công đoạn (*)
+                            </label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              readOnly
+                              value={tencongdoanEdit}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="col-md-12">
+                          <div className="mb-3">
+                            <label className="form-label">STT (*)</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              readOnly
+                              value={sttEdit}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <div className="row">
-                      <div className="col-md-12">
-                        <div className="mb-3">
-                          <label className="form-label">
-                            Tên công đoạn (*)
-                          </label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            readOnly
-                            value={tencongdoanEdit}
-                          />
+                    <div className="col-md-7 border-start">
+                      <div className="row">
+                        <div className="col-md-10">
+                          <div className="mb-3">
+                            <label className="form-label">Thuộc tính</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Thuộc tính"
+                              value={thuoctinhIp}
+                              onChange={(e) => setThuoctinhIp(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="col-md-2">
+                          <div className="mb-3">
+                            <label
+                              className="form-label"
+                              style={{ color: "white" }}
+                            >
+                              Thêm
+                            </label>
+                            <button
+                              type="button"
+                              className="btn btn-success"
+                              role="button"
+                              onClick={() =>
+                                handleAddThuoctinhCd(
+                                  macongdoanEdit,
+                                  thuoctinhEdit
+                                )
+                              }
+                            >
+                              Thêm
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="row">
-                      <div className="col-md-12">
-                        <div className="mb-3">
-                          <label className="form-label">STT (*)</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            readOnly
-                            value={sttEdit}
-                          />
-                        </div>
+                      <div className="row">
+                        <TableKetqua
+                          item={thuoctinhEdit}
+                          macongdoan={macongdoanEdit}
+                        />
                       </div>
-                    </div>
-                  </div>
-                  <div className="col-md-7 border-start">
-                    <div className="row">
-                      <div className="col-md-10">
-                        <div className="mb-3">
-                          <label className="form-label">Thuộc tính</label>
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Thuộc tính"
-                            value={thuoctinhIp}
-                            onChange={(e) => setThuoctinhIp(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="col-md-2">
-                        <div className="mb-3">
-                          <label
-                            className="form-label"
-                            style={{ color: "white" }}
-                          >
-                            Thêm
-                          </label>
-                          <button
-                            type="button"
-                            className="btn btn-success"
-                            role="button"
-                            onClick={() =>
-                              handleAddThuoctinhCd(
-                                macongdoanEdit,
-                                thuoctinhEdit
-                              )
-                            }
-                          >
-                            Thêm
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="row">
-                      <TableKetqua
-                        item={thuoctinhEdit}
-                        macongdoan={macongdoanEdit}
-                      />
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-danger">
-                Xóa
-              </button>
-              <div className="ms-auto">
-                <button
-                  type="button"
-                  className="btn btn-light"
-                  data-bs-dismiss="modal"
-                  onClick={() => setIsFormEdit(false)}
-                >
-                  Đóng
+              <div className="modal-footer">
+                <button type="button" className="btn btn-danger">
+                  Xóa
                 </button>
-                <button type="button" className="btn btn-primary">
-                  Cập nhật
-                </button>
+                <div className="ms-auto">
+                  <button
+                    type="button"
+                    className="btn btn-light"
+                    data-bs-dismiss="modal"
+                    onClick={() => setIsFormEdit(false)}
+                  >
+                    Đóng
+                  </button>
+                  <button type="button" className="btn btn-primary">
+                    Cập nhật
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -306,7 +310,7 @@ function AdminPage() {
             macongdoan: macongdoanEdit,
             thuoctinh: JSON.stringify(thuoctinhObj),
           };
-          await sendAPIRequest('/truynguyen/capnhatcongdoan', 'PUT', data);          
+          await sendAPIRequest("/truynguyen/capnhatcongdoan", "PUT", data);
           showEditForm(macongdoanEdit);
         }
       } else {

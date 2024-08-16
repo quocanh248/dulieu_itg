@@ -1,7 +1,7 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import MenuComponent from "../Menu";
 import { sendAPIRequest } from "../utils/util";
-import DataTable from 'react-data-table-component';
+import DataTable from "react-data-table-component";
 
 // Định nghĩa kiểu dữ liệu cho tài khoản
 interface Account {
@@ -18,14 +18,11 @@ interface NoAccount {
   tennhansu: string;
 }
 //get tonken
-const token = localStorage.getItem('token');
+const token = localStorage.getItem("token");
 // Định nghĩa kiểu dữ liệu cho component
 function AdminPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [noAccounts, setNoAccounts] = useState<NoAccount[]>([]);
-  const [manhansu, setManhansu] = useState<string>("");
-  const [tennhansu, setTennhansu] = useState<string>("");
-  const [tennhom, setTennhom] = useState<string>("");
   const [matkhau, setMatkhau] = useState<string>("");
   const [xacnhanmatkhau, setXacnhanMatkhau] = useState<string>("");
   const [vaitro, setVaitro] = useState<string>("admin");
@@ -56,9 +53,9 @@ function AdminPage() {
         "GET",
         undefined,
         token
-      );         
+      );
       setAccounts(response);
-    } catch (error) {   
+    } catch (error) {
       console.error("Lỗi khi lấy danh sách tài khoản:", error);
     }
   };
@@ -83,8 +80,24 @@ function AdminPage() {
   useEffect(() => {
     fetchAccounts();
   }, []);
-  const handleSearch = () => {
-    fetchAccounts({ manhansu, tennhansu, tennhom });
+  const toggleScrollAndModal = (
+    isOpen: boolean,
+    formadd: boolean,
+    formedit: boolean
+  ) => {
+    if (isOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      document.body.classList.remove("no-scroll");
+    }
+    if (isOpen && formadd) {
+      setIsFormAdd(true);
+    } else if (isOpen && formedit) {
+      setIsFormEdit(true);
+    } else {
+      setIsFormAdd(false);
+      setIsFormEdit(false);
+    }
   };
   const openAddForm = () => {
     fetchNoAccounts();
@@ -93,7 +106,7 @@ function AdminPage() {
     setVaitro("admin");
     setManhansuAcc("");
     setTennhansuAcc("");
-    setIsFormAdd(true);
+    toggleScrollAndModal(true, true, false);
   };
   const handleSubmit = async () => {
     if (
@@ -129,135 +142,137 @@ function AdminPage() {
   };
   const htmlAddForm = (): JSX.Element => {
     return (
-      <div className={`modal ${isFormAdd ? "d-block" : "d-none"}`}>
-        <div
-          className="modal-dialog"
-          style={{ width: "80%", maxWidth: "none" }}
-        >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Thêm tài khoản</h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-                onClick={() => setIsFormAdd(false)}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <ul className="nav nav-tabs">
-                <li className="nav-item">
-                  <a
-                    className="nav-link active"
-                    data-bs-toggle="tab"
-                    href="#basic"
-                  >
-                    Cơ bản
-                  </a>
-                </li>
-              </ul>
-              <div id="basic" className="tab-pane fade show active">
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">Mã nhân sự (*)</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        autoComplete="off"
-                        list="list_nhan_su"
-                        id="manhansu"
-                        value={manhansuAcc}
-                        onChange={handleManhansuChange}
-                      />
-                      <datalist id="list_nhan_su">
-                        {noAccounts.map((item) => (
-                          <option key={item.manhansu} value={item.manhansu}>
-                            {item.tennhansu}
-                          </option>
-                        ))}
-                      </datalist>
+      <div className={`modal-overlay ${isFormAdd ? "d-block" : "d-none"}`}>
+        <div className={`modal ${isFormAdd ? "d-block" : "d-none"}`}>
+          <div
+            className="modal-dialog"
+            style={{ width: "80%", maxWidth: "none" }}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Thêm tài khoản</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                  onClick={() => toggleScrollAndModal(false, false, false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <ul className="nav nav-tabs">
+                  <li className="nav-item">
+                    <a
+                      className="nav-link active"
+                      data-bs-toggle="tab"
+                      href="#basic"
+                    >
+                      Cơ bản
+                    </a>
+                  </li>
+                </ul>
+                <div id="basic" className="tab-pane fade show active">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Mã nhân sự (*)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          autoComplete="off"
+                          list="list_nhan_su"
+                          id="manhansu"
+                          value={manhansuAcc}
+                          onChange={handleManhansuChange}
+                        />
+                        <datalist id="list_nhan_su">
+                          {noAccounts.map((item) => (
+                            <option key={item.manhansu} value={item.manhansu}>
+                              {item.tennhansu}
+                            </option>
+                          ))}
+                        </datalist>
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Tên nhân sự</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          readOnly
+                          value={tennhansuAcc}
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">Tên nhân sự</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        readOnly
-                        value={tennhansuAcc}
-                      />
+                  <hr />
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Mật khẩu (*)</label>
+                        <input
+                          type="password"
+                          className="form-control"
+                          autoComplete="off"
+                          value={matkhau}
+                          onChange={(e) => setMatkhau(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Xác nhận mật khẩu (*)
+                        </label>
+                        <input
+                          type="password"
+                          className="form-control"
+                          autoComplete="off"
+                          value={xacnhanmatkhau}
+                          onChange={(e) => setXacnhanMatkhau(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <hr />
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">Mật khẩu (*)</label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        autoComplete="off"
-                        value={matkhau}
-                        onChange={(e) => setMatkhau(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Xác nhận mật khẩu (*)
-                      </label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        autoComplete="off"
-                        value={xacnhanmatkhau}
-                        onChange={(e) => setXacnhanMatkhau(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <hr />
-                <div className="row">
-                  <div className="col-md-12">
-                    <div className="mb-3">
-                      <label className="form-label">Vai trò (*)</label>
-                      <select
-                        className="form-select"
-                        id="vaitro"
-                        value={vaitro}
-                        onChange={(e) => setVaitro(e.target.value)}
-                      >
-                        <option value="admin">Admin</option>
-                        <option value="thietbi">Quản lý thiết bị</option>
-                        <option value="oi">Quản lý màn hình</option>
-                        <option value="nangxuat">Xem năng xuất</option>
-                        <option value="kehoach">Kế hoạch</option>
-                      </select>
+                  <hr />
+                  <div className="row">
+                    <div className="col-md-12">
+                      <div className="mb-3">
+                        <label className="form-label">Vai trò (*)</label>
+                        <select
+                          className="form-select"
+                          id="vaitro"
+                          value={vaitro}
+                          onChange={(e) => setVaitro(e.target.value)}
+                        >
+                          <option value="admin">Admin</option>
+                          <option value="thietbi">Quản lý thiết bị</option>
+                          <option value="oi">Quản lý màn hình</option>
+                          <option value="nangxuat">Xem năng xuất</option>
+                          <option value="kehoach">Kế hoạch</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => setIsFormAdd(false)}
-              >
-                Đóng
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary"
-                onClick={handleSubmit}
-              >
-                Thêm tài khoản
-              </button>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => toggleScrollAndModal(false, false, false)}
+                >
+                  Đóng
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={handleSubmit}
+                >
+                  Thêm tài khoản
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -278,7 +293,7 @@ function AdminPage() {
       setVaitro_edit(userData.role || "admin");
       setManhansu_edit(userData.manhansu || "");
       setTennhansu_edit(userData.tennhansu || "");
-      setIsFormEdit(true);
+      toggleScrollAndModal(true, false, true);
     } catch (error) {
       console.error("Lỗi khi lấy thông tin người dùng:", error);
       // Xử lý lỗi nếu cần thiết
@@ -299,7 +314,7 @@ function AdminPage() {
       };
       await sendAPIRequest("/users/edit", "POST", data);
       alert("Cập nhật tài khoản thành công!");
-      setIsFormEdit(false);
+      toggleScrollAndModal(true, false, false);
     } catch (error) {
       console.error("Lỗi khi thêm tài khoản:", error);
       alert("Có lỗi xảy ra khi thêm tài khoản.");
@@ -307,132 +322,136 @@ function AdminPage() {
   };
   const htmlEditForm = (): React.ReactNode => {
     return (
-      <div className={`modal ${isFormEdit ? "d-block" : "d-none"}`}>
-        <div
-          className="modal-dialog"
-          style={{ width: "100%", maxWidth: "none" }}
-        >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Cập nhật tài khoản</h5>
-              <button
-                type="button"
-                className="btn-close"
-                data-bs-dismiss="modal"
-                aria-label="Close"
-                onClick={() => setIsFormEdit(false)}
-              ></button>
-            </div>
-            <div className="modal-body">
-              <ul className="nav nav-tabs">
-                <li className="nav-item">
-                  <a
-                    className="nav-link active"
-                    data-bs-toggle="tab"
-                    href="#basic"
-                  >
-                    Cơ bản
-                  </a>
-                </li>
-              </ul>
-              <div id="basic" className="tab-pane fade show active">
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">Mã nhân sự (*)</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        readOnly
-                        value={manhansu_edit}
-                        onChange={(e) => setMatkhau_edit(e.target.value)}
-                      />
+      <div className={`modal-overlay ${isFormEdit ? "d-block" : "d-none"}`}>
+        <div className={`modal ${isFormEdit ? "d-block" : "d-none"}`}>
+          <div
+            className="modal-dialog"
+            style={{ width: "80%", maxWidth: "none" }}
+          >
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Cập nhật tài khoản</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                  onClick={() => toggleScrollAndModal(false, false, false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <ul className="nav nav-tabs">
+                  <li className="nav-item">
+                    <a
+                      className="nav-link active"
+                      data-bs-toggle="tab"
+                      href="#basic"
+                    >
+                      Cơ bản
+                    </a>
+                  </li>
+                </ul>
+                <div id="basic" className="tab-pane fade show active">
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Mã nhân sự (*)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          readOnly
+                          value={manhansu_edit}
+                          onChange={(e) => setMatkhau_edit(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Tên nhân sự</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          readOnly
+                          value={tennhansu_edit}
+                          onChange={(e) => setTennhansu_edit(e.target.value)}
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">Tên nhân sự</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        readOnly
-                        value={tennhansu_edit}
-                        onChange={(e) => setTennhansu_edit(e.target.value)}
-                      />
+                  <hr />
+                  <div className="row">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">Mật khẩu (*)</label>
+                        <input
+                          type="password"
+                          className="form-control"
+                          autoComplete="off"
+                          value={matkhau_edit}
+                          onChange={(e) => setMatkhau_edit(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Xác nhận mật khẩu (*)
+                        </label>
+                        <input
+                          type="password"
+                          className="form-control"
+                          autoComplete="off"
+                          value={xacnhanmatkhau_edit}
+                          onChange={(e) =>
+                            setXacnhanMatkhau_edit(e.target.value)
+                          }
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <hr />
-                <div className="row">
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">Mật khẩu (*)</label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        autoComplete="off"
-                        value={matkhau_edit}
-                        onChange={(e) => setMatkhau_edit(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <label className="form-label">
-                        Xác nhận mật khẩu (*)
-                      </label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        autoComplete="off"
-                        value={xacnhanmatkhau_edit}
-                        onChange={(e) => setXacnhanMatkhau_edit(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <hr />
-                <div className="row">
-                  <div className="col-md-12">
-                    <div className="mb-3">
-                      <label className="form-label">Vai trò (*)</label>
-                      <select
-                        className="form-select"
-                        id="vaitro"
-                        value={vaitro_edit}
-                        onChange={(e) => setVaitro_edit(e.target.value)}
-                      >
-                        <option value="admin">Admin</option>
-                        <option value="thietbi">Quản lý thiết bị</option>
-                        <option value="oi">Quản lý màn hình</option>
-                        <option value="nangxuat">Xem năng xuất</option>
-                        <option value="kehoach">Kế hoạch</option>
-                      </select>
+                  <hr />
+                  <div className="row">
+                    <div className="col-md-12">
+                      <div className="mb-3">
+                        <label className="form-label">Vai trò (*)</label>
+                        <select
+                          className="form-select"
+                          id="vaitro"
+                          value={vaitro_edit}
+                          onChange={(e) => setVaitro_edit(e.target.value)}
+                        >
+                          <option value="admin">Admin</option>
+                          <option value="thietbi">Quản lý thiết bị</option>
+                          <option value="oi">Quản lý màn hình</option>
+                          <option value="nangxuat">Xem năng xuất</option>
+                          <option value="kehoach">Kế hoạch</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-danger">
-                Xóa
-              </button>
-              <div className="ms-auto">
-                <button
-                  type="button"
-                  className="btn btn-light"
-                  data-bs-dismiss="modal"
-                  onClick={() => setIsFormEdit(false)}
-                >
-                  Đóng
+              <div className="modal-footer">
+                <button type="button" className="btn btn-danger">
+                  Xóa
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handle_Edit_Submit}
-                >
-                  Cập nhật
-                </button>
+                <div className="ms-auto">
+                  <button
+                    type="button"
+                    className="btn btn-light"
+                    data-bs-dismiss="modal"
+                    onClick={() => toggleScrollAndModal(false, false, false)}
+                  >
+                    Đóng
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={handle_Edit_Submit}
+                  >
+                    Cập nhật
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -449,33 +468,30 @@ function AdminPage() {
   };
   const columns = [
     {
-      name: 'Mã nhân sự',
+      name: "Mã nhân sự",
       selector: (row: Account) => row.manhansu,
       sortable: true,
     },
     {
-      name: 'Tên nhân sự',
+      name: "Tên nhân sự",
       selector: (row: Account) => row.tennhansu,
       sortable: true,
     },
     {
-      name: 'Tên nhóm',
+      name: "Tên nhóm",
       selector: (row: Account) => row.tennhom,
       sortable: true,
     },
     {
-      name: '',
+      name: "",
       cell: (row: Account) => (
         <div>
-          <button
-            className="btn btn-info"
-            onClick={() => showEditForm(row.id)}
-          >
+          <button className="btn btn-info" onClick={() => showEditForm(row.id)}>
             Chi tiết
           </button>
           <button
             className="btn btn-danger"
-            style={{ marginLeft: '5px' }}
+            style={{ marginLeft: "5px" }}
             onClick={() => handleTrash(row.id)}
           >
             Xóa
@@ -491,46 +507,14 @@ function AdminPage() {
           Danh sách tài khoản <i className="far fa-question-circle"></i>
         </h4>
         <div className="d-flex ms-auto">
-          <div className="input-custom ms-2">
+          <div className="input-custom ms-2" style={{ visibility: "hidden" }}>
             <div>
-              <label className="form-label text-secondary">Mã nhân sự</label>
-              <input
-                type="search"
-                className="form-control"
-                value={manhansu}
-                onChange={(e) => setManhansu(e.target.value)}
-              />
+              <label className="form-label text-secondary">Model</label>
+              <input type="search" />
             </div>
-          </div>
-          <div className="input-custom ms-2">
-            <div>
-              <label className="form-label text-secondary">Tên nhân sự</label>
-              <input
-                type="search"
-                className="form-control"
-                value={tennhansu}
-                onChange={(e) => setTennhansu(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="input-custom ms-2">
-            <div>
-              <label className="form-label text-secondary">Tên nhóm</label>
-              <input
-                type="search"
-                className="form-control"
-                value={tennhom}
-                onChange={(e) => setTennhom(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="d-flex align-items-center justify-content-center p-2">
-            <button className="btn btn-primary" onClick={handleSearch}>
-              Tìm kiếm
-            </button>
           </div>
           <div className="d-flex align-items-center justify-content-center">
-            <button className="btn btn-success" onClick={openAddForm}>
+            <button className="btn btn-primary" onClick={openAddForm}>
               Thêm
             </button>
           </div>
@@ -539,11 +523,7 @@ function AdminPage() {
       <div className="p-3">
         <div className="bg-white">
           <div className="App">
-            <DataTable
-              columns={columns}
-              data={accounts}   
-             
-            />
+            <DataTable columns={columns} data={accounts} />
           </div>
           {htmlAddForm()}
           {htmlEditForm()}

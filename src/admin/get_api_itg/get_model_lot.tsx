@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import MenuComponent from "../../Menu";
 import { sendAPIRequest } from "../../utils/util";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import DataTable from "react-data-table-component";
 interface RowData {
   label: string;
@@ -9,8 +9,9 @@ interface RowData {
 }
 
 function AdminPage() {
-  const [model, setModel] = useState("");
-  const [lot, setLot] = useState("");
+  const params = useParams();
+  const [model, setModel] = useState(params.model || "");
+  const [lot, setLot] = useState(params.model || "");
   const [loading, setLoading] = useState(false);
   const [result_model, setrResModel] = useState([]);
   const [result_lot, setrResLot] = useState([]);
@@ -73,8 +74,10 @@ function AdminPage() {
     get_api_itg({ model, lot });
   };
   useEffect(() => {
-    fetchmodel();
-  }, []);
+    fetchmodel();    
+    setModel(params.model || "");
+    setLot(params.lot || "");
+  }, [params.model, params.lot]);   
 
   const columns = [
     {

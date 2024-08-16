@@ -44,7 +44,6 @@ router.get("/search", async (req, res) => {
     }
     sql += " ORDER BY nangsuat.manhansu;";
     const results = await queryMySQL(sql, params);
-    console.log(results);
     res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -52,8 +51,8 @@ router.get("/search", async (req, res) => {
 });
 router.get("/search_nhansu", async (req, res) => {
   try {
-    const date = req.query.date;
-    const sql = `
+    const { date, manhansu } = req.query;
+    let sql = `
       SELECT 
         nangsuat.manhansu, 
         nhansu.tennhansu,   
@@ -70,18 +69,29 @@ router.get("/search_nhansu", async (req, res) => {
           AND n.manhansu = nangsuat.manhansu
         ) AS sum_time
       FROM 
-          nangsuat 
+        nangsuat 
       LEFT JOIN 
-          nhansu ON nhansu.manhansu = nangsuat.manhansu 
+        nhansu ON nhansu.manhansu = nangsuat.manhansu 
       LEFT JOIN 
-          nhomlamviec ON nhomlamviec.manhom = nhansu.manhom     
+        nhomlamviec ON nhomlamviec.manhom = nhansu.manhom     
       WHERE 
-          nangsuat.ngay = ?
-      GROUP BY manhansu, tennhansu, tennhom, ngay
+        nangsuat.ngay = ? 
+    `;
+    const params = [];
+    params.push(date);
+
+    if (manhansu) {
+      sql += ` AND nangsuat.manhansu = ?`;
+      params.push(manhansu);
+    }
+    sql += `
+      GROUP BY 
+        nangsuat.manhansu, nhansu.tennhansu, nhomlamviec.tennhom, nangsuat.ngay
       ORDER BY 
-          nangsuat.manhansu;
-  `;
-    const results = await queryMySQL(sql, [date]);
+        nangsuat.manhansu;
+    `;
+
+    const results = await queryMySQL(sql, params);
     console.log(results);
     res.json(results);
   } catch (err) {
@@ -234,7 +244,7 @@ router.post("/upload_zm", async (req, res) => {
     const thoigianthuchien = element[11];
     const thoigianquydoi = element[12];
     const vitri = element[3];
-  
+
     return [
       formattedDate, // Đảm bảo rằng biến `formattedDate` được định nghĩa ở nơi khác trong mã của bạn
       type, // Đảm bảo rằng biến `type` được định nghĩa ở nơi khác trong mã của bạn
@@ -259,12 +269,12 @@ router.post("/upload_zm", async (req, res) => {
   }
 });
 router.post("/upload_time", async (req, res) => {
-  const {data, date} = req.body;    
+  const { data, date } = req.body;
   data.map((element) => {
     var manhansu = element[1];
     var thoigianlamviec = element[3];
     const sql_update =
-    "update nangsuat set thoigianlamviec = ? where manhansu = ? and ngay = ?";
+      "update nangsuat set thoigianlamviec = ? where manhansu = ? and ngay = ?";
     queryMySQL(sql_update, [thoigianlamviec, manhansu, date]);
   });
   res.json({ message: "Added successfully", id: date });

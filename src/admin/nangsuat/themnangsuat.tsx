@@ -42,6 +42,7 @@ function AdminPage() {
           if (rows.length > 0) {
             await sendAPIRequest("/nang_suat/upload", "POST", rows);           
             alert("Dữ liệu đã được lưu thành công");
+            setFile(null);
           }
         };
 

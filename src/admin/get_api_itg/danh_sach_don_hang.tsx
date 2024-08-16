@@ -3,16 +3,9 @@ import MenuComponent from "../../Menu";
 import { sendAPIRequest } from "../../utils/util";
 import { Link } from "react-router-dom";
 import DataTable from "react-data-table-component";
-interface Datadonhang {
-  model: string;
-  lot: string;
-  soluong_dt: number;
-  soluong: number;
-  po: string;
-  trangthai: string;
-}
+import { Datadonhang } from '../../utils/modelAPI';
 
-function AdminPage() {
+function AdminPage() {  
   const [model, setModel] = useState("");
   const [lot, setLot] = useState("");
   const [result_model, setrResModel] = useState([]);
@@ -73,8 +66,10 @@ function AdminPage() {
       get_don_hang({ model, lot });
     }
   };
+  
   useEffect(() => {
     fetchmodel();
+    fetchlot();
   }, []);
 
   const columns = [
@@ -110,7 +105,7 @@ function AdminPage() {
         const soluong_dt = Number(row.soluong_dt);
 
         if (isNaN(soluong) || isNaN(soluong_dt) || soluong_dt === 0) {
-          return "N/A";
+          return "";
         }
 
         const percentage = (soluong / soluong_dt) * 100;
@@ -127,7 +122,7 @@ function AdminPage() {
     {      
       selector: (row: Datadonhang) => row.model,
       cell: (row: Datadonhang) => (
-        <Link to={`/chi_tiet_label/${encodeURIComponent(row.model)}/${encodeURIComponent(row.lot)}`}>
+        <Link to={`/get_model_lot_api/${encodeURIComponent(row.model)}/${encodeURIComponent(row.lot)}`}>
           Tìm
         </Link>
       )     

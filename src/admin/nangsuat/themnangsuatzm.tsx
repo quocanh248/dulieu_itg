@@ -41,6 +41,7 @@ function AdminPage() {
           if (filteredRows.length > 0) {
             await sendAPIRequest("/nang_suat/upload_zm", "POST", filteredRows);
             alert("Dữ liệu đã được lưu thành công");
+            setFile(null);
           }
         };
 

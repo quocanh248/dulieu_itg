@@ -5,11 +5,33 @@ import { queryMySQL } from "./server.js";
 
 const app = express();
 const router = express.Router();
-
 app.use(express.json());
 app.use(cors());
 
 // Route GET để lấy dữ liệu
+router.get("/get_don_hang", async (req, res) => {
+  try {
+    const { model, lot } = req.query;
+    let sql = `
+              SELECT * FROM model  
+              WHERE 1 = 1              
+          `;
+    const parmas = [];
+    if (model) {
+      sql += `AND model = ?`;
+      parmas.push(model);
+    }
+    if (lot) {
+      sql += `AND lot = ?`;
+      parmas.push(lot);
+    }
+    const results = await queryMySQL(sql, parmas);
+    console.log(results);
+    res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 router.get("/get_api_model_lot", async (req, res) => {
   const url =
     "http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport";
@@ -64,8 +86,16 @@ async function checkDonHang(model, lot) {
 
 async function capNhatModelLot(data, res) {
   await deleteModel(data[0].product_code, data[0].lot);
+  var dem_dt = 0;
+  var total = 0;
   const promises = data.map(async (item) => {
     const congDoan = await getCongDoan(item.step_code);
+    if (item.id_package != "") {
+      dem_dt++;
+    }
+    if (item.so_luong != 0) {
+      total = item.so_luong;
+    }
     const values = [
       item.stt_rec_dkv,
       item.so_ct,
@@ -86,14 +116,15 @@ async function capNhatModelLot(data, res) {
       item.stt_thung,
       item.machine_code,
       item.vi_tri,
-      congDoan?.thuoctinh ?? "{dandien: null,kichthuoc: null,ngoaiquan: null}",
       item.ghi_chu,
       congDoan?.stt ?? 99,
       8423001,
+      congDoan?.thuoctinh ?? "{dandien: null,kichthuoc: null,ngoaiquan: null}",
     ];
     await addData(values);
   });
   await Promise.all(promises);
+  await Update_soluong(dem_dt, total, data[0].product_code, data[0].lot);
   res.json(await thongTinModelLot(data[0].product_code, data[0].lot));
 }
 
@@ -147,12 +178,10 @@ async function getCongDoan(macongdoan) {
   }
   return result[0];
 }
-
 async function deleteModel(model, lot) {
   const sql = "DELETE FROM dulieu_itg_get_api WHERE model = ? AND lot = ?";
   await queryMySQL(sql, [model, lot]);
 }
-
 async function addData(values) {
   const sql = `
     INSERT INTO dulieu_itg_get_api (
@@ -164,7 +193,29 @@ async function addData(values) {
   `;
   await queryMySQL(sql, values);
 }
-
+async function Update_soluong(soluong_dt, soluong, model, lot) {
+  try {
+    const sql = `
+      UPDATE 
+        model 
+      SET 
+        soluong_dt = ?,
+        trangthai = ? 
+      WHERE 
+        model = ? AND 
+        lot = ?
+    `;
+    var trangthai = "";
+    if (soluong == soluong_dt) {
+      trangthai = "Hoàn tất";
+    }
+    console.log(trangthai, soluong_dt, soluong);
+    await queryMySQL(sql, [soluong_dt, trangthai, model, lot]);
+  } catch (error) {
+    console.error("Lỗi khi cập nhật SL:", error);
+    res.status(500).json({ message: "Lỗi khi cập nhật công đoạn" });
+  }
+}
 router.put("/capnhatcongdoan", async (req, res) => {
   const { macongdoan, thuoctinh } = req.body;
   console.log(macongdoan, thuoctinh);
@@ -202,10 +253,14 @@ router.get("/list_lot", async (req, res) => {
     const { model_change } = req.query;
     let sql = `
               SELECT distinct lot FROM model  
-              WHERE 1 = 1
-              AND model = ?
+              WHERE 1 = 1              
           `;
-    const results = await queryMySQL(sql, [model_change]);
+    const parmas = [];
+    if (model_change) {
+      sql += `AND model = ?`;
+      parmas.push(model_change);
+    }
+    const results = await queryMySQL(sql, parmas);
     res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -224,7 +279,10 @@ router.get("/chi_tiet_label", async (req, res) => {
             mathung, 
             lenhsanxuat, 
             soluong, 
-            sochungtu
+            sochungtu,
+            mathung,
+            ngay,
+            giobatdau
         FROM 
             dulieu_itg_get_api
         WHERE 
@@ -291,6 +349,49 @@ router.get("/chitietcongdoan", async (req, res) => {
     const results = await queryMySQL(sql, [macongdoan]);
     console.log(results);
     res.json(results);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router.post("/addDonhang", async (req, res) => {
+  const { data } = req.body;  
+  try {
+    for (const element of data) {
+      const model = `${element[0]}${element[1]}_${element[2]}`;
+      let week = element[4];
+      if (typeof week === 'string' && week.length === 1) {
+        week = "0" + week;
+      }
+      const lot = `53${element[3]}${week}`;
+      const soluong = element[5];
+      const po = element[6];     
+      let sql = `
+        SELECT 
+          id 
+        FROM 
+          model  
+        WHERE 
+          model = ? AND
+          lot = ?
+      `;
+      var results = await queryMySQL(sql, [model, lot]);       
+      if (results && results.length > 0) {      
+        let sql_update = `
+          UPDATE  
+            model 
+          SET 
+            soluong = ?  
+          WHERE 
+            id = ?
+        `;
+        await queryMySQL(sql_update, [soluong, results[0].id]);      
+      } else {
+        // Nếu không tồn tại, chèn bản ghi mới
+        const sql_insert = `INSERT INTO model (model, lot, po, soluong) VALUES (?, ?, ?, ?)`;
+        await queryMySQL(sql_insert, [model, lot, po, soluong]);
+      }
+    }
+    res.status(200).json({ message: "Cập nhật đơn hàng thành công!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import exportToExcel from "../../utils/exportToExcel";
 import MenuComponent from "../../Menu";
 import { sendAPIRequest } from "../../utils/util";
@@ -36,13 +36,14 @@ function AdminPage() {
   yesterday.setDate(yesterday.getDate() - 1);
   const formattedDate = yesterday.toISOString().split("T")[0];
   const [date, setDate] = useState<string>(formattedDate);
+  const [manhansu, setManhansu] = useState("");
   const [result, setResult] = useState<ItemData[]>([]);
+  const [result_nhansu, setNhansus] = useState<ItemData[]>([]);
   const [resultth, setResultTH] = useState<Data_tonghop[]>([]);
   const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
   const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
     setDate(e.target.value);
   };
-
   const handleExport = async () => {
     try {
       const res = await fetchexcel({ date });
@@ -89,61 +90,8 @@ function AdminPage() {
   };
 
   const handleSearch = () => {
-    fetchnangsuat({ date });
+    fetchnangsuat({ date, manhansu });
   };
-  const columns = [
-    {
-      name: "Mã nhân viên",
-      selector: (row: Data_tonghop) => row.manhansu,
-      sortable: true,
-    },
-    {
-      name: "Tên nhân viên",
-      selector: (row: Data_tonghop) => row.tennhansu,
-      sortable: true,
-    },
-    {
-      name: "Bộ phận",
-      selector: (row: Data_tonghop) => row.tennhom,
-      sortable: true,
-    },
-    {
-      name: "Ngày",
-      selector: (row: Data_tonghop) => format(new Date(row.ngay), "dd/MM/yyyy"), // Định dạng ngày
-      sortable: true,
-    },
-    {
-      name: "Số lượng",
-      selector: (row: Data_tonghop) => {
-        const value = Number(row.sum_soluong);
-        return isNaN(value) ? "N/A" : value.toFixed(2);
-      },
-      sortable: true,
-    },
-    {
-      name: "Thời gian thực hiện",
-      selector: (row: Data_tonghop) => {
-        const value = Number(row.sum_time);
-        return isNaN(value) ? "N/A" : value.toFixed(2);
-      },
-      sortable: true,
-    },
-    {
-      name: "",
-      cell: (row: Data_tonghop) => (
-        <div>
-          <button
-            className="btn btn-info"
-            onClick={() =>
-              showDetail(row.manhansu, format(new Date(row.ngay), "yyyy-MM-dd"))
-            }
-          >
-            Chi tiết
-          </button>
-        </div>
-      ),
-    },
-  ];
   const columns_detail = [
     {
       name: "Tên nhân viên",
@@ -195,22 +143,13 @@ function AdminPage() {
       sortable: true,
     },
   ];
-  const showDetail = async (manhansu: string, ngay: string) => {
-    try {
-      const response = await sendAPIRequest(
-        `/nang_suat/search?manhansu=${encodeURIComponent(
-          manhansu
-        )}&date=${encodeURIComponent(ngay)}`,
-        "GET",
-        undefined
-      );
-      console.log(response);
-      setResult(response);
-      setIsFormEdit(true);
-    } catch (error) {
-      console.error("Lỗi khi lấy thông tin người dùng:", error);
-      // Xử lý lỗi nếu cần thiết
+  const toggleScrollAndModal = (isOpen: boolean) => {
+    if (isOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      // document.body.classList.remove("no-scroll");
     }
+    setIsFormEdit(isOpen);
   };
   const htmlDetailForm = (): React.ReactNode => {
     return (
@@ -228,7 +167,7 @@ function AdminPage() {
                   className="btn-close"
                   data-bs-dismiss="modal"
                   aria-label="Close"
-                  onClick={() => setIsFormEdit(false)}
+                  onClick={() => toggleScrollAndModal(false)}
                 ></button>
               </div>
               <div className="modal-body">
@@ -238,8 +177,8 @@ function AdminPage() {
                       <DataTable
                         columns={columns_detail}
                         data={result}
-                        pagination
-                        paginationPerPage={6}
+                        fixedHeader
+                        fixedHeaderScrollHeight="calc(80vh - 172px)"
                         responsive
                       />
                     </div>
@@ -252,7 +191,7 @@ function AdminPage() {
                     type="button"
                     className="btn btn-light"
                     data-bs-dismiss="modal"
-                    onClick={() => setIsFormEdit(false)}
+                    onClick={() => toggleScrollAndModal(false)}
                   >
                     Đóng
                   </button>
@@ -264,6 +203,78 @@ function AdminPage() {
       </div>
     );
   };
+  const columns = [
+    {
+      name: "Mã nhân viên",
+      selector: (row: Data_tonghop) => row.manhansu,
+      sortable: true,
+    },
+    {
+      name: "Tên nhân viên",
+      selector: (row: Data_tonghop) => row.tennhansu,
+      sortable: true,
+    },
+    {
+      name: "Bộ phận",
+      selector: (row: Data_tonghop) => row.tennhom,
+      sortable: true,
+    },
+    {
+      name: "Ngày",
+      selector: (row: Data_tonghop) => format(new Date(row.ngay), "dd/MM/yyyy"), // Định dạng ngày
+      sortable: true,
+    },
+    {
+      name: "Số lượng",
+      selector: (row: Data_tonghop) => {
+        const value = Number(row.sum_soluong);
+        return isNaN(value) ? "N/A" : value.toFixed(2);
+      },
+      sortable: true,
+    },
+    {
+      name: "Thời gian thực hiện",
+      selector: (row: Data_tonghop) => {
+        const value = Number(row.sum_time);
+        return isNaN(value) ? "N/A" : value.toFixed(2);
+      },
+      sortable: true,
+    },
+  ];
+  const handleRowClicked = async (row: Record<string, any>) => {
+    try {
+      var n = format(new Date(row.ngay), "yyyy-MM-dd");
+      const response = await sendAPIRequest(
+        `/nang_suat/search?manhansu=${encodeURIComponent(
+          row.manhansu
+        )}&date=${encodeURIComponent(n)}`,
+        "GET",
+        undefined
+      );
+      console.log(response);
+      setResult(response);
+      toggleScrollAndModal(true);
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin người dùng:", error);
+      // Xử lý lỗi nếu cần thiết
+    }
+  };
+  const fetchAccounts = async (filters: Record<string, string> = {}) => {
+    try {
+      const queryString = new URLSearchParams(filters).toString();
+      const response = await sendAPIRequest(
+        "/users/list_nhansu?" + queryString,
+        "GET",
+        undefined       
+      );
+      setNhansus(response);
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách tài khoản:", error);
+    }
+  };
+  useEffect(() => {
+    fetchAccounts();
+  }, []);
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">
@@ -271,6 +282,25 @@ function AdminPage() {
           Dữ liệu năng suất <i className="far fa-question-circle"></i>
         </h4>
         <div className="d-flex ms-auto">
+          <div className="input-custom ms-2">
+            <div>
+              <label className="form-label text-secondary">Mã nhân sự</label>
+              <input
+                type="search"
+                className="form-control"
+                value={manhansu}
+                list="list_nhan_su"
+                onChange={(e) => setManhansu(e.target.value)}
+              />
+              <datalist id="list_nhan_su">
+                {result_nhansu.map((item) => (
+                  <option key={item.manhansu} value={item.manhansu}>
+                    {item.tennhansu}
+                  </option>
+                ))}
+              </datalist>
+            </div>
+          </div>
           <div className="input-custom ms-2">
             <div>
               <label className="form-label text-secondary">Ngày</label>
@@ -295,16 +325,17 @@ function AdminPage() {
         </div>
       </div>
       <div className="p-3">
-        <div className="bg-white">
-          <div className="App">
-            <DataTable
-              columns={columns}
-              data={resultth}
-              pagination
-              paginationPerPage={10}
-              responsive
-            />
-          </div>
+        <div className="bg-white body-table">
+          <DataTable
+            columns={columns}
+            data={resultth}
+            pagination
+            paginationPerPage={15}
+            fixedHeader
+            fixedHeaderScrollHeight="calc(100vh - 202px)"
+            responsive
+            onRowClicked={handleRowClicked}
+          />
         </div>
       </div>
       {htmlDetailForm()}
