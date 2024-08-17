@@ -185,12 +185,12 @@ router.post("/edit", async (req, res) => {
 });
 
 router.delete("/delete", async (req, res) => {
-  const { id } = req.body;
+  const { userid } = req.body;
   try {
-    const sql = "DELETE FROM users WHERE id = ?";
-    const result = await queryMySQL(sql, [id]);
+    const sql = "DELETE FROM users WHERE manhansu = ?";
+    const result = await queryMySQL(sql, [userid]);
     result.affectedRows > 0
-      ? res.json({ message: "Deleted successfully", id: id })
+      ? res.json({ message: "Deleted successfully", userid: userid })
       : res.status(404).json({ error: "User not found" });
   } catch (err) {
     res.status(500).json({ error: err.message });

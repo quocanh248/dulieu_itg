@@ -43,9 +43,7 @@ function AdminPage() {
         </div>
       </div>
       <div className="p-3">
-        <div className="bg-white">
-
-        </div>
+        <div className="bg-white body-table"></div>
       </div>
     </MenuComponent>
   );

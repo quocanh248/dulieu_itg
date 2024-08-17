@@ -279,10 +279,10 @@ function AdminPage() {
       </div>
     );
   };
-  const showEditForm = async (id: string) => {
-    try {
+  const handleRowClicked = async (row: Record<string, any>) => {
+    try {    
       const response = await sendAPIRequest(
-        "/users/user_info?id=" + id,
+        "/users/user_info?id=" + row.id,
         "GET",
         undefined
       );
@@ -298,7 +298,7 @@ function AdminPage() {
       console.error("Lỗi khi lấy thông tin người dùng:", error);
       // Xử lý lỗi nếu cần thiết
     }
-  };
+  }; 
   const handle_Edit_Submit = async () => {
     if (matkhau != "") {
       if (matkhau !== xacnhanmatkhau) {
@@ -432,7 +432,10 @@ function AdminPage() {
                 </div>
               </div>
               <div className="modal-footer">
-                <button type="button" className="btn btn-danger">
+                <button type="button" 
+                className="btn btn-danger"
+                onClick={handleTrash}
+                >
                   Xóa
                 </button>
                 <div className="ms-auto">
@@ -459,11 +462,13 @@ function AdminPage() {
       </div>
     );
   };
-  const handleTrash = async (id: string) => {
+  const handleTrash = async () => {
     if (window.confirm("Bạn có chắc chắn muốn xóa user này không?")) {
-      await sendAPIRequest("/users/delete", "DELETE", { id });
+      var userid = manhansu_edit;
+      await sendAPIRequest("/users/delete", "DELETE", { userid });
       fetchAccounts();
       alert("Xóa user thành công");
+      toggleScrollAndModal(false, false, false);
     }
   };
   const columns = [
@@ -481,24 +486,7 @@ function AdminPage() {
       name: "Tên nhóm",
       selector: (row: Account) => row.tennhom,
       sortable: true,
-    },
-    {
-      name: "",
-      cell: (row: Account) => (
-        <div>
-          <button className="btn btn-info" onClick={() => showEditForm(row.id)}>
-            Chi tiết
-          </button>
-          <button
-            className="btn btn-danger"
-            style={{ marginLeft: "5px" }}
-            onClick={() => handleTrash(row.id)}
-          >
-            Xóa
-          </button>
-        </div>
-      ),
-    },
+    }    
   ];
   return (
     <MenuComponent>
@@ -521,10 +509,17 @@ function AdminPage() {
         </div>
       </div>
       <div className="p-3">
-        <div className="bg-white">
-          <div className="App">
-            <DataTable columns={columns} data={accounts} />
-          </div>
+        <div className="bg-white body-table">         
+            <DataTable
+              columns={columns}
+              data={accounts}
+              pagination
+              paginationPerPage={15}
+              fixedHeader
+              fixedHeaderScrollHeight="calc(100vh - 202px)"
+              responsive
+              onRowClicked={handleRowClicked}
+            />            
           {htmlAddForm()}
           {htmlEditForm()}
         </div>

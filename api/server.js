@@ -5,7 +5,7 @@ import mysql from 'mysql';
 import nangsuatAPI from './nangsuat.js';
 import userAPI from './user.js';
 import truynguyenAPI from './truynguyen.js';
-
+import ThietbiAPI from './thietbi.js';
 
 const app = express();
 const port = 3001;
@@ -41,6 +41,7 @@ export function queryMySQL(sql, args) {
 app.use('/nang_suat', nangsuatAPI);
 app.use('/users', userAPI);
 app.use('/truynguyen', truynguyenAPI);
+app.use('/thietbi', ThietbiAPI);
 // Route ví dụ để nhận ngày
 app.post('/api/search', (req, res) => {
   const { date } = req.body;

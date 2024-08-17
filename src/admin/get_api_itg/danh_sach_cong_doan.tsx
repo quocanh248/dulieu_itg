@@ -1,22 +1,8 @@
 import { useEffect, useState } from "react";
 import MenuComponent from "../../Menu";
 import { sendAPIRequest } from "../../utils/util";
-
-// Định nghĩa kiểu cho các đối tượng
-interface CongDoan {
-  macongdoan: string;
-  stt: string;
-  tencongdoan: string;
-}
-
-interface Thuoctinh {
-  [key: string]: string; // Thay đổi kiểu giá trị nếu cần
-}
-
-interface TableKetquaProps {
-  item: string; // Nếu item là JSON string
-  macongdoan: string;
-}
+import DataTable from "react-data-table-component";
+import { CongDoan, TableKetquaProps, Thuoctinh } from '../../utils/modelAPI';
 
 function AdminPage() {
   const [congdoans, setCongdoans] = useState<CongDoan[]>([]);
@@ -49,6 +35,50 @@ function AdminPage() {
 
   const handleSearch = () => {
     fetchCongdoan({ macongdoan, tencongdoan });
+  };
+  const columns = [
+    {
+      name: "Mã công đoạn",
+      selector: (row: CongDoan) => row.macongdoan,
+      sortable: true,
+    },
+    {
+      name: "Tên công đoạn",
+      selector: (row: CongDoan) => row.tencongdoan,
+      sortable: true,
+    },
+    {
+      name: "Stt",
+      selector: (row: CongDoan) => row.stt,
+      sortable: true,
+    }    
+  ];
+  const handleRowClicked = async (row: Record<string, any>) => {
+    try {    
+      const response = await sendAPIRequest(
+        "/truynguyen/chitietcongdoan?macongdoan=" + row.macongdoan,
+        "GET",
+        undefined
+      );
+      const congdoanData = response[0];
+      setThuoctinhIp("");
+      setMacongdoanEdit(congdoanData.macongdoan);
+      setTencongdoanEdit(congdoanData.tencongdoan);
+      setSttEdit(congdoanData.stt);
+      setThuoctinhEdit(congdoanData.thuoctinh);            
+      toggleScrollAndModal(true);
+    } catch (error) {
+      console.error("Lỗi khi lấy thông tin người dùng:", error);
+      // Xử lý lỗi nếu cần thiết
+    }
+  };
+  const toggleScrollAndModal = (isOpen: boolean) => {
+    if (isOpen) {
+      document.body.classList.add("no-scroll");
+    } else {
+      // document.body.classList.remove("no-scroll");
+    }
+    setIsFormEdit(true); 
   };
   const TableKetqua: React.FC<TableKetquaProps> = ({ item, macongdoan }) => {
     // Phân tích chuỗi JSON item thành đối tượng
@@ -159,18 +189,7 @@ function AdminPage() {
                   onClick={() => setIsFormEdit(false)}
                 ></button>
               </div>
-              <div className="modal-body">
-                <ul className="nav nav-tabs">
-                  <li className="nav-item">
-                    <a
-                      className="nav-link active"
-                      data-bs-toggle="tab"
-                      href="#basic"
-                    >
-                      Cơ bản
-                    </a>
-                  </li>
-                </ul>
+              <div className="modal-body">               
                 <div id="basic" className="tab-pane fade show active">
                   <div className="row">
                     <div className="col-md-5">
@@ -256,7 +275,7 @@ function AdminPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="row">
+                      <div className="row p-3">
                         <TableKetqua
                           item={thuoctinhEdit}
                           macongdoan={macongdoanEdit}
@@ -358,38 +377,17 @@ function AdminPage() {
         </div>
       </div>
       <div className="p-3">
-        <div className="bg-white">
-          <table
-            className="table table-bordered text-center"
-            style={{ width: "100%", fontSize: "14px" }}
-          >
-            <thead>
-              <tr>
-                <th>Mã công đoạn</th>
-                <th>Tên công đoạn</th>
-                <th>STT</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {congdoans.map((item) => (
-                <tr key={item.macongdoan}>
-                  <td>{item.macongdoan}</td>
-                  <td>{item.tencongdoan}</td>
-                  <td>{item.stt}</td>
-                  <td>
-                    <button
-                      className="btn btn-info"
-                      role="button"
-                      onClick={() => showEditForm(item.macongdoan)}
-                    >
-                      Chi tiết
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="bg-white body-table">
+          <DataTable
+            columns={columns}
+            data={congdoans}
+            pagination
+            paginationPerPage={15}
+            fixedHeader
+            fixedHeaderScrollHeight="calc(100vh - 202px)"
+            responsive
+            onRowClicked={handleRowClicked}
+          />
         </div>
       </div>
       {isFormEdit && htmlEditForm()}

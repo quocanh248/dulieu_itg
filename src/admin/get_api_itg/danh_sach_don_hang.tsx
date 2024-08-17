@@ -183,12 +183,16 @@ function AdminPage() {
         </div>
       </div>
       <div className="p-3">
-        <div className="bg-white">
+        <div className="bg-white body-table">
           <DataTable
             columns={columns}
             data={result_donhang}
             responsive
-            style={{ fontSize: "14px" }}
+            pagination
+            paginationPerPage={15}
+            fixedHeader
+            fixedHeaderScrollHeight="calc(100vh - 202px)"
+            style={{ fontSize: "16px" }}
           />
         </div>
       </div>

@@ -39,7 +39,7 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                 </Link>
               </div>
             </div>
-          </div>             
+          </div>
           <div className="nav__item">
             <a href="#" className="nav__link">
               <i className="fa-brands fa-product-hunt"></i>
@@ -53,12 +53,16 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
               </div>
               <div className="nav__item">
                 <Link to="/them_du_lieu_nang_suat" className="nav__link">
-                  <span>Thêm dữ liệu năng suất <b>ITG</b></span>
+                  <span>
+                    Thêm dữ liệu năng suất <b>ITG</b>
+                  </span>
                 </Link>
               </div>
               <div className="nav__item">
                 <Link to="/them_du_lieu_nang_suat_zm" className="nav__link">
-                  <span>Thêm dữ liệu năng suất <b>ZM</b></span>
+                  <span>
+                    Thêm dữ liệu năng suất <b>ZM</b>
+                  </span>
                 </Link>
               </div>
             </div>
@@ -88,29 +92,27 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
             </a>
             <div className="nav__submenu">
               <div className="nav__item">
-                <Link to="/get_api_itg_model_lot" className="nav__link">
-                  <span>Dữ liệu chạy hàng Model - lot</span>
-                </Link>
-              </div>
-              <div className="nav__item">
                 <Link to="/danh_sach_don_hang" className="nav__link">
                   <span>Danh sách đơn hàng</span>
                 </Link>
               </div>
+            </div>
+          </div>
+          <div className="nav__item">
+            <a href="#" className="nav__link">
+            <i className="fa-solid fa-lines-leaning"></i>
+              <span>Thiết bị</span>
+            </a>
+            <div className="nav__submenu">
               <div className="nav__item">
-                <Link to="/them_du_lieu_nang_suat" className="nav__link">
-                  <span>Thêm dữ liệu năng suất</span>
+                <Link to="/danh_sach_nhom_cap_2" className="nav__link">
+                  <span>Danh sách nhóm cấp 2</span>
                 </Link>
               </div>
             </div>
           </div>
-        </div>
+        </div>        
         <div className="flex text-nowrap p-3">
-          <img
-            className="header__img rounded-pill"
-            src="./assets/img/user.png"
-            alt="Logo"
-          />
           <span className="mx-1">User</span>
           <i className="fas fa-chevron-down"></i>
         </div>
@@ -119,5 +121,4 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
     </>
   );
 };
-
 export default MenuComponent;

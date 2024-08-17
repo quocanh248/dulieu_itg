@@ -58,9 +58,9 @@ function AdminPage() {
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">
-        <h4 className="fw-normal text-primary m-0">
+        <h5 className="fw-normal text-primary m-0">
           Thêm Dữ liệu năng suất ITG <i className="far fa-question-circle"></i>
-        </h4>
+        </h5>
         <div className="d-flex ms-auto">
           <div className="input-custom ms-2">
             <div>
@@ -81,7 +81,9 @@ function AdminPage() {
           </div>
         </div>
       </div>
-      <div className="p-3"></div>
+      <div className="p-3">
+        <div className="bg-white body-table"></div>
+      </div>
     </MenuComponent>
   );
 }

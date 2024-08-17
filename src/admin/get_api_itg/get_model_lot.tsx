@@ -16,7 +16,7 @@ function AdminPage() {
   const [result_model, setrResModel] = useState([]);
   const [result_lot, setrResLot] = useState([]);
   const [result_congdoan, setrRescongdoan] = useState([]);
-  const [result_label, setrReslabel] = useState<RowData[]>([]); 
+  const [result_label, setrReslabel] = useState<RowData[]>([]);
   // Xử lý sự kiện thay đổi giá trị của input
   const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const model_change = e.target.value;
@@ -74,10 +74,10 @@ function AdminPage() {
     get_api_itg({ model, lot });
   };
   useEffect(() => {
-    fetchmodel();    
+    fetchmodel();
     setModel(params.model || "");
     setLot(params.lot || "");
-  }, [params.model, params.lot]);   
+  }, [params.model, params.lot]);
 
   const columns = [
     {
@@ -152,23 +152,23 @@ function AdminPage() {
         </div>
       </div>
       <div className="p-3">
-        {loading ? (
-          <div
-            className="d-flex align-items-center justify-content-center"
-            style={{ minHeight: "400px" }}
-          >
-            <div className="loader"></div>
-          </div>
-        ) : (
-          <div className="bg-white">
+        <div className="bg-white body-table">
+          {loading ? (
+            <div
+              className="d-flex align-items-center justify-content-center"
+              style={{ minHeight: "400px" }}
+            >
+              <div className="loader"></div>
+            </div>
+          ) : (
             <DataTable
               columns={columns}
-              data={result_label}             
-              responsive             
+              data={result_label}
+              responsive
               style={{ fontSize: "14px" }}
             />
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </MenuComponent>
   );
