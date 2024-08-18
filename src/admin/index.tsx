@@ -17,8 +17,7 @@ interface NoAccount {
   manhansu: string;
   tennhansu: string;
 }
-//get tonken
-const token = localStorage.getItem("token");
+
 // Định nghĩa kiểu dữ liệu cho component
 function AdminPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -51,8 +50,7 @@ function AdminPage() {
       const response = await sendAPIRequest(
         "/users/list?" + queryString,
         "GET",
-        undefined,
-        token
+        undefined,        
       );
       setAccounts(response);
     } catch (error) {
@@ -65,8 +63,7 @@ function AdminPage() {
       const response = await sendAPIRequest(
         "/users/list_nouser?" + queryString,
         "GET",
-        undefined,
-        token
+        undefined,       
       );
       setNoAccounts(response);
     } catch (error) {

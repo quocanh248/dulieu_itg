@@ -1,10 +1,20 @@
 import { Link } from "react-router-dom";
+import { useAuthStore } from "./store/useAuthStore";
 
 interface Props {
   children?: React.ReactNode; // `children` có thể không được truyền vào, vì vậy đánh dấu là tùy chọn.
 }
 
 const MenuComponent: React.FC<Props> = ({ children }) => {
+  const role = localStorage.getItem("role");
+  const username = localStorage.getItem("username");  
+  const handllogout = async () => {
+    if (window.confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+      const { signOut } = useAuthStore.getState(); // Lấy hàm signOut từ store
+      await signOut();
+    }
+  };
+
   return (
     <>
       <header className="d-flex bg-dark">
@@ -12,34 +22,36 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
           <img className="header__img" src="/assets/img/logo.png" alt="Logo" />
         </div>
         <div className="nav flex-grow-1 scroll-x-view">
-          <div className="nav__item">
-            <a href="#" className="nav__link">
-              <i className="far fa-user"></i>
-              <span>Quản trị</span>
-            </a>
-            <div className="nav__submenu">
-              <div className="nav__item">
-                <Link to="/danh_sach_tai_khoan" className="nav__link">
-                  <span>Danh sách tài khoản</span>
-                </Link>
-              </div>
-              <div className="nav__item">
-                <Link to="/danh_sach_cong_doan" className="nav__link">
-                  <span>Danh sách công đoạn</span>
-                </Link>
-              </div>
-              <div className="nav__item">
-                <Link to="/them_don_hang" className="nav__link">
-                  <span>Thêm đơn hàng</span>
-                </Link>
-              </div>
-              <div className="nav__item">
-                <Link to="/login" className="nav__link">
-                  <span>Login</span>
-                </Link>
+          {role == "admin" && (
+            <div className="nav__item">
+              <a href="#" className="nav__link">
+                <i className="far fa-user"></i>
+                <span>Quản trị</span>
+              </a>
+              <div className="nav__submenu">
+                <div className="nav__item">
+                  <Link to="/danh_sach_tai_khoan" className="nav__link">
+                    <span>Danh sách tài khoản</span>
+                  </Link>
+                </div>
+                <div className="nav__item">
+                  <Link to="/danh_sach_cong_doan" className="nav__link">
+                    <span>Danh sách công đoạn</span>
+                  </Link>
+                </div>
+                <div className="nav__item">
+                  <Link to="/them_don_hang" className="nav__link">
+                    <span>Thêm đơn hàng</span>
+                  </Link>
+                </div>
+                <div className="nav__item">
+                  <Link to="/login" className="nav__link">
+                    <span>Login</span>
+                  </Link>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           <div className="nav__item">
             <a href="#" className="nav__link">
               <i className="fa-brands fa-product-hunt"></i>
@@ -100,7 +112,7 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
           </div>
           <div className="nav__item">
             <a href="#" className="nav__link">
-            <i className="fa-solid fa-lines-leaning"></i>
+              <i className="fa-solid fa-lines-leaning"></i>
               <span>Thiết bị</span>
             </a>
             <div className="nav__submenu">
@@ -111,10 +123,21 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
               </div>
             </div>
           </div>
-        </div>        
-        <div className="flex text-nowrap p-3">
-          <span className="mx-1">User</span>
-          <i className="fas fa-chevron-down"></i>
+        </div>       
+        <div className="nav flex text-nowrap">
+          <div className="nav__item">
+            <a href="#" className="nav__link">
+              <span className="mx-1">{username}</span>
+              <i className="fas fa-chevron-down"></i>
+            </a>
+            <div className="nav__submenu" style={{ right: "0" }}>
+              <div className="nav__item">
+                <a className="nav__link" onClick={handllogout}>
+                  <span>Đăng xuất</span>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </header>
       {children}

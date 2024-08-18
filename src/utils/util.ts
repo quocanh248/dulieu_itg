@@ -212,26 +212,28 @@ export const sendAPIRequest = async (
     url: string,
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     data = {},
-    token: string | null = null // Thêm tham số token
-) => {   
+) => {
     try {
-        const response = await axios({
-            //baseURL: 'http://30.0.2.8:3001' + url,
-            baseURL: 'http://localhost:3001' + url,
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                // Authorization: `Bearer 398cd41e91f1f3309713ab3b88b55f9b`,
-                Authorization: token ? `Bearer ${token}` : undefined,
-            },
-            data: method !== 'GET' ? data : {},
-        });       
-        return response.data;
-    } catch (error) {      
-        console.error('There was a problem with the axios operation:', error);
+        if (url === '/users/login' || localStorage.getItem('access_token')) {
+            const response = await axios({
+                baseURL: `http://localhost:3001${url}`,
+                method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    // Authorization: `Bearer 398cd41e91f1f3309713ab3b88b55f9b`,
+                    Authorization: localStorage.getItem('access_token') ? `Bearer ${localStorage.getItem('access_token')}` : `Bearer xzdFoEI7KnES1p1kTr8opCXnKocgD0`,
+                },
+                data: method !== 'GET' ? data : {},
+            });
+            return response.data;
+        }
+        window.location.href = '/login';
+    } catch (error) {
+        console.error('Axios error:', error);
         throw error;
     }
 };
+
 
 export const sendImageAPIRequest = async (
     url: string,

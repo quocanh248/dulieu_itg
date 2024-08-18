@@ -8,23 +8,50 @@ import dotenv from "dotenv";
 dotenv.config();
 import authenticateToken from "./auth.js";
 
+function generateRandomString(length) {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters[randomIndex];
+  }
+  return result;
+}
+
 router.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
-    const sql = `SELECT * FROM users WHERE manhansu = ?  AND password = MD5(?)`;
+    const sql = `
+          SELECT * 
+          FROM users b
+          LEFT JOIN 
+            nhansu ns ON ns.manhansu = b.manhansu 
+          WHERE 
+                b.manhansu = ?  AND 
+                password = MD5(?)`;
     const results = await queryMySQL(sql, [username, password]);
-    res.json(results.map(({ password, ...rest }) => ({ ...rest })));
-    // if (results.length > 0) {     
-    //     const user = { name: username };    
-    //     const accessToken = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "1h", });
-    //     const updateSql = `
-    //           UPDATE users
-    //           SET access_token = ?
-    //           WHERE manhansu = ?
-    //         `;
-    //     await queryMySQL(updateSql, [accessToken, username]);
-    //     console.log(accessToken);
-    //     res.json({ accessToken });          
+
+    if (results.length > 0) {
+      // Nếu đăng nhập thành công thì mình sẽ tạo token lưu vào db
+      const access_token = generateRandomString(30);
+
+      const id = results[0].id;
+      const sql1 = `UPDATE users SET access_token = ? WHERE id = ?`;
+      await queryMySQL(sql1, [access_token, id]);
+
+      res.json({
+        status: 200,
+        access_token: access_token,
+        role: results[0].role,
+        tennhansu: results[0].tennhansu,
+      });
+    } else {
+      res.json({
+        status: 204,
+        message: "Tên đăng nhập hoặc mật khẩu không hợp lệ",
+      });
+    }
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

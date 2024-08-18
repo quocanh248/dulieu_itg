@@ -20,6 +20,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
     signOut: () => {
         set({ isAuth: false, userInfo: null });
-        localStorage.removeItem('authState');
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('role');
+        window.location.href = "/login";
     },
 }));

@@ -2,27 +2,35 @@ import { useState } from "react";
 import "../../../public/assets/css/table_data.css";
 import { sendAPIRequest } from "../../utils/util";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from '../../store/useAuthStore';
+
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
-  // const [token, setToken] = useState('');
-  const { signIn } = useAuthStore();
+  const navigate = useNavigate(); 
   const handleLogin = async () => {
     const data = {
       username: username,
       password: password,
     };
-    const res = await sendAPIRequest("/users/login", "POST", data);    
-    if (res.length > 0) {
-      signIn(res[0]);     
+    const res = await sendAPIRequest("/users/login", "POST", data);
+    console.log(res.status);
+    if (res.status === 200) {
+      localStorage.setItem("access_token", res.access_token);
+      localStorage.setItem("role", res.role);
+      localStorage.setItem("username", res.tennhansu);
       navigate("/");
-    } else {
-      console.error("Tài khoản hoặc mật khẩu không hợp lệ");
+    } else if (res.status === 204) {
+      console.log(res.message);
     }
-  }; 
+
+    // if (res.length > 0) {
+    //   signIn(res[0]);
+    //   navigate("/");
+    // } else {
+    //   console.error("Tài khoản hoặc mật khẩu không hợp lệ");
+    // }
+  };
   //d-flex align-items-center justify-content-center
   return (
     <div className="body">
