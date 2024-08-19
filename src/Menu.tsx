@@ -45,7 +45,7 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                   </Link>
                 </div>
                 <div className="nav__item">
-                  <Link to="/login" className="nav__link">
+                  <Link to="/" className="nav__link">
                     <span>Login</span>
                   </Link>
                 </div>
@@ -86,15 +86,10 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
             </a>
             <div className="nav__submenu">
               <div className="nav__item">
-                <Link to="/get_api_itg_model_lot" className="nav__link">
+                <Link to="/get_logzm_model_lot" className="nav__link">
                   <span>Dữ liệu chạy hàng Model - lot</span>
                 </Link>
-              </div>
-              <div className="nav__item">
-                <Link to="/them_du_lieu_nang_suat" className="nav__link">
-                  <span>Thêm dữ liệu năng suất</span>
-                </Link>
-              </div>
+              </div>             
             </div>
           </div>
           <div className="nav__item">
@@ -110,7 +105,7 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
               </div>
             </div>
           </div>
-          <div className="nav__item">
+          {/* <div className="nav__item">
             <a href="#" className="nav__link">
               <i className="fa-solid fa-lines-leaning"></i>
               <span>Thiết bị</span>
@@ -122,7 +117,7 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                 </Link>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>       
         <div className="nav flex text-nowrap">
           <div className="nav__item">

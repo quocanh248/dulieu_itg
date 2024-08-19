@@ -1,5 +1,5 @@
 import express from "express";
-import { queryMySQL } from "./server.js";
+import { queryMySQL } from "./server.mjs";
 
 const router = express.Router();
 

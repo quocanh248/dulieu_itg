@@ -1,7 +1,7 @@
 import express from "express";
 import axios from "axios";
 import cors from "cors";
-import { queryMySQL } from "./server.js";
+import { queryMySQL } from "./server.mjs";
 
 const app = express();
 const router = express.Router();
@@ -96,8 +96,9 @@ async function capNhatModelLot(data, res) {
     if (item.so_luong != 0) {
       total = item.so_luong;
     }
+    console.log(" item.stt_rec_dkv:" + item.stt_rec_dkv);
     const values = [
-      item.stt_rec_dkv,
+      "LSX: .......",
       item.so_ct,
       item.step_name,
       item.result,
@@ -141,14 +142,26 @@ async function thongTinModelLot(model, lot) {
 	    label, ngay DESC, giobatdau DESC
   `;
   const sqlCongDoan = `
-    SELECT DISTINCT congdoan, ttcongdoan
-    FROM dulieu_itg_get_api  
-    WHERE model = ? AND lot = ? 
-    ORDER BY ttcongdoan;
+    SELECT 
+      DISTINCT congdoan, 
+      ttcongdoan, 
+      soluong,
+      COUNT(CASE WHEN ketqua = 'OK' THEN 1 ELSE NULL END) AS count_ok
+    FROM 
+      dulieu_itg_get_api  
+    WHERE 
+      model = ? AND 
+      lot = ? 
+    GROUP BY 
+      congdoan, 
+      ttcongdoan,
+      soluong
+    ORDER BY 
+      ttcongdoan;
   `;
   const result = await queryMySQL(sql, [model, lot]);
   const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
-  console.log(result);
+  console.log(resultCongDoan);
   const congDoanMap = resultCongDoan.reduce((map, item) => {
     map[item.congdoan] = item.ttcongdoan;
     return map;
@@ -167,6 +180,7 @@ async function thongTinModelLot(model, lot) {
   return {
     results: Object.values(groupedResults),
     congdoan: Object.keys(congDoanMap),
+    info: resultCongDoan,
   };
 }
 
@@ -354,17 +368,17 @@ router.get("/chitietcongdoan", async (req, res) => {
   }
 });
 router.post("/addDonhang", async (req, res) => {
-  const { data } = req.body;  
+  const { data } = req.body;
   try {
     for (const element of data) {
       const model = `${element[0]}${element[1]}_${element[2]}`;
       let week = element[4];
-      if (typeof week === 'string' && week.length === 1) {
+      if (typeof week === "string" && week.length === 1) {
         week = "0" + week;
       }
       const lot = `53${element[3]}${week}`;
       const soluong = element[5];
-      const po = element[6];     
+      const po = element[6];
       let sql = `
         SELECT 
           id 
@@ -374,8 +388,8 @@ router.post("/addDonhang", async (req, res) => {
           model = ? AND
           lot = ?
       `;
-      var results = await queryMySQL(sql, [model, lot]);       
-      if (results && results.length > 0) {      
+      var results = await queryMySQL(sql, [model, lot]);
+      if (results && results.length > 0) {
         let sql_update = `
           UPDATE  
             model 
@@ -384,7 +398,7 @@ router.post("/addDonhang", async (req, res) => {
           WHERE 
             id = ?
         `;
-        await queryMySQL(sql_update, [soluong, results[0].id]);      
+        await queryMySQL(sql_update, [soluong, results[0].id]);
       } else {
         // Nếu không tồn tại, chèn bản ghi mới
         const sql_insert = `INSERT INTO model (model, lot, po, soluong) VALUES (?, ?, ?, ?)`;

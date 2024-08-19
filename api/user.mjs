@@ -1,12 +1,12 @@
 import express from "express";
-import { queryMySQL } from "./server.js";
+import { queryMySQL } from "./server.mjs";
 import bodyParser from "body-parser";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 const router = express.Router();
 import dotenv from "dotenv";
 dotenv.config();
-import authenticateToken from "./auth.js";
+import authenticateToken from "./auth.mjs";
 
 function generateRandomString(length) {
   const characters =
@@ -24,7 +24,7 @@ router.post("/login", async (req, res) => {
     const { username, password } = req.body;
     const sql = `
           SELECT * 
-          FROM users b
+          FROM users_react b
           LEFT JOIN 
             nhansu ns ON ns.manhansu = b.manhansu 
           WHERE 
@@ -35,9 +35,8 @@ router.post("/login", async (req, res) => {
     if (results.length > 0) {
       // Nếu đăng nhập thành công thì mình sẽ tạo token lưu vào db
       const access_token = generateRandomString(30);
-
       const id = results[0].id;
-      const sql1 = `UPDATE users SET access_token = ? WHERE id = ?`;
+      const sql1 = `UPDATE users_react SET access_token = ? WHERE id = ?`;
       await queryMySQL(sql1, [access_token, id]);
 
       res.json({
@@ -47,10 +46,22 @@ router.post("/login", async (req, res) => {
         tennhansu: results[0].tennhansu,
       });
     } else {
-      res.json({
-        status: 204,
-        message: "Tên đăng nhập hoặc mật khẩu không hợp lệ",
-      });
+      const sql_ktr = `
+          SELECT * 
+          FROM users_react 
+          WHERE manhansu = ?`;
+      const results_ktr = await queryMySQL(sql_ktr, [username]);
+      if (results_ktr.length > 0) {
+        res.json({
+          status: 205,
+          message: "Mật khẩu không hợp lệ",
+        });
+      } else {
+        res.json({
+          status: 204,
+          message: "User không tồn tại",
+        });
+      }
     }
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -64,7 +75,7 @@ router.get("/list", async (req, res) => {
         SELECT 
           * 
         FROM 
-          users b
+          users_react b
         LEFT JOIN 
           nhansu ns ON ns.manhansu = b.manhansu
         LEFT JOIN 
@@ -134,7 +145,7 @@ router.get("/list_nouser", async (req, res) => {
     let sql = `
             SELECT ns.manhansu, ns.tennhansu
             FROM nhansu ns
-            LEFT JOIN users b ON ns.manhansu = b.manhansu
+            LEFT JOIN users_react b ON ns.manhansu = b.manhansu
             WHERE b.manhansu IS NULL       
         `;
     const params = [];
@@ -151,7 +162,7 @@ router.get("/user_info", async (req, res) => {
     let sql = `
             SELECT ns.manhansu, ns.tennhansu, b.role
             FROM nhansu ns
-            LEFT JOIN users b ON ns.manhansu = b.manhansu
+            LEFT JOIN users_react b ON ns.manhansu = b.manhansu
             WHERE id = ?       
         `;
     const results = await queryMySQL(sql, [id]);
@@ -185,7 +196,8 @@ router.post("/add", async (req, res) => {
   //     return res.status(400).json({ error: "Mật khẩu phải có ít nhất 6 ký tự." });
   //   }
   const hashedPassword = hashPassword(matkhau);
-  const query = "INSERT INTO users (manhansu, password, role) VALUES (?, ?, ?)";
+  const query =
+    "INSERT INTO users_react (manhansu, password, role) VALUES (?, ?, ?)";
   await queryMySQL(query, [manhansu_acc, hashedPassword, vaitro]);
   res.status(201).json({ message: "Thêm người dùng thành công!" });
 });
@@ -193,7 +205,7 @@ router.post("/add", async (req, res) => {
 router.post("/edit", async (req, res) => {
   const { manhansu_edit, matkhau_edit, vaitro_edit } = req.body;
   let values = [];
-  let sql = "UPDATE users SET role = ?";
+  let sql = "UPDATE users_react SET role = ?";
   values.push(vaitro_edit);
   if (matkhau_edit !== "") {
     const hashedPassword = hashPassword(matkhau_edit);
@@ -214,7 +226,7 @@ router.post("/edit", async (req, res) => {
 router.delete("/delete", async (req, res) => {
   const { userid } = req.body;
   try {
-    const sql = "DELETE FROM users WHERE manhansu = ?";
+    const sql = "DELETE FROM users_react WHERE manhansu = ?";
     const result = await queryMySQL(sql, [userid]);
     result.affectedRows > 0
       ? res.json({ message: "Deleted successfully", userid: userid })

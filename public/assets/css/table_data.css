@@ -245,3 +245,9 @@ footer a {
     color: #3c97bf;
     text-decoration: none;
 }
+.color-red-login{
+    color: red;
+    font-size: 16px;
+    text-align: left !important;
+    margin-bottom: 5px;
+}

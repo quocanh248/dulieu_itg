@@ -21,7 +21,9 @@ export const useAuthStore = create<AuthState>((set) => ({
     signOut: () => {
         set({ isAuth: false, userInfo: null });
         localStorage.removeItem('access_token');
+        localStorage.removeItem('username');
         localStorage.removeItem('role');
-        window.location.href = "/login";
+        localStorage.removeItem('tmp_path');
+        window.location.href = "/";
     },
 }));

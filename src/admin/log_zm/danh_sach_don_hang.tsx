@@ -3,25 +3,14 @@ import MenuComponent from "../../Menu";
 import { sendAPIRequest } from "../../utils/util";
 import { Link } from "react-router-dom";
 import DataTable from "react-data-table-component";
-interface RowData {
-  label: string;
-  [key: string]: any; // Để có thể chứa các giá trị khác không biết trước
-}
-interface Datatt {
-  congdoan: string;
-  ttcongdoan: number;
-  soluong: number;
-  count_ok: number;
-}
-function Modelot_api_Page() {
+import { Datadonhang } from '../../utils/modelAPI';
+
+function AdminPage() {  
   const [model, setModel] = useState("");
   const [lot, setLot] = useState("");
-  const [loading, setLoading] = useState(false);
   const [result_model, setrResModel] = useState([]);
   const [result_lot, setrResLot] = useState([]);
-  const [result_congdoan, setrRescongdoan] = useState([]);
-  const [result_label, setrReslabel] = useState<RowData[]>([]);
-  const [thongtin, setrResthongtin] = useState<Datatt[]>([]);
+  const [result_donhang, setrResdonhang] = useState<Datadonhang[]>([]);
   // Xử lý sự kiện thay đổi giá trị của input
   const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const model_change = e.target.value;
@@ -57,59 +46,94 @@ function Modelot_api_Page() {
       console.error("Lỗi khi lấy dữ liệu năng suất:", error);
     }
   };
-  const get_api_itg = async (filters = {}) => {
-    setLoading(true); // Bắt đầu loading
+  const get_don_hang = async (filters = {}) => {
     try {
       const queryString = new URLSearchParams(filters).toString();
       const response = await sendAPIRequest(
-        "/truynguyen/get_api_model_lot?" + queryString,
+        "/truynguyen/get_don_hang?" + queryString,
         "GET",
         undefined
       );
-      setrRescongdoan(response.congdoan);
-      setrReslabel(response.results);
-      setrResthongtin(response.info);
+      setrResdonhang(response);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu:", error);
-    } finally {
-      setLoading(false); // Kết thúc loading
     }
   };
   const handleSearch = () => {
-    get_api_itg({ model, lot });
+    if (lot == "") {
+      alert("Vui lòng chọn lot để tìm");
+    } else {
+      get_don_hang({ model, lot });
+    }
   };
+  
   useEffect(() => {
     fetchmodel();
+    fetchlot();
   }, []);
+
   const columns = [
     {
-      name: "Label",
-      selector: (row: RowData) => row.label,
-      cell: (row: RowData) => (
-        <Link to={`/chi_tiet_label/${encodeURIComponent(row.label)}`}>
-          {row.label}
-        </Link>
-      ),
+      name: "Model",
+      selector: (row: Datadonhang) => row.model,
       sortable: true,
     },
-    ...result_congdoan.map((congdoanItem) => ({
-      name: congdoanItem,
-      selector: (row: RowData) => row[congdoanItem] || " ",
-      cell: (row: RowData) => row[congdoanItem] || " ",
+    {
+      name: "Lot",
+      selector: (row: Datadonhang) => row.lot,
       sortable: true,
-    })),
-  ];
-  const row_md_1 = result_congdoan.length;  
-  let col  = row_md_1 > 6 ? 1 : row_md_1 > 4 ? 2 : row_md_1 !== 0 ? 12 / row_md_1 : 12;
-  let col2 = row_md_1 > 8 ? 2 : row_md_1 > 7 ? 3 : row_md_1 > 6 ? 3 :row_md_1 > 5 ? 4 : row_md_1 > 4 ? 6 : 12;
+    },
+    {
+      name: "Po",
+      selector: (row: Datadonhang) => row.po,
+      sortable: true,
+    },
+    {
+      name: "Số lượng ĐT",
+      selector: (row: Datadonhang) => row.soluong_dt,
+      sortable: true,
+    },
+    {
+      name: "Số lượng PO",
+      selector: (row: Datadonhang) => row.soluong,
+      sortable: true,
+    },
+    {
+      name: "% Hoàn thành",
+      selector: (row: Datadonhang) => {
+        const soluong = Number(row.soluong);
+        const soluong_dt = Number(row.soluong_dt);
 
-  console.log(col2, row_md_1);
+        if (isNaN(soluong) || isNaN(soluong_dt) || soluong_dt === 0) {
+          return "";
+        }
+
+        const percentage = (soluong / soluong_dt) * 100;
+        const string = percentage.toFixed(2) + "%";
+        return string;
+      },
+      sortable: true,
+    },
+    {
+      name: "Trạng thái",
+      selector: (row: Datadonhang) => row.trangthai,
+      sortable: true,
+    },
+    {      
+      selector: (row: Datadonhang) => row.model,
+      cell: (row: Datadonhang) => (
+        <Link to={`/get_model_lot_api/${encodeURIComponent(row.model)}/${encodeURIComponent(row.lot)}`}>
+          Tìm
+        </Link>
+      )     
+    }
+  ];
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">
-        <h5 className="fw-normal text-primary m-0">
-          Dữ liệu báo cáo ITG <i className="far fa-question-circle"></i>
-        </h5>
+        <h4 className="fw-normal text-primary m-0">
+          Danh sách đơn hàng <i className="far fa-question-circle"></i>
+        </h4>
         <div className="d-flex ms-auto">
           <div className="input-custom ms-2">
             <div>
@@ -159,46 +183,21 @@ function Modelot_api_Page() {
         </div>
       </div>
       <div className="p-3">
-        <div className="bg-white body-table-top">
-          <div className="row px-2">
-            {thongtin.map((it, index) => (
-                <div key={index} className={`col-md-${col2} p-3`}>
-                  <div className="bg-xanh btn-mh d-flex flex-column align-items-center justify-content-center text-center">
-                    <div style={{ fontWeight: "bold" }}>
-                      {it.count_ok}/{it.soluong}
-                    </div>
-                    <div style={{ fontSize: "16px", marginTop: "4px" }}>
-                      {it.congdoan}
-                    </div>
-                  </div>
-                </div>
-              ))}
-          </div>
+        <div className="bg-white body-table">
+          <DataTable
+            columns={columns}
+            data={result_donhang}
+            responsive
+            pagination
+            paginationPerPage={15}
+            fixedHeader
+            fixedHeaderScrollHeight="calc(100vh - 202px)"
+            style={{ fontSize: "16px" }}
+          />
         </div>
-        {loading ? (
-          <div
-            className="d-flex align-items-center justify-content-center"
-            style={{ minHeight: "400px" }}
-          >
-            <div className="loader"></div>
-          </div>
-        ) : (
-          <div className="bg-white body-table-bt">
-            <DataTable
-              columns={columns}
-              data={result_label}
-              pagination
-              paginationPerPage={10}
-              fixedHeader
-              fixedHeaderScrollHeight="calc(100vh - 398px)"
-              responsive
-              style={{ fontSize: "14px" }}
-            />
-          </div>
-        )}
       </div>
     </MenuComponent>
   );
 }
 
-export default Modelot_api_Page;
+export default AdminPage;

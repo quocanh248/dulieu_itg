@@ -3,11 +3,12 @@ import "../../../public/assets/css/table_data.css";
 import { sendAPIRequest } from "../../utils/util";
 import { useNavigate } from "react-router-dom";
 
-
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate(); 
+  const [tbuser, setTbuser] = useState("");
+  const [tbpass, setTbpass] = useState("");
+  const navigate = useNavigate();
   const handleLogin = async () => {
     const data = {
       username: username,
@@ -19,9 +20,20 @@ const Login = () => {
       localStorage.setItem("access_token", res.access_token);
       localStorage.setItem("role", res.role);
       localStorage.setItem("username", res.tennhansu);
-      navigate("/");
+      var tmp_path = localStorage.getItem("tmp_path");
+      if (!tmp_path) {
+        navigate("/default");
+      }else{
+        navigate(tmp_path);
+      }
     } else if (res.status === 204) {
-      console.log(res.message);
+      setTbuser("User không tồn tại!");      
+      setPassword("");
+      setUsername("");
+    } else if (res.status === 205) {
+      setTbpass("Mật khẩu không hợp lệ!");     
+      setPassword("");
+      setUsername(""); 
     }
 
     // if (res.length > 0) {
@@ -52,7 +64,8 @@ const Login = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Nhập tài khoản"
-            />
+            />            
+            <label className="color-red-login" htmlFor="">{tbuser}</label>
             <input
               type="password"
               className="input"
@@ -60,6 +73,7 @@ const Login = () => {
               placeholder="Nhập mật khẩu"
               onChange={(e) => setPassword(e.target.value)}
             />
+            <label className="color-red-login" htmlFor="">{tbpass}</label>
             <button type="button" className="button" onClick={handleLogin}>
               Đăng nhập
             </button>

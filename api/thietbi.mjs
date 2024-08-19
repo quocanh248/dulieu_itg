@@ -1,7 +1,7 @@
 import express from "express";
 import axios from "axios";
 import cors from "cors";
-import { queryMySQL } from "./server.js";
+import { queryMySQL } from "./server.mjs";
 
 const app = express();
 const router = express.Router();

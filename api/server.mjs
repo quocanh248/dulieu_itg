@@ -1,14 +1,15 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import mysql from "mysql";
-import nangsuatAPI from "./nangsuat.js";
-import userAPI from "./user.js";
-import truynguyenAPI from "./truynguyen.js";
-import ThietbiAPI from "./thietbi.js";
+import mysql from "mysql2";
+import nangsuatAPI from "./nangsuat.mjs";
+import userAPI from "./user.mjs";
+import truynguyenAPI from "./truynguyen.mjs";
+import ThietbiAPI from "./thietbi.mjs";
+import Logzm from "./log_zm.mjs";
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -42,9 +43,8 @@ export function queryMySQL(sql, args) {
 const authToken = async (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1];
   console.log(token);
-  const sql = `SELECT * FROM users Where access_token = ?`;
+  const sql = `SELECT * FROM users_react Where access_token = ?`;
   const result = await queryMySQL(sql, [token]);
-
   const master_password = "xzdFoEI7KnES1p1kTr8opCXnKocgD0";
 
   result.length > 0 || token === master_password
@@ -58,6 +58,7 @@ const authToken = async (req, res, next) => {
 app.use("/nang_suat", authToken, nangsuatAPI);
 app.use("/users", authToken, userAPI);
 app.use("/truynguyen", authToken, truynguyenAPI);
+app.use("/logzm", authToken, Logzm);
 app.use("/thietbi", ThietbiAPI);
 // Route ví dụ để nhận ngày
 app.post("/api/search", authToken, (req, res) => {
