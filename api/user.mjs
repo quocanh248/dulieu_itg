@@ -35,13 +35,15 @@ router.post("/login", async (req, res) => {
     if (results.length > 0) {
       // Nếu đăng nhập thành công thì mình sẽ tạo token lưu vào db
       const access_token = generateRandomString(30);
+      const refreshToken = generateRandomString(30);
       const id = results[0].id;
-      const sql1 = `UPDATE users_react SET access_token = ? WHERE id = ?`;
-      await queryMySQL(sql1, [access_token, id]);
+      const sql1 = `UPDATE users_react SET access_token = ? , refestsh_token = ? WHERE id = ?`;
+      await queryMySQL(sql1, [access_token, refreshToken, id]);
 
       res.json({
         status: 200,
         access_token: access_token,
+        refreshToken: refreshToken,
         role: results[0].role,
         tennhansu: results[0].tennhansu,
       });
@@ -67,7 +69,16 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
+router.post("/refresh-token", async (req, res) => {
+  const { token } = req.body;  
+  const access_token = generateRandomString(30);
+  const sql1 = `UPDATE users_react SET access_token = ? WHERE refestsh_token = ?`;
+  await queryMySQL(sql1, [access_token, token]);
+  res.json({
+    status: 200,
+    access_token: access_token    
+  });
+});
 router.get("/list", async (req, res) => {
   try {
     const { manhansu, tennhansu, tennhom } = req.query;

@@ -38,14 +38,14 @@ interface TableProps {
 
 function AdminPage() {
   const [resultThongtin, setResultThongtin] = useState<ThongtinItem[]>([]);
-  const [resultChitiet, setResultChitiet] = useState<ChitietItem[]>([]);  
+  const [resultChitiet, setResultChitiet] = useState<ChitietItem[]>([]);
   const { label } = useParams<{ label: string }>();
   const decodedLabel = decodeURIComponent(label || "");
 
   const processData = (chitiet: ChitietItem[]) => {
     let keyData: { [key: string]: string } = {};
     chitiet.forEach((item) => {
-      const thuoctinhs = JSON.parse(item.thuoctinh);      
+      const thuoctinhs = JSON.parse(item.thuoctinh);
       for (const [key, value] of Object.entries(thuoctinhs)) {
         if (value !== null) {
           if (!(key in keyData) || keyData[key] !== item.ketqua) {
@@ -70,8 +70,7 @@ function AdminPage() {
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu:", error);
     }
-  };
-
+  };  
   const get_ten_nhan_su = async (chuoi: string): Promise<NhanVien[]> => {
     const manhanviens = chuoi.split(",");
     const results = await Promise.all(
