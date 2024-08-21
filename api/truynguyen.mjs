@@ -74,6 +74,50 @@ router.get("/get_api_model_lot", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.get("/get_label_none", async (req, res) => {
+  const { model, lot, soluong } = req.query;
+
+  // Validate and cast soluong to a number
+  const quantity = parseInt(soluong, 10);
+  if (isNaN(quantity)) {
+    return res.status(400).json({ error: "Invalid quantity provided" });
+  }
+
+  try {
+    const sql = `
+    SELECT label
+    FROM dulieu_itg_get_api
+    WHERE model = ? AND lot = ?
+  `;
+    const result = await queryMySQL(sql, [model, lot]);
+    const existingLabels = new Set(result.map((item) => item.label));
+    console.log(existingLabels);
+    const data = [];
+    for (let i = 1; i <= quantity; i++) {
+      let formattedIndex = i.toString().padStart(4, "0");
+      let labelToCheck = `${model}_${lot}${formattedIndex}`;
+      console.log(labelToCheck);
+      if (!existingLabels.has(labelToCheck)) {
+        data.push(labelToCheck);
+      }
+    }   
+    res.json({ missingLabels: data });   
+    // for (let i = 1; i <= quantity; i++) {
+    //   let formattedIndex = i.toString().padStart(4, "0");
+    //   let labelToCheck = `${model}_${lot}${formattedIndex}`;
+    //   const exists = result.some(item => item.label === labelToCheck);
+    //   if (!exists) {
+    //     data.push(labelToCheck);
+    //     // console.log(labelToCheck);
+    //   }
+    // }
+
+    // res.json({ missingLabels: data });
+  } catch (error) {
+    console.error("Error fetching labels:", error);
+    res.status(500).json({ error: "An error occurred while fetching labels" });
+  }
+});
 
 async function checkDonHang(model, lot) {
   const sql = `
@@ -105,7 +149,7 @@ async function capNhatModelLot(data, res) {
       item.id_tem,
       0,
       item.product_code,
-      item.total,
+      item.so_luong,
       item.lot,
       formatDate(item.create_date),
       item.create_time,
@@ -132,7 +176,7 @@ async function capNhatModelLot(data, res) {
 async function thongTinModelLot(model, lot) {
   const sql = `
     SELECT 
-	    label, congdoan, ketqua
+	    label, congdoan, ketqua, ttcongdoan
     FROM 
 	    dulieu_itg_get_api 
     WHERE 
@@ -159,28 +203,72 @@ async function thongTinModelLot(model, lot) {
     ORDER BY 
       ttcongdoan;
   `;
+  const sql_none = `
+    SELECT 
+      DISTINCT congdoan, 
+      model,
+      lot,
+      ttcongdoan, 
+      soluong,
+      COUNT(*) AS soluong_da_chay
+    FROM 
+      dulieu_itg_get_api  
+    WHERE 
+      model = ? AND 
+      lot = ? AND
+        ttcongdoan > 9
+    GROUP BY 
+      model,
+      lot,
+      congdoan, 
+      ttcongdoan,
+      soluong
+    ORDER BY 
+      model,
+      lot,
+      ttcongdoan,
+      congdoan, 
+      soluong
+    LIMIT 1`;
   const result = await queryMySQL(sql, [model, lot]);
   const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
-  console.log(resultCongDoan);
+  const ressldachay = await queryMySQL(sql_none, [model, lot]);
+  console.log(ressldachay);
   const congDoanMap = resultCongDoan.reduce((map, item) => {
-    map[item.congdoan] = item.ttcongdoan;
+    let cd = item.ttcongdoan < 10 ? "Sửa chữa" : item.congdoan;
+
+    if (!map[cd]) {
+      map[cd] = {
+        soluong: item.soluong, // Gán giá trị soluong từ item.soluong
+        count_ok: item.count_ok, // Gán giá trị count_ok từ item.count_ok
+      };
+    } else {
+      map[cd].count_ok += item.count_ok; // Cộng dồn count_ok nếu đã tồn tại cd
+    }
+
     return map;
   }, {});
-
+  console.log(congDoanMap);
   const groupedResults = result.reduce((acc, item) => {
-    const { label, congdoan, ketqua } = item;
+    const { label, congdoan, ketqua, ttcongdoan } = item;
+    if (ttcongdoan < 10) {
+      var cd = "Sửa chữa";
+    } else {
+      var cd = congdoan;
+    }
     if (!acc[label]) {
       acc[label] = { label };
     }
-    if (!acc[label][congdoan]) {
-      acc[label][congdoan] = ketqua;
+    if (!acc[label][cd]) {
+      acc[label][cd] = ketqua;
     }
     return acc;
   }, {});
   return {
     results: Object.values(groupedResults),
     congdoan: Object.keys(congDoanMap),
-    info: resultCongDoan,
+    info: congDoanMap,
+    none: ressldachay,
   };
 }
 

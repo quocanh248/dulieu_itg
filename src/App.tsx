@@ -14,6 +14,7 @@ import Login from "./admin/quantri/login";
 import NC2Page from "./admin/line_thietbi";
 import NC1_NC2Page from "./admin/line_thietbi/danh_sach_nc1_nc2";
 import Modelot_zm_Page from "./admin/log_zm/get_model_lot";
+import Get_label_none from "./admin/get_api_itg/danh_sach_label_none";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/danh_sach_cong_doan" element={<Admin_danh_sach_cong_doan />} />
         <Route path="/chi_tiet_label/:label" element={<ChitietLabel />} />       
         <Route path="/get_model_lot_api/:model/:lot" element={<Get_API_model_lot />} />  
+        <Route path="/list_tiet_label_none/:model/:lot/:soluong" element={<Get_label_none />} />  
         <Route path="/danh_sach_nhom_cap_2" element={<NC2Page />} />    
         <Route path="/danh_sach_nc1_nc2/:manhomcap2" element={<NC1_NC2Page />} />   
         
