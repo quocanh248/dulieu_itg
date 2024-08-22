@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import MenuComponent from "../../Menu";
 import { sendAPIRequest } from "../../utils/util";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import DataTable from "react-data-table-component";
 interface RowData {
   label: string;
@@ -12,15 +12,19 @@ interface Datatt {
   soluong: number;
   count_ok: number;
 }
-interface DataNone {
-  model: string;
-  lot: string;
+interface DataNone { 
   soluong: number;
   soluong_da_chay: number;
 }
-function Modelot_api_Page() {
-  const [model, setModel] = useState("");
-  const [lot, setLot] = useState("");
+function Modelot_api_Page() { 
+  const { model, lot } = useParams<{
+    model: string;
+    lot: string;
+  }>();
+  const decodemodel = decodeURIComponent(model || "");
+  const decodelot = decodeURIComponent(lot || "");
+  const [modelState, setModel] = useState(decodemodel);
+  const [lotState, setLot] = useState(decodelot);
   const [loading, setLoading] = useState(false);
   const [result_model, setrResModel] = useState([]);
   const [result_lot, setrResLot] = useState([]);
@@ -84,11 +88,13 @@ function Modelot_api_Page() {
     }
   };
   const handleSearch = () => {
-    get_api_itg({ model, lot });
+    get_api_itg({ modelState, lotState });
   };
   useEffect(() => {
-    fetchmodel();
-  }, []);
+    if (decodemodel && decodelot) {
+      fetchmodel();
+    }    
+  }, [decodemodel, decodelot]);
   const columns = [
     {
       name: "Label",
@@ -132,7 +138,7 @@ function Modelot_api_Page() {
                 type="search"
                 className="form-control"
                 list="list_model"
-                value={model}
+                value={modelState}
                 onChange={handleModelChange}
               />
               <datalist id="list_model">
@@ -151,7 +157,7 @@ function Modelot_api_Page() {
               <input
                 type="search"
                 className="form-control"
-                value={lot}
+                value={lotState}
                 list="list_lot"
                 onChange={(e) => setLot(e.target.value)}
               />
@@ -185,7 +191,7 @@ function Modelot_api_Page() {
             <div className="bg-white body-table-top">
               <div className="row px-2">
                 {resnone?.length > 0 &&
-                resnone?.[0]?.soluong - resnone?.[0]?.soluong_da_chay !== 0 ? (
+                  resnone?.[0]?.soluong - resnone?.[0]?.soluong_da_chay !== 0 ? (
                   <div className={`col-md-${col2} p-3`}>
                     <div className="bg-xanh btn-mh d-flex flex-column align-items-center justify-content-center text-center">
                       <div style={{ fontWeight: "bold" }}>
@@ -194,7 +200,8 @@ function Modelot_api_Page() {
                       <div style={{ fontSize: "16px", marginTop: "4px" }}>
                         <Link
                           style={{ color: "white" }}
-                          to={`/list_tiet_label_none/${encodeURIComponent(resnone[0]?.model || "")}/${encodeURIComponent(resnone[0]?.lot || "")}/${encodeURIComponent(resnone[0]?.soluong || "")}`}
+                          target="_blank"
+                          to={`/list_tiet_label_none/${encodeURIComponent(modelState || "")}/${encodeURIComponent(lotState || "")}/None/0/${encodeURIComponent(resnone[0]?.soluong || "")}`}
                         >
                           None
                         </Link>
@@ -208,10 +215,16 @@ function Modelot_api_Page() {
                     <div key={key} className={`col-md-${col2} p-3`}>
                       <div className="bg-xanh btn-mh d-flex flex-column align-items-center justify-content-center text-center">
                         <div style={{ fontWeight: "bold" }}>
-                          {it.count_ok}/{it.soluong}
+                          {key === "Sửa chữa" ? it.count_ok : `${it.count_ok}/${it.soluong}`}
                         </div>
                         <div style={{ fontSize: "16px", marginTop: "4px" }}>
-                          {key}
+                          <Link
+                            style={{ color: "white" }}
+                            target="_blank"
+                            to={`/list_tiet_label_none/${encodeURIComponent(modelState || "")}/${encodeURIComponent(lotState || "")}/${encodeURIComponent(key || "")}/${encodeURIComponent(it.count_ok || "")}/${encodeURIComponent(it.soluong || "")}`}
+                          >
+                             {key}
+                          </Link>                         
                         </div>
                       </div>
                     </div>

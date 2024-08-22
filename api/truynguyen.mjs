@@ -37,10 +37,10 @@ router.get("/get_api_model_lot", async (req, res) => {
     "http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport";
   const token =
     "f4ea1126-b5aa-4d8e-9e47-2851652b9056-Js8XeJgl4aq05cTQMDJz9H6GJIC7Ca";
-  const { model, lot } = req.query;
-
+  const { modelState, lotState } = req.query;
+  console.log("model, lot" + modelState, lotState);
   try {
-    const check = await checkDonHang(model, lot);
+    const check = await checkDonHang(modelState, lotState);
     if (check === 0) {
       const response = await axios.post(
         url,
@@ -50,8 +50,8 @@ router.get("/get_api_model_lot", async (req, res) => {
               dfrom: "1900-01-01",
               dto: "1900-01-01",
               step_code: "",
-              product_code: model,
-              lot: lot,
+              product_code: modelState,
+              lot: lotState,
               ma_nv: "",
               machine_code: "",
             },
@@ -67,7 +67,7 @@ router.get("/get_api_model_lot", async (req, res) => {
       );
       await capNhatModelLot(response.data, res);
     } else {
-      res.json(await thongTinModelLot(model, lot));
+      res.json(await thongTinModelLot(modelState, lotState));
     }
   } catch (error) {
     console.error("Lỗi khi lấy dữ liệu:", error);
@@ -75,8 +75,8 @@ router.get("/get_api_model_lot", async (req, res) => {
   }
 });
 router.get("/get_label_none", async (req, res) => {
-  const { model, lot, soluong } = req.query;
-
+  const { model, lot, congdoan, soluong_ok, soluong } = req.query;
+  
   // Validate and cast soluong to a number
   const quantity = parseInt(soluong, 10);
   if (isNaN(quantity)) {
@@ -84,35 +84,63 @@ router.get("/get_label_none", async (req, res) => {
   }
 
   try {
-    const sql = `
-    SELECT label
-    FROM dulieu_itg_get_api
-    WHERE model = ? AND lot = ?
-  `;
-    const result = await queryMySQL(sql, [model, lot]);
-    const existingLabels = new Set(result.map((item) => item.label));
-    console.log(existingLabels);
-    const data = [];
-    for (let i = 1; i <= quantity; i++) {
-      let formattedIndex = i.toString().padStart(4, "0");
-      let labelToCheck = `${model}_${lot}${formattedIndex}`;
-      console.log(labelToCheck);
-      if (!existingLabels.has(labelToCheck)) {
-        data.push(labelToCheck);
+    if (congdoan == "None") {
+      const sql = `
+        SELECT label
+        FROM dulieu_itg_get_api
+        WHERE model = ? AND lot = ?
+      `;
+      const result = await queryMySQL(sql, [model, lot]);
+      const existingLabels = new Set(result.map((item) => item.label));
+      console.log(existingLabels);
+      const data = [];
+      for (let i = 1; i <= quantity; i++) {
+        let formattedIndex = i.toString().padStart(4, "0");
+        let labelToCheck = `${model}_${lot}${formattedIndex}`;
+        console.log(labelToCheck);
+        if (!existingLabels.has(labelToCheck)) {
+          data.push({
+            label: labelToCheck,
+            trangthai: "none",
+            ngay: "",
+            giobatdau: "",
+            gioketthuc: "",
+          });
+        }
       }
-    }   
-    res.json({ missingLabels: data });   
-    // for (let i = 1; i <= quantity; i++) {
-    //   let formattedIndex = i.toString().padStart(4, "0");
-    //   let labelToCheck = `${model}_${lot}${formattedIndex}`;
-    //   const exists = result.some(item => item.label === labelToCheck);
-    //   if (!exists) {
-    //     data.push(labelToCheck);
-    //     // console.log(labelToCheck);
-    //   }
-    // }
-
-    // res.json({ missingLabels: data });
+      console.log(data);
+      res.json({ missingLabels: data });
+    } else {
+      const sql = `
+      SELECT 
+        label, congdoan, ketqua, ngay, giobatdau, gioketthuc
+      FROM 
+        dulieu_itg_get_api 
+      WHERE 
+        model = ? AND
+        lot = ? AND
+        congdoan = ?
+      ORDER BY	
+        label, ngay DESC, giobatdau DESC
+      `;      
+      const result = await queryMySQL(sql, [model, lot, congdoan]);     
+      const groupedResults = result.reduce((acc, item) => {
+        const { label, ketqua, ngay, giobatdau, gioketthuc } = item;
+        if (!acc[label]) {
+          acc[label] = {
+            label: label,
+            trangthai: ketqua,
+            ngay: ngay,
+            giobatdau: giobatdau,
+            gioketthuc: gioketthuc,
+          };
+        }  
+        return acc;
+      }, {});
+      const data = Object.values(groupedResults);         
+      console.log(data);
+      res.json({ missingLabels: data });
+    }
   } catch (error) {
     console.error("Error fetching labels:", error);
     res.status(500).json({ error: "An error occurred while fetching labels" });
@@ -190,7 +218,8 @@ async function thongTinModelLot(model, lot) {
       DISTINCT congdoan, 
       ttcongdoan, 
       soluong,
-      COUNT(CASE WHEN ketqua = 'OK' THEN 1 ELSE NULL END) AS count_ok
+      COUNT(CASE WHEN ketqua = 'OK' THEN 1 ELSE NULL END) AS count_ok,
+      COUNT(DISTINCT CASE WHEN ttcongdoan < 9 THEN label END) AS count_sc 
     FROM 
       dulieu_itg_get_api  
     WHERE 
@@ -204,46 +233,35 @@ async function thongTinModelLot(model, lot) {
       ttcongdoan;
   `;
   const sql_none = `
-    SELECT 
-      DISTINCT congdoan, 
-      model,
-      lot,
-      ttcongdoan, 
-      soluong,
-      COUNT(*) AS soluong_da_chay
+    SELECT  
+      soluong,  
+      COUNT(DISTINCT label) AS soluong_da_chay
     FROM 
       dulieu_itg_get_api  
     WHERE 
       model = ? AND 
       lot = ? AND
-        ttcongdoan > 9
-    GROUP BY 
-      model,
-      lot,
-      congdoan, 
-      ttcongdoan,
-      soluong
-    ORDER BY 
-      model,
-      lot,
-      ttcongdoan,
-      congdoan, 
-      soluong
-    LIMIT 1`;
+      ttcongdoan > 9
+    GROUP BY
+      soluong`;
   const result = await queryMySQL(sql, [model, lot]);
   const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
   const ressldachay = await queryMySQL(sql_none, [model, lot]);
   console.log(ressldachay);
   const congDoanMap = resultCongDoan.reduce((map, item) => {
-    let cd = item.ttcongdoan < 10 ? "Sửa chữa" : item.congdoan;
+    const cd = item.ttcongdoan < 10 ? "Sửa chữa" : item.congdoan;
+    const sl = item.ttcongdoan < 10 ? item.count_sc : item.count_ok;
 
     if (!map[cd]) {
       map[cd] = {
-        soluong: item.soluong, // Gán giá trị soluong từ item.soluong
-        count_ok: item.count_ok, // Gán giá trị count_ok từ item.count_ok
+        soluong: item.soluong,
+        count_ok: sl,
       };
     } else {
-      map[cd].count_ok += item.count_ok; // Cộng dồn count_ok nếu đã tồn tại cd
+      map[cd].count_ok =
+        item.ttcongdoan > 9
+          ? map[cd].count_ok + sl
+          : Math.max(map[cd].count_ok, sl);
     }
 
     return map;
@@ -362,6 +380,7 @@ router.get("/list_lot", async (req, res) => {
       sql += `AND model = ?`;
       parmas.push(model_change);
     }
+    sql += `ORDER BY lot desc`;
     const results = await queryMySQL(sql, parmas);
     res.json(results);
   } catch (err) {

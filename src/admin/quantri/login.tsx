@@ -21,12 +21,10 @@ const Login = () => {
       localStorage.setItem("role", res.role);
       localStorage.setItem("username", res.tennhansu);
       localStorage.setItem("refestsh_token", res.refreshToken);
-      const expiresIn = 60000; 
+      const expiresIn = 4 * 60 * 60 * 1000; 
       const expirationTime = Date.now() + expiresIn;
-      localStorage.setItem("expirationTime", expirationTime.toString());
-
-      // Đặt hẹn giờ để làm mới token trước khi hết hạn
-      setTimeout(refreshAccessToken, expiresIn - 1000);
+      localStorage.setItem("expirationTime", expirationTime.toString());     
+      setTimeout(refreshAccessToken, expiresIn - 5 * 60 * 1000);
       var tmp_path = localStorage.getItem("tmp_path");
       if (!tmp_path) {
         navigate("/default");
@@ -48,7 +46,7 @@ const Login = () => {
     try {     
       const resrf =  await sendAPIRequest("/users/refresh-token", "POST", { token: refreshToken });
       const newAccessToken = resrf.access_token;
-      const expiresIn = 60000; // 8 tiếng
+      const expiresIn = 4 * 60 * 60 * 1000; 
       localStorage.setItem("access_token", newAccessToken);
       const expirationTime = Date.now() + expiresIn;
       localStorage.setItem("expirationTime", expirationTime.toString());
@@ -60,21 +58,19 @@ const Login = () => {
     }
   };
   useEffect(() => {
-    const expirationTimeString: string | null = localStorage.getItem("expirationTime")
-    const expirationTime: number = expirationTimeString ? parseInt(expirationTimeString) : 0; // Chuyển đổi từ string sang number, nếu null thì gán 0
-    const currentTime: number = Date.now();
-    const timeLeft: number = expirationTime - currentTime;  
-    if (timeLeft > 0) {
-      // Đặt hẹn giờ để làm mới token khi thời gian gần hết
-      setTimeout(refreshAccessToken, timeLeft - 1000);
-    } else {
-      // Token đã hết hạn, yêu cầu đăng nhập lại
-      console.log("Token expired, please login again");
-    }
     const accessToken = localStorage.getItem("access_token");
     if (accessToken) {
       window.location.href = "/default";
     }
+    const expirationTimeString: string | null = localStorage.getItem("expirationTime")
+    const expirationTime: number = expirationTimeString ? parseInt(expirationTimeString) : 0; 
+    const currentTime: number = Date.now();
+    const timeLeft: number = expirationTime - currentTime;  
+    if (timeLeft > 0) {      
+      setTimeout(refreshAccessToken, timeLeft - 5 * 60 * 1000);
+    } else {   
+      console.log("Token expired, please login again");
+    }    
   }, []);
   return (
     <div className="body">
