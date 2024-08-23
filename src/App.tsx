@@ -10,10 +10,14 @@ import Get_API_model_lot from "./admin/get_api_itg/get_model_lot";
 import DSdonhangPage from "./admin/get_api_itg/danh_sach_don_hang";
 import AddDonhangPage from "./admin/get_api_itg/them_don_hang";
 import ChitietLabel from "./admin/get_api_itg/chi_tiet_label";
+import ChitietThung from "./admin/get_api_itg/chi_tiet_thung";
 import Login from "./admin/quantri/login";
 import NC2Page from "./admin/line_thietbi";
 import NC1_NC2Page from "./admin/line_thietbi/danh_sach_nc1_nc2";
 import Modelot_zm_Page from "./admin/log_zm/get_model_lot";
+import ChitietLabel_zm from "./admin/log_zm/chi_tiet_label";
+import ChitietThung_zm from "./admin/log_zm/chi_tiet_thung";
+
 import Get_label_none from "./admin/get_api_itg/danh_sach_label_none";
 
 function App() {
@@ -32,6 +36,7 @@ function App() {
         <Route path="/get_api_itg_model_lot" element={<Get_API_model_lot />} />
         <Route path="/danh_sach_cong_doan" element={<Admin_danh_sach_cong_doan />} />
         <Route path="/chi_tiet_label/:label" element={<ChitietLabel />} />       
+        <Route path="/chi_tiet_thung/:mathung" element={<ChitietThung />} />       
         <Route path="/get_model_lot_api/:model/:lot" element={<Get_API_model_lot />} />  
         <Route path="/list_tiet_label_none/:model/:lot/:congdoan/:soluong_ok/:soluong" element={<Get_label_none />} />  
         <Route path="/danh_sach_nhom_cap_2" element={<NC2Page />} />    
@@ -39,6 +44,10 @@ function App() {
         
         {/* Log zenmom */}
         <Route path="/get_logzm_model_lot" element={<Modelot_zm_Page />} />
+        <Route path="/chi_tiet_label_zm/:label" element={<ChitietLabel_zm />} />    
+        <Route path="/chi_tiet_thung_zm/:mathung" element={<ChitietThung_zm />} /> 
+
+              
       </Routes>
     </Router>
   );

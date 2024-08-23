@@ -321,34 +321,36 @@ img {
   padding: 3rem !important;
 }
 
+/* HTML: <div class="loader"></div> */
 .loader {
-  width: 240px;
+  width: 200px;
   aspect-ratio: 1;
   display: grid;
-  animation: l14 4s infinite;
+  border: 10px solid #0000;
+  border-radius: 50%;
+  border-right-color: #2d5aee;
+  animation: l15 1s infinite linear;
 }
 .loader::before,
-.loader::after {
+.loader::after {    
   content: "";
   grid-area: 1/1;
-  border: 24px solid;
+  margin: 4px;
+  border: inherit;
   border-radius: 50%;
-  border-color: red red #0000 #0000;
-  mix-blend-mode: darken;
-  animation: l14 1s infinite linear;
+  animation: l15 2s infinite;
 }
 .loader::after {
-  border-color: #0000 #0000 blue blue;
-  animation-direction: reverse;
+  margin: 12px;
+  animation-duration: 3s;
 }
-@keyframes l14 {
-  100% {
-    transform: rotate(1turn);
-  }
+@keyframes l15{ 
+  100%{transform: rotate(1turn)}
 }
 .table-bordered thead tr th {
   vertical-align: middle;
 }
+
 .modal-overlay {
   position: fixed;
   top: 0;

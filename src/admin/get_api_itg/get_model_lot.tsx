@@ -115,7 +115,7 @@ function Modelot_api_Page() {
   ];
   const row_md_1 = result_congdoan.length + 1;
   let col2 =
-    row_md_1 < 3
+      row_md_1 < 3
       ? 12
       : row_md_1 < 5
       ? 6

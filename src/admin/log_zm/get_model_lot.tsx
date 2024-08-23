@@ -100,7 +100,15 @@ function Modelot_zm_Page() {
   ];
   const row_md_1 = result_congdoan.length;
   let col =
-    row_md_1 > 6 ? 1 : row_md_1 > 4 ? 2 : row_md_1 !== 0 ? 12 / row_md_1 : 12;
+    row_md_1 < 3
+      ? 12
+      : row_md_1 < 5
+      ? 6
+      : row_md_1 < 7
+      ? 4
+      : row_md_1 < 9
+      ? 3
+      : 2;
 
   return (
     <MenuComponent>
@@ -157,22 +165,6 @@ function Modelot_zm_Page() {
         </div>
       </div>
       <div className="p-3">
-        <div className="bg-white body-table-top">
-          <div className="row px-2">
-            {thongtin.map((it, index) => (
-              <div key={index} className={`col-md-${col} p-3`}>
-                <div className="bg-xanh btn-mh d-flex flex-column align-items-center justify-content-center text-center">
-                  <div style={{fontWeight: "bold" }}>
-                    {it.count_ok}/{it.soluong}
-                  </div>
-                  <div style={{ fontSize: "16px", marginTop: "4px" }}>
-                    {it.congdoan}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>        
-        </div>
         {loading ? (
           <div
             className="d-flex align-items-center justify-content-center"
@@ -181,18 +173,36 @@ function Modelot_zm_Page() {
             <div className="loader"></div>
           </div>
         ) : (
-          <div className="bg-white body-table-bt">
-            <DataTable
-              columns={columns}
-              data={result_label}
-              pagination
-              paginationPerPage={10}
-              fixedHeader
-              fixedHeaderScrollHeight="calc(100vh - 308px)"
-              responsive
-              style={{ fontSize: "14px" }}
-            />
-          </div>
+          <>
+            <div className="bg-white body-table-top">
+              <div className="row px-2">
+                {thongtin.map((it, index) => (
+                  <div key={index} className={`col-md-${col} p-3`}>
+                    <div className="bg-xanh btn-mh d-flex flex-column align-items-center justify-content-center text-center">
+                      <div style={{ fontWeight: "bold" }}>
+                        {it.count_ok}/{it.soluong}
+                      </div>
+                      <div style={{ fontSize: "16px", marginTop: "4px" }}>
+                        {it.congdoan}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white body-table-bt">
+              <DataTable
+                columns={columns}
+                data={result_label}
+                pagination
+                paginationPerPage={10}
+                fixedHeader
+                fixedHeaderScrollHeight="calc(100vh - 398px)"
+                responsive
+                style={{ fontSize: "14px" }}
+              />
+            </div>
+          </>
         )}
       </div>
     </MenuComponent>

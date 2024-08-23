@@ -13,7 +13,9 @@ router.get("/get_don_hang", async (req, res) => {
   try {
     const { model, lot } = req.query;
     let sql = `
-              SELECT * FROM model  
+              SELECT 
+                distinct model, lot, soluong_dt, soluong, po, trangthai
+              FROM model  
               WHERE 1 = 1              
           `;
     const parmas = [];
@@ -76,7 +78,7 @@ router.get("/get_api_model_lot", async (req, res) => {
 });
 router.get("/get_label_none", async (req, res) => {
   const { model, lot, congdoan, soluong_ok, soluong } = req.query;
-  
+
   // Validate and cast soluong to a number
   const quantity = parseInt(soluong, 10);
   if (isNaN(quantity)) {
@@ -111,19 +113,16 @@ router.get("/get_label_none", async (req, res) => {
       console.log(data);
       res.json({ missingLabels: data });
     } else {
-      const sql = `
-      SELECT 
-        label, congdoan, ketqua, ngay, giobatdau, gioketthuc
-      FROM 
-        dulieu_itg_get_api 
-      WHERE 
-        model = ? AND
-        lot = ? AND
-        congdoan = ?
-      ORDER BY	
-        label, ngay DESC, giobatdau DESC
-      `;      
-      const result = await queryMySQL(sql, [model, lot, congdoan]);     
+      const params = [model, lot];
+      let sql = `SELECT label, congdoan, ketqua, ngay, giobatdau, gioketthuc FROM dulieu_itg_get_api WHERE model = ? AND lot = ? `;
+      if (congdoan === "Sửa chữa") {
+        sql += `AND ttcongdoan < 9 `;
+      } else {
+        sql += `AND congdoan = ? `;
+        params.push(congdoan);
+      }
+      sql += `ORDER BY label, ngay DESC, giobatdau DESC`;
+      const result = await queryMySQL(sql, params);
       const groupedResults = result.reduce((acc, item) => {
         const { label, ketqua, ngay, giobatdau, gioketthuc } = item;
         if (!acc[label]) {
@@ -134,10 +133,10 @@ router.get("/get_label_none", async (req, res) => {
             giobatdau: giobatdau,
             gioketthuc: gioketthuc,
           };
-        }  
+        }
         return acc;
       }, {});
-      const data = Object.values(groupedResults);         
+      const data = Object.values(groupedResults);
       console.log(data);
       res.json({ missingLabels: data });
     }
@@ -319,6 +318,7 @@ async function Update_soluong(soluong_dt, soluong, model, lot) {
       UPDATE 
         model 
       SET 
+        soluong = ?,
         soluong_dt = ?,
         trangthai = ? 
       WHERE 
@@ -330,7 +330,7 @@ async function Update_soluong(soluong_dt, soluong, model, lot) {
       trangthai = "Hoàn tất";
     }
     console.log(trangthai, soluong_dt, soluong);
-    await queryMySQL(sql, [soluong_dt, trangthai, model, lot]);
+    await queryMySQL(sql, [soluong, soluong_dt, trangthai, model, lot]);
   } catch (error) {
     console.error("Lỗi khi cập nhật SL:", error);
     res.status(500).json({ message: "Lỗi khi cập nhật công đoạn" });
@@ -357,11 +357,16 @@ router.put("/capnhatcongdoan", async (req, res) => {
 });
 router.get("/list_model", async (req, res) => {
   try {
+    const { lot_change } = req.query;
     let sql = `
             SELECT distinct model FROM model  
             WHERE 1 = 1
         `;
     const params = [];
+    if (lot_change) {
+      sql += `AND lot = ?`;
+      params.push(lot_change);
+    }
     const results = await queryMySQL(sql, params);
     res.json(results);
   } catch (err) {
@@ -437,6 +442,25 @@ router.get("/chi_tiet_label", async (req, res) => {
       console.error("Lỗi khi thực hiện truy vấn:", error);
       res.status(500).json({ error: "Lỗi khi thực hiện truy vấn." });
     }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+router.get("/chi_tiet_thung", async (req, res) => {
+  try {
+    const { mathung } = req.query;
+    const sql_chitiet = `
+        SELECT 
+	        label, ngay, giobatdau, gioketthuc, ketqua as trangthai
+        FROM 
+            dulieu_itg_get_api 
+        where 
+            mathung = ?       
+        ORDER BY
+            label,
+            ngay`;
+    const results = await queryMySQL(sql_chitiet, [mathung]);
+    res.json(results);    
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

@@ -3,14 +3,8 @@ import MenuComponent from "../../Menu";
 import { sendAPIRequest } from "../../utils/util";
 import DataTable from "react-data-table-component";
 import { useParams } from "react-router-dom";
+import { DataNone } from "../../utils/modelAPI";
 
-interface DataNone {
-  label: string;
-  ngay: string;
-  giobatdau: string;
-  gioketthuc: string;
-  trangthai: string;
-}
 function AdminPage() {
   const [result_none, setrResnone] = useState<DataNone[]>([]);
   const { model, lot, congdoan, soluong_ok, soluong } = useParams<{

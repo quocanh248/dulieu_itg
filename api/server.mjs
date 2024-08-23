@@ -49,8 +49,8 @@ const authToken = async (req, res, next) => {
 
   result.length > 0 || token === master_password
     ? next()
-    : res.status(403).json({
-        status: 403,
+    : res.status(203).json({
+        status: 203,
         detail: "Forbidden",
       });
 };

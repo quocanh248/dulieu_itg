@@ -19,6 +19,13 @@ function AdminPage() {
       fetchlot({ model_change });
     }
   };
+  const handleLotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const lot_change = e.target.value;
+    setLot(lot_change);
+    if (lot_change !== "") {
+      fetchmodel({ lot_change });
+    }
+  };
   const fetchmodel = async (filters = {}) => {
     try {
       // const token = localStorage.getItem('token');
@@ -108,7 +115,7 @@ function AdminPage() {
           return "";
         }
 
-        const percentage = (soluong / soluong_dt) * 100;
+        const percentage = soluong != 0 ? (soluong_dt / soluong) * 100 : 0;
         const string = percentage.toFixed(2) + "%";
         return string;
       },
@@ -122,8 +129,8 @@ function AdminPage() {
     {      
       selector: (row: Datadonhang) => row.model,
       cell: (row: Datadonhang) => (
-        <Link to={`/get_model_lot_api/${encodeURIComponent(row.model)}/${encodeURIComponent(row.lot)}`}>
-          Tìm
+        <Link target="_blank" to={`/get_model_lot_api/${encodeURIComponent(row.model)}/${encodeURIComponent(row.lot)}`}>
+          Chi tiết
         </Link>
       )     
     }
@@ -163,7 +170,7 @@ function AdminPage() {
                 className="form-control"
                 value={lot}
                 list="list_lot"
-                onChange={(e) => setLot(e.target.value)}
+                onChange={handleLotChange}
               />
               <datalist id="list_lot">
                 {result_lot.map((item) => (

@@ -220,7 +220,7 @@ router.post("/edit", async (req, res) => {
   values.push(vaitro_edit);
   if (matkhau_edit !== "") {
     const hashedPassword = hashPassword(matkhau_edit);
-    sql += ", matkhau = ?";
+    sql += ", password = ?";
     values.push(hashedPassword);
   }
   sql += " WHERE manhansu = ?";

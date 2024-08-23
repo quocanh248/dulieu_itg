@@ -59,39 +59,17 @@ router.get("/get_log_zm_model_lot", async (req, res) => {
       }
       acc[label][congdoan] = ketqua;
       return acc;
-    }, {});   
+    }, {});
     res.json({
       results: Object.values(groupedResults),
       congdoan: Object.keys(congDoanMap),
-      info: resultCongDoan
+      info: resultCongDoan,
     });
   } catch (error) {
     console.error("Error executing query:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
-
-async function thongTinModelLot(model, lot) {}
-
-async function getCongDoan(macongdoan) {
-  const sql = "SELECT * FROM congdoan WHERE macongdoan = ?";
-  const result = await queryMySQL(sql, [macongdoan]);
-  if (result.length === 0) {
-    throw new Error("No matching record found");
-  }
-  return result[0];
-}
-async function addData(values) {
-  const sql = `
-    INSERT INTO dulieu_itg_get_api (
-      lenhsanxuat, sochungtu, congdoan, ketqua, label, sanphammoi, model,
-      soluong, lot, ngay, giobatdau, gioketthuc, manhanvien, tennhanvien,
-      quanly, mathung, sttthung, mathietbi, vitri, noidungloi, ttcongdoan,
-      user, thuoctinh
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `;
-  await queryMySQL(sql, values);
-}
 async function Update_soluong(soluong_dt, soluong, model, lot) {
   try {
     const sql = `
@@ -115,124 +93,45 @@ async function Update_soluong(soluong_dt, soluong, model, lot) {
     res.status(500).json({ message: "Lỗi khi cập nhật công đoạn" });
   }
 }
-router.put("/capnhatcongdoan", async (req, res) => {
-  const { macongdoan, thuoctinh } = req.body;
-  console.log(macongdoan, thuoctinh);
-  try {
-    const sql = `
-      UPDATE 
-        congdoan 
-      SET 
-        thuoctinh = ? 
-      WHERE 
-        macongdoan = ?
-    `;
-    await queryMySQL(sql, [thuoctinh, macongdoan]);
-    res.status(200).json({ message: "Cập nhật công đoạn thành công" });
-  } catch (error) {
-    console.error("Lỗi khi cập nhật công đoạn:", error);
-    res.status(500).json({ message: "Lỗi khi cập nhật công đoạn" });
-  }
-});
-router.get("/list_model", async (req, res) => {
-  try {
-    let sql = `
-            SELECT distinct model FROM model  
-            WHERE 1 = 1
-        `;
-    const params = [];
-    const results = await queryMySQL(sql, params);
-    res.json(results);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-router.get("/list_lot", async (req, res) => {
-  try {
-    const { model_change } = req.query;
-    let sql = `
-              SELECT distinct lot FROM model  
-              WHERE 1 = 1              
-          `;
-    const parmas = [];
-    if (model_change) {
-      sql += `AND model = ?`;
-      parmas.push(model_change);
-    }
-    const results = await queryMySQL(sql, parmas);
-    res.json(results);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 router.get("/chi_tiet_label", async (req, res) => {
   try {
     const { label } = req.query;
-    let sql_thongtin = `
-        SELECT DISTINCT 
-            congdoan, 
-            ketqua, 
-            label, 
-            model, 
-            vitri, 
-            mathung, 
-            lenhsanxuat, 
-            soluong, 
-            sochungtu,
-            mathung,
-            ngay,
-            giobatdau
-        FROM 
-            dulieu_itg_get_api
-        WHERE 
-            label = ?
-        ORDER BY 
-            mathung DESC,
-            ngay DESC,
-            giobatdau DESC
-        LIMIT 1;`;
     const sql_chitiet = `
         SELECT 
-	        congdoan, ngay, giobatdau, gioketthuc, manhanvien, mathietbi, quanly, ketqua, thuoctinh, vitri, mathung
+	        congdoan, ngay, giobatdau, gioketthuc, manhanvien, mathietbi, quanly, ketqua, vitri, mathung
         FROM 
-            dulieu_itg_get_api 
+            dulieu_itg 
         where 
-               label = ?       
+            label = ?       
         ORDER BY
             ngay,
             giobatdau;`;
-    try {
-      const [thongtin, chitiet] = await Promise.all([
-        queryMySQL(sql_thongtin, [label]),
-        queryMySQL(sql_chitiet, [label]),
-      ]);
-      console.log(thongtin);
-      res.json({
-        thongtin,
-        chitiet,
-      });
-    } catch (error) {
-      console.error("Lỗi khi thực hiện truy vấn:", error);
-      res.status(500).json({ error: "Lỗi khi thực hiện truy vấn." });
-    }
+    const results = await queryMySQL(sql_chitiet, [label]);
+    res.json(results);    
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-router.get("/listcongdoan", async (req, res) => {
+router.get("/chi_tiet_thung", async (req, res) => {
   try {
-    const { macongdoan, tencongdoan } = req.query;
-    let sql = `
-            SELECT * FROM congdoan
-            WHERE 1 = 1
-        `;
-    const params = [];
-    const results = await queryMySQL(sql, params);
+    const { mathung } = req.query;
+    const sql_chitiet = `
+        SELECT 
+	        label, ngay, giobatdau, gioketthuc, ketqua as trangthai
+        FROM 
+            dulieu_itg 
+        where 
+            mathung = ?       
+        ORDER BY
+            label,
+            ngay`;
+    const results = await queryMySQL(sql_chitiet, [mathung]);
     res.json(results);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 const formatDate = (dateStr) => {
   const [year, month, day] = dateStr.split("-");
   return `${day}/${month}/${year}`;

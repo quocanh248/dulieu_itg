@@ -1,41 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { sendAPIRequest } from "../../utils/util";
 import MenuComponent from "../../Menu";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
+import { ChitietItem, NhanVien, ThongtinItem } from "../../utils/modelAPI";
 
-// Định nghĩa kiểu dữ liệu cho các item
-interface ChitietItem {
-  thuoctinh: string;
-  ketqua: string;
-  congdoan: string;
-  vitri: string;
-  ngay: string;
-  giobatdau: string;
-  gioketthuc: string;
-  manhanvien: string;
-  quanly: string;
-  mathietbi: string;
-}
-
-interface ThongtinItem {
-  model: string;
-  vitri: string;
-  label: string;
-  mathung: string;
-}
-
-interface NhanVien {
-  mnv: string;
-  ten_nv: string;
-  img_nv: string;
-}
-
-// Định nghĩa kiểu dữ liệu cho các props
 interface TableProps {
   item: ChitietItem;
   get_ten_nhan_su: (chuoi: string) => Promise<NhanVien[]>;
 }
-
 function AdminPage() {
   const [resultThongtin, setResultThongtin] = useState<ThongtinItem[]>([]);
   const [resultChitiet, setResultChitiet] = useState<ChitietItem[]>([]);
@@ -58,7 +30,6 @@ function AdminPage() {
   };
 
   const keyData = useMemo(() => processData(resultChitiet), [resultChitiet]);
-
   const fetchData = async () => {
     try {
       const response = await sendAPIRequest(
@@ -70,7 +41,7 @@ function AdminPage() {
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu:", error);
     }
-  };  
+  };
   const get_ten_nhan_su = async (chuoi: string): Promise<NhanVien[]> => {
     const manhanviens = chuoi.split(",");
     const results = await Promise.all(
@@ -158,9 +129,9 @@ function AdminPage() {
   return (
     <MenuComponent>
       <div className="d-flex align-items-center bg-white px-4 py-1">
-        <h4 className="fw-normal text-primary m-0">
+        <h5 className="fw-normal text-primary m-0">
           Chi tiết label <b style={{ color: "red" }}>{decodedLabel}</b>
-        </h4>
+        </h5>
         <div className="d-flex ms-auto">
           <div className="input-custom ms-2" style={{ visibility: "hidden" }}>
             <div>
@@ -172,19 +143,51 @@ function AdminPage() {
       <div className="p-3">
         <div className="bg-white p-3">
           <div className="row">
-            <div className="col-md-6 text-center">
-              <h5 className="fw-normal text-primary m-0">
-                {resultThongtin.length > 0 && resultThongtin[0].model}
-              </h5>{" "}
-              <br />
-              <label>
-                {resultThongtin.length > 0 && resultThongtin[0].vitri}
-              </label>
+            <div className="col-md-6 d-flex align-items-start justify-content-center">
+              <table className="table_label text-start">
+                <tbody>
+                  <tr>
+                    <td>Model</td>
+                    <td>
+                      <label
+                        className="text-primary"
+                        style={{ marginLeft: "120px" }}
+                      >
+                        {resultThongtin.length > 0 && resultThongtin[0].model}
+                      </label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Vị trí</td>
+                    <td>
+                      <label
+                        className="text-primary"
+                        style={{ marginLeft: "120px" }}
+                      >
+                        {resultThongtin.length > 0 && resultThongtin[0].vitri}
+                      </label>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Số chứng từ</td>
+                    <td>
+                      <label
+                        className="text-primary"
+                        style={{ marginLeft: "120px" }}
+                      >
+                        {resultThongtin.length > 0 &&
+                          resultThongtin[0].sochungtu}
+                      </label>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <div className="col-md-6 border-start">
               <div className="row">
                 <div className="col-md-12 text-center">
                   <h5 className="fw-normal text-primary m-0">
+                    Label:{" "}
                     {resultThongtin.length > 0 && resultThongtin[0].label}
                   </h5>{" "}
                   <br />
@@ -219,34 +222,50 @@ function AdminPage() {
             </div>
           </div>
           <hr />
-          <div className="row">
-            <div className="col-md-2 d-flex align-items-center">
-              <img className="img_packed" src="/assets/img/packed.png" alt="" />
-            </div>
-            <div className="col-md-10">
-              <label>Sản phẩm đang ở trong thùng: </label> <br /> <br />
-              <label className="text-primary" style={{ fontSize: "18px" }}>
-                {resultThongtin.length > 0 && resultThongtin[0].mathung}
-              </label>
-            </div>
-          </div>
-          <hr />
+          {resultThongtin.length > 0 && resultThongtin[0].mathung ? (
+            <>
+              {" "}
+              <div className="row">
+                <div className="col-md-2 d-flex align-items-center">
+                  <img
+                    className="img_packed"
+                    src="/assets/img/packed.png"
+                    alt=""
+                  />
+                </div>
+                <div className="col-md-10">
+                  <label>Sản phẩm đang ở trong thùng: </label> <br /> <br />
+                  <label className="text-primary" style={{ fontSize: "18px" }}>
+                    <Link
+                      target="_blank"
+                      to={`/chi_tiet_thung/${encodeURIComponent(
+                        resultThongtin[0].mathung
+                      )}`}
+                    >
+                      {resultThongtin[0].mathung}
+                    </Link>
+                  </label>
+                </div>
+              </div>
+              <hr />
+            </>
+          ) : null}
           {resultChitiet &&
             resultChitiet.map((item, index) => (
               <div key={index} className="row p-3">
-                <div className="col-3 text-end">
-                  <label className="text-primary">{item.ngay}</label> <br />{" "}
-                  <br />
+                <div className="col-3 text-end p-3">
+                  <label className="text-primary">Ngày: {item.ngay}</label>{" "}
+                  <br /> <br />
                   <label className="text-primary">
-                    <b>{item.congdoan}</b>
+                    Công đoạn: <b>{item.congdoan}</b>
                   </label>
                   <br /> <br />
                   <label>
-                    <b>{item.vitri}</b>
+                    Vị trí: <b>{item.vitri}</b>
                   </label>
                 </div>
                 <div className="col-md-9 border-start p-3">
-                  <label className="text-primary">Thông tin chung:</label>
+                  <label className="text-primary">Thời gian:</label>
                   <br />
                   <br />
                   <table className="table_label">
