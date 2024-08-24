@@ -27,7 +27,7 @@ const Login = () => {
       setTimeout(refreshAccessToken, expiresIn - 5 * 60 * 1000);
       var tmp_path = localStorage.getItem("tmp_path");
       if (!tmp_path) {
-        navigate("/default");
+        window.location.href = '/main';
       } else {
         navigate(tmp_path);
       }

@@ -263,13 +263,13 @@ export const sendAPIRequest = async (
         localStorage.removeItem('tmp_path');
         localStorage.removeItem('expirationTime');
         localStorage.removeItem('refestsh_token');
-        window.location.href = "/";
+        window.location.href = "/login";
       }
       return response.data;
     }
     const path = window.location.pathname;
     localStorage.setItem("tmp_path", path);
-    window.location.href = "/";
+    window.location.href = "/login";
   } catch (error) {
     console.error("Axios error:", error);
     throw error;

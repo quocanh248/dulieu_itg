@@ -26,6 +26,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         localStorage.removeItem('tmp_path');
         localStorage.removeItem('expirationTime');
         localStorage.removeItem('refestsh_token');
-        window.location.href = "/";
+        window.location.href = "/login";
     },
 }));

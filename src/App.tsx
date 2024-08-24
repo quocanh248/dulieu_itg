@@ -11,7 +11,7 @@ import DSdonhangPage from "./admin/get_api_itg/danh_sach_don_hang";
 import AddDonhangPage from "./admin/get_api_itg/them_don_hang";
 import ChitietLabel from "./admin/get_api_itg/chi_tiet_label";
 import ChitietThung from "./admin/get_api_itg/chi_tiet_thung";
-import Login from "./admin/quantri/login";
+// import Login from "./admin/quantri/login";
 import NC2Page from "./admin/line_thietbi";
 import NC1_NC2Page from "./admin/line_thietbi/danh_sach_nc1_nc2";
 import Modelot_zm_Page from "./admin/log_zm/get_model_lot";
@@ -24,7 +24,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={< Login />} />
+        {/* <Route path="/" element={< Login />} /> */}
+        <Route path="/" element={<Default />} />
         <Route path="/default" element={< Default/>} />
         <Route path="/danh_sach_tai_khoan" element={<AdminPage />} />
         <Route path="/danh_sach_don_hang" element={<DSdonhangPage />} />

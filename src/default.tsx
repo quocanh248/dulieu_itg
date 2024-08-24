@@ -7,7 +7,7 @@ function AdminPage() {
   const navigate = useNavigate();
   useEffect(() => {
     if (!role) {
-      navigate("/");
+      navigate("/login");
     }
   }, [role, navigate]);
   return (
