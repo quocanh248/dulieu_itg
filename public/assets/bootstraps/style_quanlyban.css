@@ -79,7 +79,7 @@ body {
     align-items: center;
     justify-content: center;
     margin-bottom: 8px;
-    cursor: pointer;    
+    cursor: pointer;
 }
 .range-4 {
     width: 45%;
@@ -97,7 +97,6 @@ body {
     font-weight: bold;
 }
 .range-x {
-   
     font-weight: bold;
     margin-left: 0;
     width: 45%;
@@ -165,12 +164,12 @@ input {
 }
 
 .card-title {
-    color: #FC2947;
+    color: #fc2947;
     border-top-left-radius: 16px;
     border-top-right-radius: 16px;
     padding: 8px 16px;
     font-size: 22px;
-    border: 2px solid #FC2947;
+    border: 2px solid #fc2947;
     border-bottom: none;
     display: inline-block;
     margin-left: 16px;
@@ -256,7 +255,7 @@ input {
     text-align: center;
     padding: 10px;
     box-sizing: border-box;
-    background-color: #4CAF50;
+    background-color: #4caf50;
     color: #fff;
     font-size: 24px;
     font-weight: bold;
@@ -298,22 +297,22 @@ input {
 .arrow:last-child::after {
     display: none;
 }
-.btn-cam{
-    text-decoration: none; 
-    color: #fff; 
-    border: 1px solid #ffa500; 
+.btn-cam {
+    text-decoration: none;
+    color: #fff;
+    border: 1px solid #ffa500;
     background-color: #ffa500;
 }
-.btn-xanh-la{
-    text-decoration: none; 
+.btn-xanh-la {
+    text-decoration: none;
     color: #fff;
-    border: 1px solid #4CAF50;
-    background-color: #4CAF50;
+    border: 1px solid #4caf50;
+    background-color: #4caf50;
 }
-.btn-xanh-duong{
-    text-decoration: none; 
+.btn-xanh-duong {
+    text-decoration: none;
     color: #fff;
-    border: 1px solid #2a45da; 
+    border: 1px solid #2a45da;
     background-color: #2a45da;
 }
 
@@ -331,7 +330,7 @@ td {
 }
 
 th {
-    background-color: #4CAF50;
+    background-color: #4caf50;
     color: #fff;
     font-size: 22px;
     text-align: center;

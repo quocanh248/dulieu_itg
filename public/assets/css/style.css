@@ -1,186 +1,186 @@
-@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
 
 :root {
-  --blue: #1565c0;
-  --blue-light: #deeefe;
-  --dark: #303030;
-  --dark-opacity-50: rgb(48, 48, 48, 0.5);
+    --blue: #1565c0;
+    --blue-light: #deeefe;
+    --dark: #303030;
+    --dark-opacity-50: rgb(48, 48, 48, 0.5);
 }
 
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-  font-family: "Roboto", sans-serif;
-  background-color: #e0e0e0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #e0e0e0;
 }
 
 img {
-  width: 100%;
+    width: 100%;
 }
 
 /******************** Custom class ********************/
 .h-70px {
-  height: 70px;
+    height: 70px;
 }
 
 .p-9px {
-  padding: 9px;
+    padding: 9px;
 }
 
 .bg-dark {
-  background-color: var(--dark);
-  color: #fff;
+    background-color: var(--dark);
+    color: #fff;
 }
 
 .scroll-x-view {
-  overflow-x: auto;
+    overflow-x: auto;
 }
 
 .scroll-x-view::-webkit-scrollbar {
-  height: 4px;
-  background-color: #f5f5f5;
-  border-radius: 8px;
+    height: 4px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
 }
 
 .scroll-x-view::-webkit-scrollbar-thumb {
-  background-color: #3393ff;
-  border-radius: 8px;
+    background-color: #3393ff;
+    border-radius: 8px;
 }
 
 /******************** Header ********************/
 
 .header__img {
-  width: 36px;
+    width: 36px;
 }
 
 /******************** Navbar ********************/
 .nav {
-  display: flex;
-  flex-wrap: unset;
+    display: flex;
+    flex-wrap: unset;
 }
 
 .nav > .nav__item > .nav__link {
-  height: 100%;
-  color: #ffffff;
-  padding: 9px;
-  text-decoration: none;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    height: 100%;
+    color: #ffffff;
+    padding: 9px;
+    text-decoration: none;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .nav > .nav__item > .nav__link:hover {
-  background-color: var(--blue);
+    background-color: var(--blue);
 }
 
 .nav > .nav__item > .nav__link i {
-  margin-right: 6px;
+    margin-right: 6px;
 }
 
 .nav__item:hover .nav__submenu {
-  display: block;
+    display: block;
 }
 
 .nav__submenu {
-  position: absolute;
-  width: 255px;
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-  display: none;
-  z-index: 9;
+    position: absolute;
+    width: 255px;
+    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+    display: none;
+    z-index: 9;
 }
 
 .nav__submenu > .nav__item > .nav__link {
-  background-color: #ffffff;
-  color: #000000;
-  padding: 16px;
-  display: block;
-  text-decoration: none;
+    background-color: #ffffff;
+    color: #000000;
+    padding: 16px;
+    display: block;
+    text-decoration: none;
 }
 
 .nav__submenu > .nav__item > .nav__link:hover {
-  background-color: var(--blue-light);
+    background-color: var(--blue-light);
 }
 
 .nav__submenu > .nav__item > .nav__link i {
-  margin-right: 6px;
+    margin-right: 6px;
 }
 
 /******************** Input ********************/
 .input-custom {
-  height: 48px;
-  background-color: #f5f5f5;
-  padding: 0 12px;
-  border: 1px solid #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    height: 48px;
+    background-color: #f5f5f5;
+    padding: 0 12px;
+    border: 1px solid #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .input-custom label.form-label {
-  font-size: 10px;
-  margin: 0;
-  display: block;
+    font-size: 10px;
+    margin: 0;
+    display: block;
 }
 
 .input-custom input.form-control,
 .input-custom select.form-select {
-  background-color: transparent;
-  padding: 0;
-  border: none;
+    background-color: transparent;
+    padding: 0;
+    border: none;
 }
 
 .input-custom select.form-select {
-  min-width: 150px;
+    min-width: 150px;
 }
 
 .input-custom input.form-control:focus,
 .input-custom select.form-select:focus {
-  box-shadow: none;
+    box-shadow: none;
 }
 
 .input-custom .form-delete {
-  color: red;
+    color: red;
 }
 
 .tab-content {
-  height: 450px;
-  overflow-y: auto;
-  overflow-x: clip;
-  display: none;
+    height: 450px;
+    overflow-y: auto;
+    overflow-x: clip;
+    display: none;
 }
 
 .tab-content.active {
-  display: block;
+    display: block;
 }
 .table-bordered thead tr th {
-  background-color: #8b9ea2;
-  color: white;
-  text-align: center;
-  text-transform: uppercase;
+    background-color: #8b9ea2;
+    color: white;
+    text-align: center;
+    text-transform: uppercase;
 }
 .table-new {
-  margin: 0 auto;
-  clear: both;
-  border-collapse: separate;
-  border-spacing: 0;
+    margin: 0 auto;
+    clear: both;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 .table-bordered thead tr th {
-  width: 200px;
-  text-align: center;
-  text-transform: uppercase;
+    width: 200px;
+    text-align: center;
+    text-transform: uppercase;
 }
 
 .table-new tbody tr td {
-  text-align: center;
+    text-align: center;
 }
 
 .table-new thead tr th:nth-child(2) {
-  width: 400px;
+    width: 400px;
 }
 
 .table-new thead tr th:nth-child(1),
@@ -189,245 +189,247 @@ img {
 .table-new thead tr th:nth-child(4),
 .table-new thead tr th:nth-child(5),
 .table-new thead tr th:nth-child(6) {
-  background-color: #738e9e;
-  color: white;
+    background-color: #738e9e;
+    color: white;
 }
 
 .table-new thead tr th:nth-child(9),
 .table-new thead tr th:nth-child(10),
 .table-new thead tr th:nth-child(11) {
-  background-color: #d6720e;
-  color: white;
+    background-color: #d6720e;
+    color: white;
 }
 
 .table-new thead tr th:nth-child(8),
 .table-new thead tr th:nth-child(7) {
-  background-color: #18a52d;
-  color: white;
+    background-color: #18a52d;
+    color: white;
 }
 .ipcheckbox {
-  /* Ẩn giao diện mặc định của checkbox */
-  /* appearance: none;
+    /* Ẩn giao diện mặc định của checkbox */
+    /* appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none; */
-  width: 20px;
-  height: 20px;
-  margin: 0 10px;
-  border: 1px solid #ccc;
-  border-radius: 1px;
-  cursor: pointer;
+    width: 20px;
+    height: 20px;
+    margin: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 1px;
+    cursor: pointer;
 }
 
 /* Tạo giao diện checkbox tùy chỉnh khi được chọn */
 .ipcheckbox:checked {
-  background-color: #007bff;
-  border-color: #007bff;
-  color: white;
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
 }
 
 /* Tạo giao diện checkbox tùy chỉnh khi hover */
 .ipcheckbox:hover {
-  border-color: #66afe9;
+    border-color: #66afe9;
 }
 .ipcheckbox1 {
-  width: 20px;
-  height: 20px;
-  margin: 0 10px;
-  border: 1px solid #ccc;
-  border-radius: 1px;
-  cursor: pointer;
+    width: 20px;
+    height: 20px;
+    margin: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 1px;
+    cursor: pointer;
 }
 
 /* Tạo giao diện checkbox tùy chỉnh khi được chọn */
 .ipcheckbox1:checked {
-  background-color: #007bff;
-  border-color: #007bff;
-  color: white;
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
 }
 
 /* Tạo giao diện checkbox tùy chỉnh khi hover */
 .ipcheckbox1:hover {
-  border-color: #66afe9;
+    border-color: #66afe9;
 }
 
 /******************** Table calendar ********************/
 .table.table-calendar thead tr {
-  background-color: var(--light);
+    background-color: var(--light);
 }
 
 .table.table-calendar tbody tr td:hover {
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
 .table.table-calendar tbody tr td .show-hover {
-  display: none;
+    display: none;
 }
 
 .table.table-calendar tbody tr td:hover .show-hover {
-  display: block;
+    display: block;
 }
 
 .table.table-calendar tbody tr td .hide-hover {
-  display: block;
+    display: block;
 }
 
 .table.table-calendar tbody tr td:hover .hide-hover {
-  display: none;
+    display: none;
 }
 
 .color-none {
-  color: transparent;
+    color: transparent;
 }
 .bt-none {
-  background-color: transparent;
-  border: none;
+    background-color: transparent;
+    border: none;
 }
 .bt-none_1 {
-  background-color: transparent;
-  border: none;
+    background-color: transparent;
+    border: none;
 }
 .td-maluong {
-  background-color: rgba(169, 255, 198, 0.25) !important;
+    background-color: rgba(169, 255, 198, 0.25) !important;
 }
 .bt-tt-none {
-  background-color: transparent;
-  border: none;
+    background-color: transparent;
+    border: none;
 }
 .img-thumbnail {
-  width: 140px;
+    width: 140px;
 }
 .ng {
-  background-color: rgb(255, 51, 0);
+    background-color: rgb(255, 51, 0);
 }
 .img_packed {
-  /* height: 46px; */
-  width: 84px;
+    /* height: 46px; */
+    width: 84px;
 }
 .img_info {
-  height: 32px;
-  width: 32px;
-  margin-left: 120px;
+    height: 32px;
+    width: 32px;
+    margin-left: 120px;
 }
 
 .border-start {
-  border-left: 3px solid #dee2e6 !important;
+    border-left: 3px solid #dee2e6 !important;
 }
 
 .table_label tr td {
-  padding-bottom: 10px;
+    padding-bottom: 10px;
 }
 
 .p-3a {
-  padding: 3rem !important;
+    padding: 3rem !important;
 }
 
 /* HTML: <div class="loader"></div> */
 .loader {
-  width: 200px;
-  aspect-ratio: 1;
-  display: grid;
-  border: 10px solid #0000;
-  border-radius: 50%;
-  border-right-color: #2d5aee;
-  animation: l15 1s infinite linear;
+    width: 200px;
+    aspect-ratio: 1;
+    display: grid;
+    border: 10px solid #0000;
+    border-radius: 50%;
+    border-right-color: #2d5aee;
+    animation: l15 1s infinite linear;
 }
 .loader::before,
-.loader::after {    
-  content: "";
-  grid-area: 1/1;
-  margin: 4px;
-  border: inherit;
-  border-radius: 50%;
-  animation: l15 2s infinite;
+.loader::after {
+    content: '';
+    grid-area: 1/1;
+    margin: 4px;
+    border: inherit;
+    border-radius: 50%;
+    animation: l15 2s infinite;
 }
 .loader::after {
-  margin: 12px;
-  animation-duration: 3s;
+    margin: 12px;
+    animation-duration: 3s;
 }
-@keyframes l15{ 
-  100%{transform: rotate(1turn)}
+@keyframes l15 {
+    100% {
+        transform: rotate(1turn);
+    }
 }
 .table-bordered thead tr th {
-  vertical-align: middle;
+    vertical-align: middle;
 }
 
 .modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Màu đen với độ trong suốt 50% */
-  z-index: 1062; /* Đặt z-index cao hơn để overlay nằm trên các phần tử khác */
-  display: none; /* Ẩn overlay khi không có modal */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Màu đen với độ trong suốt 50% */
+    z-index: 1062; /* Đặt z-index cao hơn để overlay nằm trên các phần tử khác */
+    display: none; /* Ẩn overlay khi không có modal */
 }
 .modal-content {
-  height: 80vh;
+    height: 80vh;
 }
 .modal-body {
-  overflow-y: auto; /* Thêm cuộn dọc nếu nội dung vượt quá chiều cao tối đa */
+    overflow-y: auto; /* Thêm cuộn dọc nếu nội dung vượt quá chiều cao tối đa */
 }
 
 .App {
-  max-height: 100%; /* Đảm bảo rằng chiều cao của App không vượt quá phần thân modal */
-  overflow: hidden; /* Ẩn cuộn thừa nếu có */
+    max-height: 100%; /* Đảm bảo rằng chiều cao của App không vượt quá phần thân modal */
+    overflow: hidden; /* Ẩn cuộn thừa nếu có */
 }
 
 .data-table-container {
-  max-height: calc(
-    80vh - 100px
-  ); /* Điều chỉnh chiều cao tối đa cho DataTable, trừ phần header và footer */
-  overflow-y: auto; /* Thêm cuộn dọc nếu nội dung vượt quá chiều cao tối đa */
+    max-height: calc(
+        80vh - 100px
+    ); /* Điều chỉnh chiều cao tối đa cho DataTable, trừ phần header và footer */
+    overflow-y: auto; /* Thêm cuộn dọc nếu nội dung vượt quá chiều cao tối đa */
 }
 .no-scroll {
-  overflow: hidden;
-  height: 100%;
+    overflow: hidden;
+    height: 100%;
 }
 /* Tùy chỉnh thanh cuộn dọc (Scrollbar) */
 * {
-  scrollbar-width: thin; /* Thanh cuộn mỏng (Firefox) */
-  scrollbar-color: #14539a transparent; /* Màu xanh cho thanh cuộn, trong suốt cho nền */
+    scrollbar-width: thin; /* Thanh cuộn mỏng (Firefox) */
+    scrollbar-color: #14539a transparent; /* Màu xanh cho thanh cuộn, trong suốt cho nền */
 }
 
 *::-webkit-scrollbar {
-  width: 8px; /* Độ rộng của thanh cuộn dọc */
+    width: 8px; /* Độ rộng của thanh cuộn dọc */
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #14539a; /* Màu xanh cho thanh kéo */
-  border-radius: 10px; /* Bo tròn góc cho thanh kéo */
+    background-color: #14539a; /* Màu xanh cho thanh kéo */
+    border-radius: 10px; /* Bo tròn góc cho thanh kéo */
 }
 
 *::-webkit-scrollbar-track {
-  background-color: transparent; /* Nền của thanh cuộn */
+    background-color: transparent; /* Nền của thanh cuộn */
 }
-.body-table{
-  min-height: calc(100vh - 152px);
+.body-table {
+    min-height: calc(100vh - 152px);
 }
-.body-table-top{
-  min-height: 180px;
-  margin-bottom: 0.75em;
+.body-table-top {
+    min-height: 180px;
+    margin-bottom: 0.75em;
 }
-.body-table-bt{
-  min-height: calc(100vh - 338px);
+.body-table-bt {
+    min-height: calc(100vh - 338px);
 }
 .btn-mh {
-  min-height: 60px;
-  font-size: 20px;
-  color: white;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100%; /* Ensure the text stays within the width of the parent */
-  box-sizing: border-box; /* Ensure padding and border are included in the element's width and height */
+    min-height: 60px;
+    font-size: 20px;
+    color: white;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%; /* Ensure the text stays within the width of the parent */
+    box-sizing: border-box; /* Ensure padding and border are included in the element's width and height */
 }
-.bg-xanh{
-  background-color: #5daef0;
+.bg-xanh {
+    background-color: #5daef0;
 }

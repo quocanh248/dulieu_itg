@@ -1,10 +1,18 @@
 import { create } from 'zustand';
-import { UserModel } from '../utils/modelAPI';
+
+interface AccountLoginType {
+    access_token: string;
+    username: string;
+    role: string;
+    tmp_path: string;
+    expirationTime: string;
+    refresh_token: string;
+}
 
 interface AuthState {
     isAuth: boolean;
-    userInfo: UserModel | null;
-    signIn: (userData: UserModel) => void;
+    userInfo: AccountLoginType | null;
+    signIn: (userData: AccountLoginType) => void;
     signOut: () => void;
 }
 
@@ -20,12 +28,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     },
     signOut: () => {
         set({ isAuth: false, userInfo: null });
+        localStorage.removeItem('authState');
         localStorage.removeItem('access_token');
-        localStorage.removeItem('username');
-        localStorage.removeItem('role');
-        localStorage.removeItem('tmp_path');
-        localStorage.removeItem('expirationTime');
-        localStorage.removeItem('refestsh_token');
-        window.location.href = "/login";
     },
 }));

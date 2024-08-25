@@ -51,29 +51,29 @@ tbody tr {
 .dataTables_info {
     font-size: 13px;
 }
-.dataTables_length{
+.dataTables_length {
     font-size: 13px;
 }
 
 .ipnum {
     width: 100%;
-    text-align: center;   
+    text-align: center;
     outline: none;
     border: none;
     height: 44px;
     font-size: 22px;
     color: blue;
 }
-.ipnum1{
+.ipnum1 {
     width: 100%;
-    text-align: center;      
+    text-align: center;
     height: 44px;
     font-size: 22px;
     outline: none;
     border: none;
     background-color: transparent;
 }
-.fixed_header1 th{
+.fixed_header1 th {
     height: 60px;
 }
 .fixed_header1 td {
@@ -102,41 +102,41 @@ tbody tr {
     color: white;
 }
 
-.khoa{
+.khoa {
     background-color: transparent;
     border: none;
     cursor: pointer;
     font-size: 16px;
 }
-.khoa1{
+.khoa1 {
     background-color: transparent;
     border: none;
     cursor: pointer;
-    font-size: 16px;   
+    font-size: 16px;
     color: #fff;
     border-radius: 3px;
 }
-.khoa2{
+.khoa2 {
     background-color: transparent;
     border: none;
     cursor: pointer;
-    font-size: 16px;   
+    font-size: 16px;
     color: #fff;
     border-radius: 3px;
 }
 .fixed_header1 tr:last-child {
-    background-color: #f2f2f2
+    background-color: #f2f2f2;
 }
 .fixed_header1 td:nth-child(8) {
-    background-color: #f2f2f2
+    background-color: #f2f2f2;
 }
-.dt-buttons{
+.dt-buttons {
     display: inline-block;
     margin-top: 0px;
     margin-left: 30px;
     font-size: 14px;
 }
-.buttons-excel{
+.buttons-excel {
     background-color: #3ac74f;
     display: inline-block;
     font-weight: 400;
@@ -148,36 +148,46 @@ tbody tr {
     cursor: pointer;
     -webkit-user-select: none;
     -moz-user-select: none;
-    user-select: none;    
+    user-select: none;
     border: 1px solid #3ac74f;
     padding: 0.375rem 0.75rem;
     font-size: 1rem;
     border-radius: 0.25rem;
-    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-    color: #fff;    
+    transition:
+        color 0.15s ease-in-out,
+        background-color 0.15s ease-in-out,
+        border-color 0.15s ease-in-out,
+        box-shadow 0.15s ease-in-out;
+    color: #fff;
 }
 .buttons-excel:hover {
     transform: translateY(-1px);
-  }
-  
-.dt-button{
+}
+
+.dt-button {
     display: inline;
     margin-right: 18px;
 }
-
 
 .button-5 {
     align-items: center;
     background-clip: padding-box;
     background-color: #1565c0;
     border: 1px solid transparent;
-    border-radius: .25rem;
+    border-radius: 0.25rem;
     box-shadow: rgba(0, 0, 0, 0.02) 0 1px 3px 0;
     box-sizing: border-box;
     color: #fff;
     cursor: pointer;
     display: inline-flex;
-    font-family: system-ui,-apple-system,system-ui,"Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-family:
+        system-ui,
+        -apple-system,
+        system-ui,
+        'Helvetica Neue',
+        Helvetica,
+        Arial,
+        sans-serif;
     font-size: 14px;
     font-weight: 600;
     justify-content: center;
@@ -185,7 +195,7 @@ tbody tr {
     margin-left: 5px;
     min-height: 3rem;
     height: 48px;
-    padding: calc(.875rem - 1px) calc(1.5rem - 1px);
+    padding: calc(0.875rem - 1px) calc(1.5rem - 1px);
     position: relative;
     text-decoration: none;
     transition: all 250ms;
@@ -194,21 +204,20 @@ tbody tr {
     touch-action: manipulation;
     vertical-align: baseline;
     width: 120px;
-  }
-  
-  .button-5:hover,
-  .button-5:focus {
+}
+
+.button-5:hover,
+.button-5:focus {
     background-color: #fb8332;
     box-shadow: rgba(0, 0, 0, 0.1) 0 4px 12px;
-  }
-  
-  .button-5:hover {
+}
+
+.button-5:hover {
     transform: translateY(-1px);
-  }
-  
-  .button-5:active {
+}
+
+.button-5:active {
     background-color: #c85000;
-    box-shadow: rgba(0, 0, 0, .06) 0 2px 4px;
+    box-shadow: rgba(0, 0, 0, 0.06) 0 2px 4px;
     transform: translateY(0);
-  }
-  
+}

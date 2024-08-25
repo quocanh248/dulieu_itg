@@ -2,7 +2,7 @@
 
 :root {
     --blue: #1565c0;
-    --blue-light: #DEEEFE;
+    --blue-light: #deeefe;
     --dark: #303030;
     --dark-opacity-50: rgb(48, 48, 48, 0.5);
 }
@@ -15,7 +15,7 @@
 
 body {
     font-family: 'Roboto', sans-serif;
-    background-color: #E0E0E0;
+    background-color: #e0e0e0;
 }
 
 img {
@@ -33,7 +33,7 @@ img {
 
 .bg-dark {
     background-color: var(--dark);
-    color: #FFF;
+    color: #fff;
 }
 
 .scroll-x-view {
@@ -42,7 +42,7 @@ img {
 
 .scroll-x-view::-webkit-scrollbar {
     height: 4px;
-    background-color: #F5F5F5;
+    background-color: #f5f5f5;
     border-radius: 8px;
 }
 
@@ -63,9 +63,9 @@ img {
     flex-wrap: unset;
 }
 
-.nav>.nav__item>.nav__link {
+.nav > .nav__item > .nav__link {
     height: 100%;
-    color: #FFFFFF;
+    color: #ffffff;
     padding: 9px;
     text-decoration: none;
     white-space: nowrap;
@@ -74,11 +74,11 @@ img {
     justify-content: center;
 }
 
-.nav>.nav__item>.nav__link:hover {
+.nav > .nav__item > .nav__link:hover {
     background-color: var(--blue);
 }
 
-.nav>.nav__item>.nav__link i {
+.nav > .nav__item > .nav__link i {
     margin-right: 6px;
 }
 
@@ -94,26 +94,26 @@ img {
     z-index: 9;
 }
 
-.nav__submenu>.nav__item>.nav__link {
-    background-color: #FFFFFF;
+.nav__submenu > .nav__item > .nav__link {
+    background-color: #ffffff;
     color: #000000;
     padding: 16px;
     display: block;
     text-decoration: none;
 }
 
-.nav__submenu>.nav__item>.nav__link:hover {
+.nav__submenu > .nav__item > .nav__link:hover {
     background-color: var(--blue-light);
 }
 
-.nav__submenu>.nav__item>.nav__link i {
+.nav__submenu > .nav__item > .nav__link i {
     margin-right: 6px;
 }
 
 /******************** Input ********************/
 .input-custom {
     height: 48px;
-    background-color: #F5F5F5;
+    background-color: #f5f5f5;
     padding: 0 12px;
     border: 1px solid #ccc;
     display: flex;
@@ -133,7 +133,6 @@ img {
     padding: 0;
     border: none;
 }
-
 
 .input-custom select.form-select {
     min-width: 150px;
@@ -158,13 +157,13 @@ img {
 .tab-content.active {
     display: block;
 }
-.table-bordered thead tr th{
+.table-bordered thead tr th {
     background-color: #8b9ea2;
     color: white;
     text-align: center;
     text-transform: uppercase;
 }
-.table-new{
+.table-new {
     margin: 0 auto;
     clear: both;
     border-collapse: separate;
@@ -217,41 +216,41 @@ img {
     border: 1px solid #ccc;
     border-radius: 1px;
     cursor: pointer;
-  }
-  
-  /* Tạo giao diện checkbox tùy chỉnh khi được chọn */
-  .ipcheckbox:checked {
+}
+
+/* Tạo giao diện checkbox tùy chỉnh khi được chọn */
+.ipcheckbox:checked {
     background-color: #007bff;
     border-color: #007bff;
     color: white;
-  }
-  
-  /* Tạo giao diện checkbox tùy chỉnh khi hover */
-  .ipcheckbox:hover {
+}
+
+/* Tạo giao diện checkbox tùy chỉnh khi hover */
+.ipcheckbox:hover {
     border-color: #66afe9;
-  }
-  .ipcheckbox1 {
+}
+.ipcheckbox1 {
     width: 20px;
     height: 20px;
     margin: 0 10px;
     border: 1px solid #ccc;
     border-radius: 1px;
     cursor: pointer;
-  }
-  
-  /* Tạo giao diện checkbox tùy chỉnh khi được chọn */
-  .ipcheckbox1:checked {
+}
+
+/* Tạo giao diện checkbox tùy chỉnh khi được chọn */
+.ipcheckbox1:checked {
     background-color: #007bff;
     border-color: #007bff;
     color: white;
-  }
-  
-  /* Tạo giao diện checkbox tùy chỉnh khi hover */
-  .ipcheckbox1:hover {
-    border-color: #66afe9;
-  }
+}
 
-  /******************** Table calendar ********************/
+/* Tạo giao diện checkbox tùy chỉnh khi hover */
+.ipcheckbox1:hover {
+    border-color: #66afe9;
+}
+
+/******************** Table calendar ********************/
 .table.table-calendar thead tr {
     background-color: var(--light);
 }
@@ -276,28 +275,27 @@ img {
     display: none;
 }
 
-.color-none{
+.color-none {
     color: transparent;
-
 }
-.bt-none{
+.bt-none {
     background-color: transparent;
     border: none;
 }
-.bt-none_1{
+.bt-none_1 {
     background-color: transparent;
     border: none;
 }
-.td-maluong{
-    background-color: rgba(169,255,198,.25) !important;
+.td-maluong {
+    background-color: rgba(169, 255, 198, 0.25) !important;
 }
-.bt-tt-none{
+.bt-tt-none {
     background-color: transparent;
     border: none;
 }
-.img-thumbnail{
+.img-thumbnail {
     width: 140px;
 }
-.ng{
+.ng {
     background-color: rgb(255, 51, 0);
 }
