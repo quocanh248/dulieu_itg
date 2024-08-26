@@ -2,9 +2,9 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import { useAuthStore } from './store/useAuthStore';
 import Default from './default';
 import AdminPage from './admin';
-import DSdonhangPage from './admin/nangsuat';
+import DSdonhangPage from './admin/get_api_itg/danh_sach_don_hang';
 import AddDonhangPage from './admin/get_api_itg/them_don_hang';
-import Admin_nang_suat from './admin/get_api_itg/get_data';
+import Admin_nang_suat from './admin/nangsuat';
 import Admin_them_nang_suat from './admin/nangsuat/themnangsuat';
 import Admin_them_nang_suat_zm from './admin/nangsuat/themnangsuatzm';
 import Admin_danh_sach_cong_doan from './admin/get_api_itg/danh_sach_cong_doan';
@@ -20,17 +20,18 @@ import React from 'react';
 import Login from './admin/quantri/login';
 
 export const App: React.FC = () => {
-    const { isAuth } = useAuthStore();
+    const { isAuth, userInfo } = useAuthStore();
 
     const authRoute = (Component: React.FC) => (isAuth ? <Component /> : <Navigate to="/" />);
-
+    const Role = (Component: React.FC) => (userInfo?.role == 'admin' ? <Component /> : <Navigate to="/" />);
+    console.log("userInfo?.role" + userInfo?.role);
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Login/>} />
                 <Route path="/login" element={authRoute(Default)} />
                 <Route path="/default" element={authRoute(Default)} />
-                <Route path="/danh_sach_tai_khoan" element={authRoute(AdminPage)} />
+                <Route path="/danh_sach_tai_khoan" element={Role(AdminPage)} />
                 <Route path="/danh_sach_don_hang" element={authRoute(DSdonhangPage)} />
                 <Route path="/them_don_hang" element={authRoute(AddDonhangPage)} />
                 <Route path="/du_lieu_nang_suat" element={authRoute(Admin_nang_suat)} />

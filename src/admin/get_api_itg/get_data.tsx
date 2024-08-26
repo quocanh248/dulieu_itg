@@ -9,7 +9,7 @@ interface RowData {
     [key: string]: any; // Để có thể chứa các giá trị khác không biết trước
 }
 
-const Admin_nang_suat: React.FC = () => {
+const Get_API_model_lot: React.FC = () => {
     const [model, setModel] = useState('');
     const [lot, setLot] = useState('');
     const [loading, setLoading] = useState(false);
@@ -96,7 +96,7 @@ const Admin_nang_suat: React.FC = () => {
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
                 <h4 className="fw-normal text-primary m-0">
-                    Dữ liệu năng suất <i className="far fa-question-circle"></i>
+                    Dữ liệu model lot <i className="far fa-question-circle"></i>
                 </h4>
                 <div className="d-flex ms-auto">
                     <div className="input-custom ms-2">
@@ -169,4 +169,4 @@ const Admin_nang_suat: React.FC = () => {
     );
 };
 
-export default Admin_nang_suat;
+export default Get_API_model_lot;

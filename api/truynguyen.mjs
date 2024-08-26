@@ -210,25 +210,26 @@ async function thongTinModelLot(model, lot) {
     ORDER BY	
 	    label, ngay DESC, giobatdau DESC
   `;
+    // const sqlCongDoan = `CALL GetSortedData(?, ?)`;
     const sqlCongDoan = `
-    SELECT 
-      DISTINCT congdoan, 
-      ttcongdoan, 
-      soluong,
-      COUNT(CASE WHEN ketqua = 'OK' THEN 1 ELSE NULL END) AS count_ok,
-      COUNT(DISTINCT CASE WHEN ttcongdoan < 9 THEN label END) AS count_sc 
-    FROM 
-      dulieu_itg_get_api  
-    WHERE 
-      model = ? AND 
-      lot = ? 
-    GROUP BY 
-      congdoan, 
-      ttcongdoan,
-      soluong
-    ORDER BY 
-      ttcongdoan;
-  `;
+        SELECT
+          DISTINCT congdoan,
+          ttcongdoan,
+          soluong,
+          COUNT(CASE WHEN ketqua = 'OK' THEN 1 ELSE NULL END) AS count_ok,
+          COUNT(DISTINCT CASE WHEN ttcongdoan < 9 THEN label END) AS count_sc
+        FROM
+          dulieu_itg_get_api
+        WHERE
+          model = ? AND
+          lot = ?
+        GROUP BY
+          congdoan,
+          ttcongdoan,
+          soluong
+        ORDER BY
+          ttcongdoan;
+      `;
     const sql_none = `
     SELECT  
       soluong,  
@@ -244,7 +245,9 @@ async function thongTinModelLot(model, lot) {
     const result = await queryMySQL(sql, [model, lot]);
     const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
     const ressldachay = await queryMySQL(sql_none, [model, lot]);
-    console.log(ressldachay);
+    console.log('result');
+    console.log(result);
+    console.log('result');
     const congDoanMap = resultCongDoan.reduce((map, item) => {
         const cd = item.ttcongdoan < 10 ? 'Sửa chữa' : item.congdoan;
         const sl = item.ttcongdoan < 10 ? item.count_sc : item.count_ok;

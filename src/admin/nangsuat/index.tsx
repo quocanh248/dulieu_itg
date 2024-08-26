@@ -32,7 +32,7 @@ interface Data_tonghop {
     sum_soluong: number;
     sum_time: number;
 }
-const DSdonhangPage: React.FC = () => {
+const Admin_nang_suat: React.FC = () => {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const formattedDate = yesterday.toISOString().split('T')[0];
@@ -336,4 +336,4 @@ const DSdonhangPage: React.FC = () => {
     );
 };
 
-export default DSdonhangPage;
+export default Admin_nang_suat;
