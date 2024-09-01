@@ -105,19 +105,19 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                             </div>
                         </div>
                     </div>
-                    {/* <div className="nav__item">
-            <a href="#" className="nav__link">
-              <i className="fa-solid fa-lines-leaning"></i>
-              <span>Thiết bị</span>
-            </a>
-            <div className="nav__submenu">
-              <div className="nav__item">
-                <Link to="/danh_sach_nhom_cap_2" className="nav__link">
-                  <span>Danh sách nhóm cấp 2</span>
-                </Link>
-              </div>
-            </div>
-          </div> */}
+                    <div className="nav__item">
+                        <a href="#" className="nav__link">
+                            <i className="fa-solid fa-lines-leaning"></i>
+                            <span>Thiết bị</span>
+                        </a>
+                        <div className="nav__submenu">
+                            <div className="nav__item">
+                                <Link to="/danh_sach_nhom_cap_2" className="nav__link">
+                                    <span>Danh sách nhóm cấp 2</span>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className="nav flex text-nowrap">
                     <div className="nav__item">

@@ -36,6 +36,10 @@ export interface DataNC2 {
     manhomcap2: string;
     tennhomcap2: string;
 }
+export interface DataNC1 {
+    manhomcap1: string;
+    tennhomcap1: string;
+}
 export interface DataNC2_NC1 {
     manhomcap1: string;
     tennhomcap1: string;

@@ -16,8 +16,8 @@ router.get('/get_nhom_cap_2', async (req, res) => {
         SELECT * FROM nhomthietbicap2  
         WHERE tennhomcap2 <> 'macdinh1'
     `;
-
-        const params = []; // Đổi 'parmas' thành 'params'
+        console.log("dô");
+        const params = []; // Sử dụng 'params' thay vì 'parmas'
 
         if (manhomcap2) {
             sql += ` AND manhomcap2 = ?`;
@@ -28,7 +28,37 @@ router.get('/get_nhom_cap_2', async (req, res) => {
             sql += ` AND tennhomcap2 LIKE ?`;
             params.push(`%${tennhomcap2}%`);
         }
-        const results = await queryMySQL(sql, parmas);
+
+        // Truyền 'params' vào hàm 'queryMySQL'
+        const results = await queryMySQL(sql, params);
+        console.log(results);
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+router.get('/get_nhom_cap_1', async (req, res) => {
+    try {
+        const { manhomcap1, tennhomcap1 } = req.query;
+        let sql = `
+        SELECT * FROM nhomthietbicap1  
+        WHERE tennhomcap1 <> 'macdinh'
+    `;
+        console.log("dô");
+        const params = []; // Sử dụng 'params' thay vì 'parmas'
+
+        if (manhomcap1) {
+            sql += ` AND manhomcap1 = ?`;
+            params.push(manhomcap1);
+        }
+
+        if (tennhomcap1) {
+            sql += ` AND tennhomcap1 LIKE ?`;
+            params.push(`%${tennhomcap1}%`);
+        }
+
+        // Truyền 'params' vào hàm 'queryMySQL'
+        const results = await queryMySQL(sql, params);
         console.log(results);
         res.json(results);
     } catch (err) {
