@@ -3,7 +3,10 @@ import { sendAPIRequest } from '../../utils/util';
 import MenuComponent from '../../Menu';
 import { Link, useParams } from 'react-router-dom';
 import { DataNone } from '../../utils/modelAPI';
-import DataTable from 'react-data-table-component';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-quartz.css';
+import { ColDef } from 'ag-grid-community';
 import React from 'react';
 
 const ChitietThung: React.FC = () => {
@@ -25,35 +28,42 @@ const ChitietThung: React.FC = () => {
         if (decodedmathung) {
             fetchData();
         }
-    }, [decodedmathung]);
-    const columns = [
+    }, [decodedmathung]);    
+    const columnDefs1: ColDef<DataNone>[] = [
         {
-            name: 'Label',
-            selector: (row: DataNone) => row.label,
-            cell: (row: DataNone) => (
-                <Link to={`/chi_tiet_label/${encodeURIComponent(row.label)}`}>{row.label}</Link>
+            headerName: 'Label',
+            field: 'label',
+            sortable: true,
+            filter: true,
+            cellRenderer: (params: any) => (
+                <Link to={`/chi_tiet_label/${encodeURIComponent(params.value)}`}>
+                    {params.value}
+                </Link>
             ),
-            sortable: true,
         },
         {
-            name: 'Trạng thái',
-            selector: (row: DataNone) => row.trangthai,
+            headerName: 'Trạng thái',
+            field: 'trangthai',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Ngày',
-            selector: (row: DataNone) => row.ngay,
+            headerName: 'Ngày',
+            field: 'ngay',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Giờ bắt đầu',
-            selector: (row: DataNone) => row.giobatdau,
+            headerName: 'Giờ bắt đầu',
+            field: 'giobatdau',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Giờ kết thúc',
-            selector: (row: DataNone) => row.gioketthuc,
+            headerName: 'Giờ kết thúc',
+            field: 'gioketthuc',
             sortable: true,
+            filter: true,
         },
     ];
     return (
@@ -71,19 +81,27 @@ const ChitietThung: React.FC = () => {
                 </div>
             </div>
             <div className="p-3">
-                <div className="bg-white body-table">
-                    <DataTable
-                        columns={columns}
-                        data={resultthung} // Dữ liệu từ mảng missingLabels
-                        pagination
-                        paginationPerPage={15}
-                        fixedHeader
-                        fixedHeaderScrollHeight="calc(100vh - 202px)"
-                        responsive
-                        style={{ fontSize: '16px' }}
+                <div
+                    className="ag-theme-quartz"
+                    style={{ height: 'calc(100vh - 150px)', width: '100%' }}
+                >
+                    <AgGridReact
+                        rowData={resultthung}
+                        columnDefs={columnDefs1}
+                        defaultColDef={{
+                            sortable: true,
+                            filter: true,
+                            resizable: true,
+                            flex: 1,
+                            minWidth: 100,
+                        }}
+                        pagination={true}
+                        paginationPageSize={11}
+                        rowDragManaged={true}
+                        rowDragEntireRow={true}                      
                     />
-                </div>
-            </div>
+                </div>               
+            </div>  
         </MenuComponent>
     );
 };

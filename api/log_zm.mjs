@@ -14,42 +14,26 @@ router.get('/get_log_zm_model_lot', async (req, res) => {
     // Truy vấn dữ liệu từ bảng dulieu_itg
     const sql = `
     SELECT 
-      label, congdoan, ketqua
-    FROM 
-      dulieu_itg
-    WHERE 
-      model = ? AND
-      lot = ?
-    ORDER BY	
-      label, ngay DESC, giobatdau DESC
-  `;
-
-    // Truy vấn các công đoạn từ bảng dulieu_itg
-    const sqlCongDoan = `
-      SELECT 
-        DISTINCT congdoan, 
-        ttcongdoan, 
-        soluong,
-        COUNT(CASE WHEN ketqua = 'OK' THEN 1 ELSE NULL END) AS count_ok
-      FROM 
-        dulieu_itg  
-      WHERE 
-        model = ? AND 
-        lot = ? 
-      GROUP BY 
+        label, 
         congdoan, 
-        ttcongdoan,
-        soluong
-      ORDER BY 
-        ttcongdoan;
+        ttcongdoan, 
+        ketqua,
+        soluong,
+        COUNT(CASE WHEN ketqua = 'OK' THEN 1 END) OVER (PARTITION BY congdoan) AS so_luong_ok
+    FROM 
+        dulieu_itg
+    WHERE 
+        model = ? AND
+        lot = ?
+    ORDER BY 
+        ttcongdoan asc, congdoan, label, ngay DESC, giobatdau DESC;
   `;
-
     try {
-        const result = await queryMySQL(sql, [model, lot]);
-        const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
-        console.log(resultCongDoan);
-        const congDoanMap = resultCongDoan.reduce((map, item) => {
-            map[item.congdoan] = item.ttcongdoan;
+        const result = await queryMySQL(sql, [model, lot]);        
+        const congDoanMap = result.reduce((map, item) => {
+            if (!map[item.congdoan]) {
+                map[item.congdoan] = item.ttcongdoan;
+            }
             return map;
         }, {});
         const groupedResults = result.reduce((acc, item) => {
@@ -60,6 +44,14 @@ router.get('/get_log_zm_model_lot', async (req, res) => {
             acc[label][congdoan] = ketqua;
             return acc;
         }, {});
+        const resultCongDoan = result.reduce((acc, item) => {
+            const { congdoan, so_luong_ok, soluong } = item;
+            if (!acc[congdoan]) {
+                acc[congdoan] = { so_luong_ok, soluong };
+            }        
+            return acc;
+        },{});
+        console.log(resultCongDoan);
         res.json({
             results: Object.values(groupedResults),
             congdoan: Object.keys(congDoanMap),

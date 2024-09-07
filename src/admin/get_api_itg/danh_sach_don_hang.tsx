@@ -2,44 +2,21 @@ import { useEffect, useState } from 'react';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
 import { Link } from 'react-router-dom';
-import DataTable from 'react-data-table-component';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-quartz.css';
+import { ColDef } from 'ag-grid-community';
 import { Datadonhang } from '../../utils/modelAPI';
 import React from 'react';
 
-const DSdonhangPage: React.FC = () => {
-    const [model, setModel] = useState('');
-    const [lot, setLot] = useState('');
-    const [result_model, setrResModel] = useState([]);
+const DSdonhangPage: React.FC = () => {    
+    const [lot, setLot] = useState('');   
     const [result_lot, setrResLot] = useState([]);
-    const [result_donhang, setrResdonhang] = useState<Datadonhang[]>([]);
-    // Xử lý sự kiện thay đổi giá trị của input
-    const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const model_change = e.target.value;
-        setModel(model_change);
-        if (model_change !== '') {
-            fetchlot({ model_change });
-        }
-    };
+    const [result_donhang, setrResdonhang] = useState<Datadonhang[]>([]);    
     const handleLotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const lot_change = e.target.value;
-        setLot(lot_change);
-        if (lot_change !== '') {
-            fetchmodel({ lot_change });
-        }
-    };
-    const fetchmodel = async (filters = {}) => {
-        try {
-            const queryString = new URLSearchParams(filters).toString();
-            const response = await sendAPIRequest(
-                '/truynguyen/list_model?' + queryString,
-                'GET',
-                undefined
-            );
-            setrResModel(response);
-        } catch (error) {
-            console.error('Lỗi khi lấy dữ liệu năng suất:', error);
-        }
-    };
+        setLot(lot_change);        
+    };    
     const fetchlot = async (filters = {}) => {
         try {
             const queryString = new URLSearchParams(filters).toString();
@@ -70,72 +47,86 @@ const DSdonhangPage: React.FC = () => {
         if (lot == '') {
             alert('Vui lòng chọn lot để tìm');
         } else {
-            get_don_hang({ model, lot });
+            get_don_hang({  lot });
         }
     };
 
-    useEffect(() => {
-        fetchmodel();
+    useEffect(() => {      
         fetchlot();
-    }, []);
-
-    const columns = [
+    }, []);  
+    const columnDefs1: ColDef<Datadonhang>[] = [
         {
-            name: 'Model',
-            selector: (row: Datadonhang) => row.model,
+            headerName: 'Model',
+            field: 'model',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Lot',
-            selector: (row: Datadonhang) => row.lot,
+            headerName: 'Lot',
+            field: 'lot',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Po',
-            selector: (row: Datadonhang) => row.po,
+            headerName: 'Po',
+            field: 'po',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Số lượng ĐT',
-            selector: (row: Datadonhang) => row.soluong_dt,
+            headerName: 'Số lượng ĐT',
+            field: 'soluong_dt',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Số lượng PO',
-            selector: (row: Datadonhang) => row.soluong,
+            headerName: 'Số lượng PO',
+            field: 'soluong',
+            editable: true,
             sortable: true,
-        },
-        {
-            name: '% Hoàn thành',
-            selector: (row: Datadonhang) => {
-                const soluong = Number(row.soluong);
-                const soluong_dt = Number(row.soluong_dt);
-
-                if (isNaN(soluong) || isNaN(soluong_dt) || soluong_dt === 0) {
-                    return '';
-                }
-
-                const percentage = soluong != 0 ? (soluong_dt / soluong) * 100 : 0;
-                const string = percentage.toFixed(2) + '%';
-                return string;
+            filter: true,
+            valueFormatter: (params) => {
+                const value = Number(params.value);
+                return isNaN(value) ? 'N/A' : value.toFixed(2);
             },
-            sortable: true,
         },
         {
-            name: 'Trạng thái',
-            selector: (row: Datadonhang) => row.trangthai,
+            headerName: '% Hoàn thành',
             sortable: true,
+            filter: true,
+            valueGetter: (params: any) => {
+                const soluong = params.data.soluong;
+                const soluong_dt = params.data.soluong_dt;
+                return soluong !== 0
+                    ? ((soluong_dt / soluong) * 100).toFixed(2) + '%'
+                    : '0%';
+            },
         },
         {
-            selector: (row: Datadonhang) => row.model,
-            cell: (row: Datadonhang) => (
-                <Link
-                    target="_blank"
-                    to={`/get_model_lot_api/${encodeURIComponent(row.model)}/${encodeURIComponent(row.lot)}`}
-                >
-                    Chi tiết
-                </Link>
-            ),
+            headerName: '% Trạng thái',
+            field: 'trangthai',
+            sortable: true,
+            filter: true,
+            valueGetter: (params: any) => {
+                const soluong = params.data.soluong;
+                const soluong_dt = params.data.soluong_dt;
+                return soluong !== 0
+                    ? ((soluong_dt / soluong) * 100).toFixed(2) + '%'
+                    : '0%';
+            },
+        },
+        {
+            headerName: '',
+            field: 'model',
+            sortable: true,
+            filter: true,
+            cellRenderer: (params: any) => {
+                return (
+                    <Link to={`/get_model_lot_api/${encodeURIComponent(params.data.model)}/${encodeURIComponent(params.data.lot)}`}>
+                        Chi tiết
+                    </Link>
+                );
+            },
         },
     ];
     return (
@@ -144,27 +135,7 @@ const DSdonhangPage: React.FC = () => {
                 <h4 className="fw-normal text-primary m-0">
                     Danh sách đơn hàng <i className="far fa-question-circle"></i>
                 </h4>
-                <div className="d-flex ms-auto">
-                    <div className="input-custom ms-2">
-                        <div>
-                            <label className="form-label text-secondary">Model</label>
-                            <input
-                                type="search"
-                                className="form-control"
-                                list="list_model"
-                                value={model}
-                                onChange={handleModelChange}
-                            />
-                            <datalist id="list_model">
-                                {result_model.map((item) => (
-                                    <option
-                                        key={(item as { model: string }).model}
-                                        value={(item as { model: string }).model}
-                                    ></option>
-                                ))}
-                            </datalist>
-                        </div>
-                    </div>
+                <div className="d-flex ms-auto">                    
                     <div className="input-custom ms-2">
                         <div>
                             <label className="form-label text-secondary">Lot</label>
@@ -192,20 +163,28 @@ const DSdonhangPage: React.FC = () => {
                     </div>
                 </div>
             </div>
-            <div className="p-3">
-                <div className="bg-white body-table">
-                    <DataTable
-                        columns={columns}
-                        data={result_donhang}
-                        responsive
-                        pagination
-                        paginationPerPage={15}
-                        fixedHeader
-                        fixedHeaderScrollHeight="calc(100vh - 202px)"
-                        style={{ fontSize: '16px' }}
-                    />
-                </div>
-            </div>
+            <div className="p-3">                     
+                    <div
+                        className="ag-theme-quartz"
+                        style={{ height: 'calc(100vh - 150px)', width: '100%' }}
+                    >
+                        <AgGridReact
+                            rowData={result_donhang}
+                            columnDefs={columnDefs1}
+                            defaultColDef={{
+                                sortable: true,
+                                filter: true,
+                                resizable: true,
+                                flex: 1,
+                                minWidth: 100,
+                            }}
+                            pagination={true}
+                            paginationPageSize={11}
+                            rowDragManaged={true}
+                            rowDragEntireRow={true}                           
+                        />
+                    </div>
+                </div>            
         </MenuComponent>
     );
 };

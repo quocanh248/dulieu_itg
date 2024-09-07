@@ -201,70 +201,47 @@ async function capNhatModelLot(data, res) {
 async function thongTinModelLot(model, lot) {
     const sql = `
     SELECT 
-	    label, congdoan, ketqua, ttcongdoan
+        label, 
+        congdoan, 
+        ttcongdoan, 
+        ngay,
+        giobatdau,
+        ketqua,
+        soluong,
+        COUNT(CASE WHEN ketqua = 'OK' THEN 1 END) OVER (PARTITION BY congdoan) AS so_luong_ok
     FROM 
-	    dulieu_itg_get_api 
+        dulieu_itg_get_api
     WHERE 
-	    model = ? AND
-      lot = ?
-    ORDER BY	
-	    label, ngay DESC, giobatdau DESC
+        label = 'K64G-67-130_23_53202408130310' AND
+        model = ? AND
+        lot = ?
+    ORDER BY 
+        ttcongdoan asc, ngay DESC, giobatdau DESC, congdoan, label;
   `;
-    // const sqlCongDoan = `CALL GetSortedData(?, ?)`;
-    const sqlCongDoan = `
-        SELECT
-          DISTINCT congdoan,
-          ttcongdoan,
-          soluong,
-          COUNT(CASE WHEN ketqua = 'OK' THEN 1 ELSE NULL END) AS count_ok,
-          COUNT(DISTINCT CASE WHEN ttcongdoan < 9 THEN label END) AS count_sc
-        FROM
-          dulieu_itg_get_api
-        WHERE
-          model = ? AND
-          lot = ?
-        GROUP BY
-          congdoan,
-          ttcongdoan,
-          soluong
-        ORDER BY
-          ttcongdoan;
-      `;
-    const sql_none = `
-    SELECT  
-      soluong,  
-      COUNT(DISTINCT label) AS soluong_da_chay
-    FROM 
-      dulieu_itg_get_api  
-    WHERE 
-      model = ? AND 
-      lot = ? AND
-      ttcongdoan > 9
-    GROUP BY
-      soluong`;
     const result = await queryMySQL(sql, [model, lot]);
-    const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
-    const ressldachay = await queryMySQL(sql_none, [model, lot]);
-    console.log('result');
+    // const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
+    // const ressldachay = await queryMySQL(sql_none, [model, lot]);
     console.log(result);
-    console.log('result');
-    const congDoanMap = resultCongDoan.reduce((map, item) => {
+    var soluong = 0;
+    const congDoanMap = result.reduce((map, item) => {
         const cd = item.ttcongdoan < 10 ? 'Sửa chữa' : item.congdoan;
-        const sl = item.ttcongdoan < 10 ? item.count_sc : item.count_ok;
-
         if (!map[cd]) {
+            if (item.soluong !== 0) {
+                soluong = item.soluong;
+            }
             map[cd] = {
                 soluong: item.soluong,
-                count_ok: sl,
+                count_ok: item.so_luong_ok,
             };
         } else {
-            map[cd].count_ok =
-                item.ttcongdoan > 9 ? map[cd].count_ok + sl : Math.max(map[cd].count_ok, sl);
         }
-
         return map;
     }, {});
-    console.log(congDoanMap);
+    // soluong: number;
+    // soluong_da_chay: number;
+
+    var dem = 0;
+    var dem_sc = 0;
     const groupedResults = result.reduce((acc, item) => {
         const { label, congdoan, ketqua, ttcongdoan } = item;
         if (ttcongdoan < 10) {
@@ -274,12 +251,21 @@ async function thongTinModelLot(model, lot) {
         }
         if (!acc[label]) {
             acc[label] = { label };
+            dem++;
         }
         if (!acc[label][cd]) {
             acc[label][cd] = ketqua;
+            if (cd == 'Sửa chữa') {
+                dem_sc++;
+                congDoanMap[cd].count_ok = dem_sc;
+            }
         }
         return acc;
     }, {});
+    const ressldachay = {
+        soluong: soluong,
+        soluong_da_chay: dem,
+    };
     return {
         results: Object.values(groupedResults),
         congdoan: Object.keys(congDoanMap),

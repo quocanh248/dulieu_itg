@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
-import DataTable from 'react-data-table-component';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-quartz.css';
+import { ColDef } from 'ag-grid-community';
 import { CongDoan, TableKetquaProps, Thuoctinh } from '../../utils/modelAPI';
 import React from 'react';
 
@@ -9,9 +12,7 @@ const Admin_danh_sach_cong_doan: React.FC = () => {
     const [congdoans, setCongdoans] = useState<CongDoan[]>([]);
     const [macongdoanEdit, setMacongdoanEdit] = useState<string>('');
     const [tencongdoanEdit, setTencongdoanEdit] = useState<string>('');
-    const [sttEdit, setSttEdit] = useState<string>('');
-    const [macongdoan, setMacongdoan] = useState<string>('');
-    const [tencongdoan, setTencongdoan] = useState<string>('');
+    const [sttEdit, setSttEdit] = useState<string>('');   
     const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
     const [thuoctinhEdit, setThuoctinhEdit] = useState<string>('');
     const [thuoctinhIp, setThuoctinhIp] = useState<string>('');
@@ -33,31 +34,32 @@ const Admin_danh_sach_cong_doan: React.FC = () => {
     useEffect(() => {
         fetchCongdoan();
     }, []);
-
-    const handleSearch = () => {
-        fetchCongdoan({ macongdoan, tencongdoan });
-    };
-    const columns = [
+    
+    const columnDefs1: ColDef<CongDoan>[] = [
         {
-            name: 'Mã công đoạn',
-            selector: (row: CongDoan) => row.macongdoan,
+            headerName: 'Mã công đoạn',
+            field: 'macongdoan',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Tên công đoạn',
-            selector: (row: CongDoan) => row.tencongdoan,
+            headerName: 'Tên công đoạn',
+            field: 'tencongdoan',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Stt',
-            selector: (row: CongDoan) => row.stt,
+            headerName: 'STT',
+            field: 'stt',
             sortable: true,
+            filter: true,
         },
     ];
-    const handleRowClicked = async (row: Record<string, any>) => {
+    const handleRowClicked = async (row: any) => {
         try {
+            const data = row.data;
             const response = await sendAPIRequest(
-                '/truynguyen/chitietcongdoan?macongdoan=' + row.macongdoan,
+                '/truynguyen/chitietcongdoan?macongdoan=' + data.macongdoan,
                 'GET',
                 undefined
             );
@@ -344,54 +346,45 @@ const Admin_danh_sach_cong_doan: React.FC = () => {
     return (
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
-                <h4 className="fw-normal text-primary m-0">
+                <h5 className="fw-normal text-primary m-0">
                     Danh sách công đoạn <i className="far fa-question-circle"></i>
-                </h4>
+                </h5>
                 <div className="d-flex ms-auto">
-                    <div className="input-custom ms-2">
+                    <div className="input-custom ms-2" style={{visibility: "hidden"}}>
                         <div>
                             <label className="form-label text-secondary">Mã công đoạn</label>
                             <input
                                 type="text"
-                                className="form-control"
-                                value={macongdoan}
-                                onChange={(e) => setMacongdoan(e.target.value)}
+                                className="form-control"                               
                             />
                         </div>
-                    </div>
-                    <div className="input-custom ms-2">
-                        <div>
-                            <label className="form-label text-secondary">Tên công đoạn</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                value={tencongdoan}
-                                onChange={(e) => setTencongdoan(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                    <div className="d-flex align-items-center justify-content-center p-2">
-                        <button className="btn btn-primary" onClick={handleSearch}>
-                            <i className="fas fa-search"></i> Tìm
-                        </button>
-                    </div>
+                    </div>                  
                 </div>
-            </div>
+            </div>           
             <div className="p-3">
-                <div className="bg-white body-table">
-                    <DataTable
-                        columns={columns}
-                        data={congdoans}
-                        pagination
-                        paginationPerPage={15}
-                        fixedHeader
-                        fixedHeaderScrollHeight="calc(100vh - 202px)"
-                        responsive
+                <div
+                    className="ag-theme-quartz"
+                    style={{ height: 'calc(100vh - 150px)', width: '100%' }}
+                >
+                    <AgGridReact
+                        rowData={congdoans}
+                        columnDefs={columnDefs1}
+                        defaultColDef={{
+                            sortable: true,
+                            filter: true,
+                            resizable: true,
+                            flex: 1,
+                            minWidth: 100,
+                        }}
+                        pagination={true}
+                        paginationPageSize={11}
+                        rowDragManaged={true}
+                        rowDragEntireRow={true}
                         onRowClicked={handleRowClicked}
                     />
                 </div>
-            </div>
-            {isFormEdit && htmlEditForm()}
+                {isFormEdit && htmlEditForm()}
+            </div>           
         </MenuComponent>
     );
 };

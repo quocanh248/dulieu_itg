@@ -216,10 +216,10 @@ export const sendAPIRequest = async (
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     data = {}
 ) => {
-    try {        
+    try {
         if (url === '/users/login' || localStorage.getItem('access_token')) {
             const response = await axios({
-                // baseURL: `http://30.0.2.8:8011${url}`,
+                //baseURL: `http://30.0.2.8:8011${url}`,
                 baseURL: `http://localhost:3001${url}`,
                 method,
                 headers: {

@@ -1,7 +1,10 @@
 import { useEffect, useState, ChangeEvent } from 'react';
 import MenuComponent from '../Menu';
 import { sendAPIRequest } from '../utils/util';
-import DataTable from 'react-data-table-component';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-quartz.css';
+import { ColDef } from 'ag-grid-community';
 import React from 'react';
 
 // Định nghĩa kiểu dữ liệu cho tài khoản
@@ -263,10 +266,11 @@ const AdminPage: React.FC = () => {
             </div>
         );
     };
-    const handleRowClicked = async (row: Record<string, any>) => {
+    const handleRowClicked = async (row: any) => {
         try {
+            const data = row.data;
             const response = await sendAPIRequest(
-                '/users/user_info?id=' + row.id,
+                '/users/user_info?id=' + data.id,
                 'GET',
                 undefined
             );
@@ -460,30 +464,33 @@ const AdminPage: React.FC = () => {
             alert('Xóa user thành công');
             toggleScrollAndModal(false, false, false);
         }
-    };
-    const columns = [
+    };   
+    const columnDefs1: ColDef<Account>[] = [
         {
-            name: 'Mã nhân sự',
-            selector: (row: Account) => row.manhansu,
+            headerName: 'Mã nhân sự',
+            field: 'manhansu',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Tên nhân sự',
-            selector: (row: Account) => row.tennhansu,
+            headerName: 'Tên nhân sự',
+            field: 'tennhansu',
             sortable: true,
+            filter: true,
         },
         {
-            name: 'Tên nhóm',
-            selector: (row: Account) => row.tennhom,
+            headerName: 'Bộ phận',
+            field: 'tennhom',
             sortable: true,
+            filter: true,
         },
     ];
     return (
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
-                <h4 className="fw-normal text-primary m-0">
+                <h5 className="fw-normal text-primary m-0">
                     Danh sách tài khoản <i className="far fa-question-circle"></i>
-                </h4>
+                </h5>
                 <div className="d-flex ms-auto">
                     <div className="input-custom ms-2" style={{ visibility: 'hidden' }}>
                         <div>
@@ -497,22 +504,31 @@ const AdminPage: React.FC = () => {
                         </button>
                     </div>
                 </div>
-            </div>
+            </div>            
             <div className="p-3">
-                <div className="bg-white body-table">
-                    <DataTable
-                        columns={columns}
-                        data={accounts}
-                        pagination
-                        paginationPerPage={15}
-                        fixedHeader
-                        fixedHeaderScrollHeight="calc(100vh - 202px)"
-                        responsive
+                <div
+                    className="ag-theme-quartz"
+                    style={{ height: 'calc(100vh - 150px)', width: '100%' }}
+                >
+                    <AgGridReact
+                        rowData={accounts}
+                        columnDefs={columnDefs1}
+                        defaultColDef={{
+                            sortable: true,
+                            filter: true,
+                            resizable: true,
+                            flex: 1,
+                            minWidth: 100,
+                        }}
+                        pagination={true}
+                        paginationPageSize={11}
+                        rowDragManaged={true}
+                        rowDragEntireRow={true}
                         onRowClicked={handleRowClicked}
                     />
-                    {htmlAddForm()}
-                    {htmlEditForm()}
                 </div>
+                {htmlAddForm()}
+                {htmlEditForm()}
             </div>
         </MenuComponent>
     );

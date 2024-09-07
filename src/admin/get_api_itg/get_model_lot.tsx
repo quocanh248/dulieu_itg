@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
 import { Link, useParams } from 'react-router-dom';
-import DataTable from 'react-data-table-component';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 import React from 'react';
 interface RowData {
     label: string;
@@ -95,22 +97,24 @@ const Get_API_model_lot: React.FC = () => {
             fetchmodel();
         }
     }, [decodemodel, decodelot]);
-    const columns = [
+    const columnDefs = [
         {
-            name: 'Label',
-            selector: (row: RowData) => row.label,
-            cell: (row: RowData) => (
-                <Link to={`/chi_tiet_label/${encodeURIComponent(row.label)}`}>{row.label}</Link>
-            ),
+            headerName: 'Label',
+            field: 'label',
             sortable: true,
+            cellRenderer: (params: any) => (
+                <Link to={`/chi_tiet_label/${encodeURIComponent(params.value)}`}>
+                    {params.value}
+                </Link>
+            ),
         },
         ...result_congdoan.map((congdoanItem) => ({
-            name: congdoanItem,
-            selector: (row: RowData) => row[congdoanItem] || ' ',
-            cell: (row: RowData) => row[congdoanItem] || ' ',
+            headerName: congdoanItem,
+            field: congdoanItem,
             sortable: true,
+            cellRenderer: (params: any) => params.value || ' ',
         })),
-    ];
+    ];  
     const row_md_1 = result_congdoan.length + 1;
     let col2 = row_md_1 < 3 ? 12 : row_md_1 < 5 ? 6 : row_md_1 < 7 ? 4 : row_md_1 < 9 ? 3 : 2;
     return (
@@ -190,7 +194,13 @@ const Get_API_model_lot: React.FC = () => {
                                                 <Link
                                                     style={{ color: 'white' }}
                                                     target="_blank"
-                                                    to={`/list_tiet_label_none/${encodeURIComponent(modelState || '')}/${encodeURIComponent(lotState || '')}/None/0/${encodeURIComponent(resnone[0]?.soluong || '')}`}
+                                                    to={`/list_tiet_label_none/${encodeURIComponent(
+                                                        modelState || ''
+                                                    )}/${encodeURIComponent(
+                                                        lotState || ''
+                                                    )}/None/0/${encodeURIComponent(
+                                                        resnone[0]?.soluong || ''
+                                                    )}`}
                                                 >
                                                     None
                                                 </Link>
@@ -212,7 +222,15 @@ const Get_API_model_lot: React.FC = () => {
                                                     <Link
                                                         style={{ color: 'white' }}
                                                         target="_blank"
-                                                        to={`/list_tiet_label_none/${encodeURIComponent(modelState || '')}/${encodeURIComponent(lotState || '')}/${encodeURIComponent(key || '')}/${encodeURIComponent(it.count_ok || '')}/${encodeURIComponent(it.soluong || '')}`}
+                                                        to={`/list_tiet_label_none/${encodeURIComponent(
+                                                            modelState || ''
+                                                        )}/${encodeURIComponent(
+                                                            lotState || ''
+                                                        )}/${encodeURIComponent(
+                                                            key || ''
+                                                        )}/${encodeURIComponent(
+                                                            it.count_ok || ''
+                                                        )}/${encodeURIComponent(it.soluong || '')}`}
                                                     >
                                                         {key}
                                                     </Link>
@@ -223,16 +241,22 @@ const Get_API_model_lot: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="bg-white body-table-bt">
-                            <DataTable
-                                columns={columns}
-                                data={result_label}
-                                pagination
-                                paginationPerPage={10}
-                                fixedHeader
-                                fixedHeaderScrollHeight="calc(100vh - 398px)"
-                                responsive
-                                style={{ fontSize: '14px' }}
+                        <div
+                            className="ag-theme-alpine"
+                            style={{ height: 'calc(100vh - 338px)', width: '100%' }}
+                        >
+                            <AgGridReact
+                                rowData={result_label}
+                                columnDefs={columnDefs}
+                                defaultColDef={{
+                                    sortable: true,
+                                    filter: true,
+                                    resizable: true,
+                                    flex: 1,
+                                    minWidth: 100,
+                                }}
+                                pagination={true}
+                                paginationPageSize={6}
                             />
                         </div>
                     </>

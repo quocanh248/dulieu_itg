@@ -2,16 +2,17 @@ import { useEffect, useState } from 'react';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
 import { DataNC1, DataNC2, DataNC2_NC1 } from '../../utils/modelAPI';
-// @ts-ignore
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { ColDef } from 'ag-grid-community';
 import React from 'react';
 
 const NC1_NC2Page = () => {
     const [result_NC1_NC2, setResultNc2_Nc1] = useState<DataNC2_NC1[]>([]);
     const [result_NC1_Remaining, setResultNc1Remaining] = useState<DataNC1[]>([]);
-    const [result_NC2, setResultNc2] =useState<DataNC2[]>([]);
-    
+    const [result_NC2, setResultNc2] = useState<DataNC2[]>([]);
 
-    // Lấy danh sách nhóm cấp 2
     const getNhomCap2 = async () => {
         try {
             const response = await sendAPIRequest('/thietbi/get_nhom_cap_2', 'GET');
@@ -21,15 +22,16 @@ const NC1_NC2Page = () => {
         }
     };
 
-    // Lấy danh sách nhóm cấp 1 thuộc nhóm cấp 2 và các nhóm cấp 1 còn lại
     const handleNhomCap2Change = async (id: string) => {
-        
         try {
-            const responseNC1_NC2 = await sendAPIRequest(`/thietbi/get_nhom_cap_1_of_cap_2?manhomcap2=${id}`, 'GET');
-            setResultNc2_Nc1(responseNC1_NC2); // Nhóm cấp 1 thuộc nhóm cấp 2
+            const responseNC1_NC2 = await sendAPIRequest(
+                `/thietbi/get_nhom_cap_1_of_cap_2?manhomcap2=${id}`,
+                'GET'
+            );
+            setResultNc2_Nc1(responseNC1_NC2);
 
             const responseNC1Remaining = await sendAPIRequest('/thietbi/get_nhom_cap_1', 'GET');
-            setResultNc1Remaining(responseNC1Remaining); // Nhóm cấp 1 còn lại
+            setResultNc1Remaining(responseNC1Remaining);
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
         }
@@ -38,6 +40,36 @@ const NC1_NC2Page = () => {
     useEffect(() => {
         getNhomCap2();
     }, []);
+
+    // Define column definitions for AG Grid
+    const columnDefs1: ColDef<DataNC1>[] = [
+        {
+            headerCheckboxSelection: true,
+            checkboxSelection: true,
+            headerName: '',
+            width: 50,
+        },
+        {
+            headerName: 'Tên nhóm cấp 1',
+            field: 'tennhomcap1',
+            sortable: true,
+            filter: true,
+        },
+    ];
+
+    // Combine data from NC1_NC2 and NC1_Remaining into one array
+    const rowData: DataNC1[] = [
+        ...result_NC1_NC2.map((nhom) => ({
+            manhomcap1: nhom.manhomcap1,
+            tennhomcap1: nhom.tennhomcap1,           
+            checked: true, // Checked by default
+        })),
+        ...result_NC1_Remaining.map((nhom) => ({
+            manhomcap1: nhom.manhomcap1,
+            tennhomcap1: nhom.tennhomcap1,
+            checked: false, // Not checked by default
+        })),
+    ];
 
     return (
         <MenuComponent>
@@ -67,42 +99,22 @@ const NC1_NC2Page = () => {
 
             {/* Hiển thị danh sách nhóm cấp 1 */}
             <div className="p-3">
-                <div className="bg-white">
-                    <table className='table table-bordered'>
-                        <thead>
-                            <tr>
-                                <th><input type="checkbox" id='check-all' /></th>
-                                <th>Tên nhóm cấp 1</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {/* Danh sách nhóm cấp 1 thuộc nhóm cấp 2 */}
-                            {result_NC1_NC2.map((nhom) => (
-                                <tr key={nhom.manhomcap1}>
-                                    <td>
-                                        <input 
-                                            type="checkbox" 
-                                            checked 
-                                            onChange={() => {}} 
-                                        />
-                                    </td>
-                                    <td>{nhom.tennhomcap1}</td>
-                                </tr>
-                            ))}
-                            {/* Danh sách các nhóm cấp 1 còn lại */}
-                            {result_NC1_Remaining.map((nhom) => (
-                                <tr key={nhom.manhomcap1}>
-                                    <td>
-                                        <input 
-                                            type="checkbox" 
-                                            onChange={() => {}} 
-                                        />
-                                    </td>
-                                    <td>{nhom.tennhomcap1}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                <div
+                    className="ag-theme-alpine"
+                    style={{ height: 'calc(100vh - 150px)', width: '100%' }}
+                >
+                    <AgGridReact<DataNC1>
+                        columnDefs={columnDefs1}
+                        defaultColDef={{                            
+                            resizable: true,
+                            flex: 1,
+                            minWidth: 100,
+                        }}
+                        rowData={rowData}
+                        rowSelection="multiple"
+                        pagination={true}
+                        paginationPageSize={11}
+                    />
                 </div>
             </div>
         </MenuComponent>

@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
 import { Link } from 'react-router-dom';
-import DataTable from 'react-data-table-component';
+import { AgGridReact } from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-alpine.css';
 import React from 'react';
 interface RowData {
     label: string;
@@ -11,9 +13,9 @@ interface RowData {
 interface Datatt {
     congdoan: string;
     soluong: number;
-    count_ok: number;
+    so_luong_ok: number;
 }
-function Modelot_zm_Page() {
+const Modelot_zm_Page: React.FC = () => {
     const [model, setModel] = useState('');
     const [lot, setLot] = useState('');
     const [loading, setLoading] = useState(false);
@@ -65,9 +67,17 @@ function Modelot_zm_Page() {
                 'GET',
                 undefined
             );
+            const thongtin_1 = Object.keys(response.info).map((key) => ({
+                congdoan: key,
+                so_luong_ok: response.info[key].so_luong_ok, // Đổi `count_ok` thành `so_luong_ok`
+                soluong: response.info[key].soluong,
+            }));
+            console.log(thongtin_1);
+            
+            // Cập nhật state với dữ liệu `thongtin`
+            setrResthongtin(thongtin_1);
             setrRescongdoan(response.congdoan);
             setrReslabel(response.results);
-            setrResthongtin(response.info);
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
         } finally {
@@ -79,23 +89,25 @@ function Modelot_zm_Page() {
     };
     useEffect(() => {
         fetchmodel();
-    }, []);
-    const columns = [
+    }, []);   
+    const columnDefs = [
         {
-            name: 'Label',
-            selector: (row: RowData) => row.label,
-            cell: (row: RowData) => (
-                <Link to={`/chi_tiet_label_zm/${encodeURIComponent(row.label)}`}>{row.label}</Link>
-            ),
+            headerName: 'Label',
+            field: 'label',
             sortable: true,
+            cellRenderer: (params: any) => (
+                <Link to={`/chi_tiet_label_zm/${encodeURIComponent(params.value)}`}>
+                    {params.value}
+                </Link>
+            ),
         },
         ...result_congdoan.map((congdoanItem) => ({
-            name: congdoanItem,
-            selector: (row: RowData) => row[congdoanItem] || ' ',
-            cell: (row: RowData) => row[congdoanItem] || ' ',
+            headerName: congdoanItem,
+            field: congdoanItem,
             sortable: true,
+            cellRenderer: (params: any) => params.value || ' ',
         })),
-    ];
+    ];  
     const row_md_1 = result_congdoan.length;
     let col = row_md_1 < 3 ? 12 : row_md_1 < 5 ? 6 : row_md_1 < 7 ? 4 : row_md_1 < 9 ? 3 : 2;
 
@@ -169,7 +181,7 @@ function Modelot_zm_Page() {
                                     <div key={index} className={`col-md-${col} p-3`}>
                                         <div className="bg-xanh btn-mh d-flex flex-column align-items-center justify-content-center text-center">
                                             <div style={{ fontWeight: 'bold' }}>
-                                                {it.count_ok}/{it.soluong}
+                                                {it.so_luong_ok}/{it.soluong}
                                             </div>
                                             <div style={{ fontSize: '16px', marginTop: '4px' }}>
                                                 {it.congdoan}
@@ -179,16 +191,22 @@ function Modelot_zm_Page() {
                                 ))}
                             </div>
                         </div>
-                        <div className="bg-white body-table-bt">
-                            <DataTable
-                                columns={columns}
-                                data={result_label}
-                                pagination
-                                paginationPerPage={10}
-                                fixedHeader
-                                fixedHeaderScrollHeight="calc(100vh - 398px)"
-                                responsive
-                                style={{ fontSize: '14px' }}
+                        <div
+                            className="ag-theme-alpine"
+                            style={{ height: 'calc(100vh - 338px)', width: '100%' }}
+                        >
+                            <AgGridReact
+                                rowData={result_label}
+                                columnDefs={columnDefs}
+                                defaultColDef={{
+                                    sortable: true,
+                                    filter: true,
+                                    resizable: true,
+                                    flex: 1,
+                                    minWidth: 100,
+                                }}
+                                pagination={true}
+                                paginationPageSize={6}
                             />
                         </div>
                     </>
@@ -196,6 +214,6 @@ function Modelot_zm_Page() {
             </div>
         </MenuComponent>
     );
-}
+};
 
 export default Modelot_zm_Page;

@@ -4,7 +4,7 @@ import MenuComponent from '../../Menu';
 import { Link, useParams } from 'react-router-dom';
 import { Chitietlabel, NhanVien, TableProps } from '../../utils/modelAPI';
 
-const ChitietLabel: React.FC = () => {
+const ChitietLabelzm: React.FC = () => {
     const [resultChitiet, setResultChitiet] = useState<Chitietlabel[]>([]);
     const { label } = useParams<{ label: string }>();
     const decodedLabel = decodeURIComponent(label || '');
@@ -212,4 +212,4 @@ const TableQuanLy: React.FC<TableProps> = ({ item, get_ten_nhan_su }) => {
     );
 };
 
-export default ChitietLabel;
+export default ChitietLabelzm;

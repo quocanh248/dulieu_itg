@@ -257,6 +257,7 @@ const ChitietLabel: React.FC = () => {
                     ) : null}
                     {resultChitiet &&
                         resultChitiet.map((item, index) => (
+                            <>
                             <div key={index} className="row p-3">
                                 <div className="col-3 text-end p-3">
                                     <label className="text-primary">Ngày: {item.ngay}</label> <br />{' '}
@@ -308,7 +309,9 @@ const ChitietLabel: React.FC = () => {
                                     <br />
                                     <Tableketqua item={item} />
                                 </div>
-                            </div>
+                            </div> 
+                            <hr />
+                            </>
                         ))}
                 </div>
             </div>

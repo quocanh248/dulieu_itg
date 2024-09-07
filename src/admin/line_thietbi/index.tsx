@@ -60,7 +60,7 @@ const NC2Page: React.FC = () => {
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
                 <h4 className="fw-normal text-primary m-0">
-                    Danh sách nhóm cấp 2 <i className="far fa-question-circle"></i>
+                    Danh sách nhóm cấp 2 3<i className="far fa-question-circle"></i>
                 </h4>
                 <div className="d-flex ms-auto">
                     <div className="input-custom ms-2">
