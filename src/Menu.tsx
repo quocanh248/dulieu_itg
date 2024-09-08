@@ -112,8 +112,23 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                         </a>
                         <div className="nav__submenu">
                             <div className="nav__item">
+                                <Link to="/danh_sach_thiet_bi" className="nav__link">
+                                    <span>Danh sách thiết bị</span>
+                                </Link>
+                            </div>
+                            <div className="nav__item">
+                                <Link to="/danh_sach_nhom_cap_1" className="nav__link">
+                                    <span>Danh sách nhóm cấp 1</span>
+                                </Link>
+                            </div>
+                            <div className="nav__item">
                                 <Link to="/danh_sach_nhom_cap_2" className="nav__link">
                                     <span>Danh sách nhóm cấp 2</span>
+                                </Link>
+                            </div>
+                            <div className="nav__item">
+                                <Link to="/danh_sach_line" className="nav__link">
+                                    <span>Danh sách line</span>
                                 </Link>
                             </div>
                         </div>

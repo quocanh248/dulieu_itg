@@ -32,19 +32,42 @@ export interface TableKetquaProps {
 }
 
 //Line - thiết bị
+export interface DataTB {
+    mathietbi: string;
+    tenthietbi: string;
+    manhomcap1: string;
+    tennhomcap1: string;
+}
 export interface DataNC2 {
     manhomcap2: string;
     tennhomcap2: string;
+    manhomcap1: string;
+    tennhomcap1: string;
 }
 export interface DataNC1 {
     manhomcap1: string;
     tennhomcap1: string;
 }
+export interface DataLine {
+    maline: string;
+    tenline: string;
+}
 export interface DataNC2_NC1 {
     manhomcap1: string;
     tennhomcap1: string;
 }
-
+export interface DataNC2ofNC1 {
+    manhomcap1: string;
+    tennhomcap1: string;
+}
+export interface Datatb_not_line {
+    mathietbi: string;
+    tenthietbi: string;
+}
+export interface Datatb_of_line {
+    mathietbi: string;
+    tenthietbi: string;
+}
 //Label None
 export interface DataNone {
     label: string;

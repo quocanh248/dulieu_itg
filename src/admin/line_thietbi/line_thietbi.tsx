@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
-import { DataNC2, DataNC2_NC1, DataNC2ofNC1 } from '../../utils/modelAPI';
+import { DataLine, Datatb_not_line, Datatb_of_line } from '../../utils/modelAPI';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
@@ -9,15 +9,17 @@ import { ColDef, GridApi } from 'ag-grid-community';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const NC1_NC2Page = () => {
-    const [result_NC1_NC2, setResultNc2_Nc1] = useState<DataNC2_NC1[]>([]);
-    const [result_NC1ofNC2, setResultNc2ofNc1] = useState<DataNC2ofNC1[]>([]);
-    const [result_NC2, setResultNc2] = useState<DataNC2[]>([]);
-    const [mnc2, setmnc2] = useState<string>('');
+const LinePage = () => {
+    const [result_tb_not_line, setResulttb_not_line] = useState<Datatb_of_line[]>([]);
+    const [result_tb_of_line, setResulttb_of_line] = useState<Datatb_of_line[]>([]);
+    const [result_Line, setResultLine] = useState<DataLine[]>([]);
+    const [maline_modal, setmaline_modal] = useState<string>('');
+    const [maline, setMaline] = useState<string>('');
+    const [tenline, setTenline] = useState<string>('');
     const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
-    const gridApiRef = useRef<GridApi<DataNC2_NC1> | null>(null);
-    const gridApiNC1ofNC2 = useRef<GridApi<DataNC2ofNC1> | null>(null);
-    const gridRef = useRef<AgGridReact<DataNC2_NC1> | null>(null);
+    const gridApiRef = useRef<GridApi<Datatb_of_line> | null>(null);
+    const gridApiNC1ofNC2 = useRef<GridApi<Datatb_of_line> | null>(null);
+    const gridRef = useRef<AgGridReact<Datatb_of_line> | null>(null);
 
     const clearFilters = useCallback(() => {
         if (gridRef.current) {
@@ -27,10 +29,10 @@ const NC1_NC2Page = () => {
             }
         }
     }, []);
-    const getNhomCap2 = async () => {
+    const get_line = async () => {
         try {
-            const response = await sendAPIRequest('/thietbi/get_nhom_cap_2', 'GET');
-            setResultNc2(response);
+            const response = await sendAPIRequest('/thietbi/get_line', 'GET');
+            setResultLine(response);
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
         }
@@ -38,9 +40,9 @@ const NC1_NC2Page = () => {
     const handleRowClicked = async (row: any) => {
         try {
             const data = row.data;
-            setmnc2(data.manhomcap2);
-            handleNhomCap2Change(data.manhomcap2);
-            nc1_of_nc2(data.manhomcap2);
+            setmaline_modal(data.maline);
+            handleNhomCap2Change(data.maline);
+            tb_of_line(data.maline);
             toggleScrollAndModal(true);
         } catch (error) {
             console.error('Lỗi khi lấy thông tin người dùng:', error);
@@ -49,93 +51,113 @@ const NC1_NC2Page = () => {
     const handleNhomCap2Change = async (id: string) => {
         try {
             const responseNC1_NC2 = await sendAPIRequest(
-                `/thietbi/get_nhom_cap_1_not_of_cap_2?manhomcap2=${id}`,
+                `/thietbi/get_thietbi_not_of_line?maline=${id}`,
                 'GET'
             );
-            setResultNc2_Nc1(responseNC1_NC2);
+            setResulttb_not_line(responseNC1_NC2);
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
         }
     };
-    const nc1_of_nc2 = async (id: string) => {
+    const tb_of_line = async (id: string) => {
         try {
             const responseNC1_NC2 = await sendAPIRequest(
-                `/thietbi/get_nhom_cap_1_of_cap_2?manhomcap2=${id}`,
+                `/thietbi/get_thietbi_of_line?maline=${id}`,
                 'GET'
             );
-            setResultNc2ofNc1(responseNC1_NC2);
+            setResulttb_of_line(responseNC1_NC2);
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
         }
     };
     useEffect(() => {
-        getNhomCap2();
+        get_line();
     }, []);
     const handleSubmit = async (event: React.MouseEvent<HTMLButtonElement>) => {
         // Lấy giá trị từ button
-        const manhomcap2 = event.currentTarget.value;
-        console.log('Giá trị của button:', manhomcap2);
+        const maline = event.currentTarget.value;
+        console.log('Giá trị của button:', maline);
         if (gridApiRef.current) {
             const selectedRows = gridApiRef.current.getSelectedRows();
             const dataToSend = {
-                manhomcap2, // Giá trị từ form
+                maline, // Giá trị từ form
                 selectedRows, // Các hàng đã chọn
             };
-            const res = await sendAPIRequest('/thietbi/cap_nhat_nc2', 'POST', dataToSend);
+            const res = await sendAPIRequest('/thietbi/cap_nhat_line', 'POST', dataToSend);
             console.log(res.status);
             if (res && res.status === 201) {
-                handleNhomCap2Change(manhomcap2);
-                nc1_of_nc2(manhomcap2);
+                handleNhomCap2Change(maline);
+                tb_of_line(maline);
             } else {
                 alert('Lỗi');
             }
         }
     };
     const handleTrash = async (event: React.MouseEvent<HTMLButtonElement>) => {
-        const manhomcap2 = event.currentTarget.value;
-        console.log('Giá trị của manhomcap2:', manhomcap2);
+        const maline = event.currentTarget.value;        
         if (gridApiNC1ofNC2.current) {
             const selectedRows = gridApiNC1ofNC2.current.getSelectedRows();
             const dataToSend = {
-                manhomcap2, // Giá trị từ form
+                maline, // Giá trị từ form
                 selectedRows, // Các hàng đã chọn
             };
-            const res = await sendAPIRequest('/thietbi/clear_nc1_nc2', 'POST', dataToSend);
+            const res = await sendAPIRequest('/thietbi/clear_tb_line', 'POST', dataToSend);
             console.log(res.status);
             if (res && res.status === 201) {
-                handleNhomCap2Change(manhomcap2);
-                nc1_of_nc2(manhomcap2);
+                handleNhomCap2Change(maline);
+                tb_of_line(maline);
             } else {
                 alert('Lỗi');
             }
         }
     };
+    const handleAddline = async () => {
+        if (!maline || !tenline) {
+            alert('Vui lòng điền đầy đủ thông tin.');
+            return;
+        }
+        try {
+            const data = {
+                maline: maline,
+                tenline: tenline,               
+            };
+            await sendAPIRequest('/thietbi/them_line', 'POST', data);
+            alert('Thêm line thành công');
+            get_line();
+            setMaline('');
+            setTenline('');           
+        } catch (error) {
+            console.error('Lỗi khi thêm tài khoản:', error);
+            alert('Có lỗi xảy ra khi thêm tài khoản.');
+        }
+    };
     // Define column definitions for AG Grid
-    const columnDefs1: ColDef<DataNC2>[] = [
+    const columnDefs1: ColDef<DataLine>[] = [
         {
-            headerName: 'Mã nhóm cấp 2',
-            field: 'manhomcap2',
+            headerName: 'Mã line',
+            field: 'maline',
             sortable: true,
             filter: true,
         },
         {
-            headerName: 'Tên nhóm cấp 2',
-            field: 'tennhomcap2',
+            headerName: 'Tên line',
+            field: 'tenline',
             sortable: true,
             filter: true,
         },
         {
             headerName: '',
-            field: 'manhomcap2',
+            field: 'maline',
             sortable: true,
             cellRenderer: (params: any) => (
-                <Link to={`/bar_code_nhomcap2/${encodeURIComponent(params.value)}`} target="_blank">
+                <Link to={`/bar_code_thietbi_line/${encodeURIComponent(params.value)}`} target="_blank">
                     In bar code
                 </Link>
             ),
         },
     ];
-    const columnDefsNC1ofnc2: ColDef<DataNC2ofNC1>[] = [
+
+    const columnDefsNC1ofnc2: ColDef<Datatb_of_line>[] = [
         {
             headerCheckboxSelection: true,
             checkboxSelection: true,
@@ -143,19 +165,19 @@ const NC1_NC2Page = () => {
             width: 50,
         },
         {
-            headerName: 'Mã nhóm cấp 1',
-            field: 'manhomcap1',
+            headerName: 'Mã thiết bị',
+            field: 'mathietbi',
             sortable: true,
             filter: true,
         },
         {
-            headerName: 'Tên nhóm cấp 1',
-            field: 'tennhomcap1',
+            headerName: 'Tên thiết bị',
+            field: 'tenthietbi',
             sortable: true,
             filter: true,
         },
     ];
-    const columnDefsNC1_nc2: ColDef<DataNC2_NC1>[] = [
+    const columnDefsNC1_nc2: ColDef<Datatb_not_line>[] = [
         {
             headerCheckboxSelection: true,
             checkboxSelection: true,
@@ -163,14 +185,14 @@ const NC1_NC2Page = () => {
             width: 50,
         },
         {
-            headerName: 'Mã nhóm cấp 1',
-            field: 'manhomcap1',
+            headerName: 'Mã thiết bị',
+            field: 'mathietbi',
             sortable: true,
             filter: true,
         },
         {
-            headerName: 'Tên nhóm cấp 1',
-            field: 'tennhomcap1',
+            headerName: 'Tên thiết bị',
+            field: 'tenthietbi',
             sortable: true,
             filter: true,
         },
@@ -203,7 +225,7 @@ const NC1_NC2Page = () => {
                                         >
                                             <AgGridReact
                                                 ref={gridRef}
-                                                rowData={result_NC1ofNC2}
+                                                rowData={result_tb_of_line}
                                                 columnDefs={columnDefsNC1ofnc2}
                                                 defaultColDef={{
                                                     sortable: true,
@@ -212,6 +234,7 @@ const NC1_NC2Page = () => {
                                                     flex: 1,
                                                     minWidth: 100,
                                                 }}
+                                                rowSelection="multiple"
                                                 onGridReady={(params) =>
                                                     (gridApiNC1ofNC2.current = params.api)
                                                 }
@@ -225,7 +248,7 @@ const NC1_NC2Page = () => {
                                         >
                                             <AgGridReact
                                                 ref={gridRef}
-                                                rowData={result_NC1_NC2}
+                                                rowData={result_tb_not_line}
                                                 columnDefs={columnDefsNC1_nc2}
                                                 defaultColDef={{
                                                     sortable: true,
@@ -248,7 +271,7 @@ const NC1_NC2Page = () => {
                             <button
                                 type="button"
                                 className="btn btn-danger"
-                                value={mnc2}
+                                value={maline_modal}
                                 onClick={handleTrash}
                             >
                                 Xóa
@@ -264,7 +287,7 @@ const NC1_NC2Page = () => {
                                 </button>
                                 <button
                                     type="button"
-                                    value={mnc2}
+                                    value={maline_modal}
                                     className="btn btn-primary"
                                     onClick={handleSubmit}
                                 >
@@ -282,24 +305,35 @@ const NC1_NC2Page = () => {
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
                 <h5 className="fw-normal text-primary m-0">
-                    Danh sách nhóm cấp 2 <i className="far fa-question-circle"></i>
+                    Line - thiết bị <i className="far fa-question-circle"></i>
                 </h5>
                 <div className="d-flex ms-auto">
                     <div className="input-custom ms-2">
                         <div>
-                            <label className="form-label text-secondary">Mã nhóm cấp 2</label>
-                            <select
-                                className="form-select"
-                                onChange={(e) => handleNhomCap2Change(e.target.value)}
-                            >
-                                <option value="">Chọn nhóm cấp 2</option>
-                                {result_NC2.map((nhom) => (
-                                    <option key={nhom.manhomcap2} value={nhom.manhomcap2}>
-                                        {nhom.tennhomcap2}
-                                    </option>
-                                ))}
-                            </select>
+                            <label className="form-label text-secondary">Mã line</label>
+                            <input
+                                type="search"
+                                className="form-control"
+                                value={maline}
+                                onChange={(e) => setMaline(e.target.value)}
+                            />
                         </div>
+                    </div>
+                    <div className="input-custom ms-2">
+                        <div>
+                            <label className="form-label text-secondary">Tên line</label>
+                            <input
+                                type="search"
+                                className="form-control"
+                                value={tenline}
+                                onChange={(e) => setTenline(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    <div className="d-flex align-items-center justify-content-center p-2">
+                        <button className="btn btn-primary" onClick={handleAddline}>
+                            <i className="fas fa-plus"></i> Thêm
+                        </button>
                     </div>
                 </div>
             </div>
@@ -317,7 +351,7 @@ const NC1_NC2Page = () => {
                             flex: 1,
                             minWidth: 100,
                         }}
-                        rowData={result_NC2}
+                        rowData={result_Line}
                         rowSelection="multiple"
                         pagination={true}
                         paginationPageSize={11}
@@ -330,4 +364,4 @@ const NC1_NC2Page = () => {
     );
 };
 
-export default NC1_NC2Page;
+export default LinePage;
