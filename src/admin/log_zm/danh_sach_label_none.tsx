@@ -1,45 +1,56 @@
 import { useEffect, useState } from 'react';
-import { sendAPIRequest } from '../../utils/util';
 import MenuComponent from '../../Menu';
-import { Link, useParams } from 'react-router-dom';
-import { DataNone } from '../../utils/modelAPI';
+import { sendAPIRequest } from '../../utils/util';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { ColDef } from 'ag-grid-community';
+import { useParams } from 'react-router-dom';
+import { DataNone } from '../../utils/modelAPI';
 import React from 'react';
 
-const ChitietThung: React.FC = () => {
-    const [resultthung, setResulthung] = useState<DataNone[]>([]);
-    const { mathung } = useParams<{ mathung: string }>();
-    const decodedmathung = decodeURIComponent(mathung || '');
-    const fetchData = async () => {
+const Get_label_cd_zm: React.FC = () => {
+    const [result_none, setrResnone] = useState<DataNone[]>([]);
+    const { model, lot, congdoan, soluong_ok, soluong } = useParams<{
+        model: string;
+        lot: string;
+        congdoan: string;
+        soluong_ok: string;
+        soluong: string;
+    }>();
+
+    const decodemodel = decodeURIComponent(model || '');
+    const decodelot = decodeURIComponent(lot || '');
+    const decodecongdoan = decodeURIComponent(congdoan || '');
+    const decodesoluong_ok = decodeURIComponent(soluong_ok || '');
+    const decodesoluong = decodeURIComponent(soluong || '');
+
+    const get_nhom_cap_2_cap_1 = async () => {
         try {
             const response = await sendAPIRequest(
-                '/truynguyen/chi_tiet_thung?mathung=' + decodedmathung,
-                'GET'
+                `/logzm/get_label_none?model=${decodemodel}&lot=${decodelot}&congdoan=${decodecongdoan}&soluong_ok=${decodesoluong_ok}&soluong=${decodesoluong}`,
+                'GET',
+                undefined
             );
-            setResulthung(response);
+            console.log(response.missingLabels);
+            setrResnone(response.missingLabels); // Thiết lập dữ liệu
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
         }
     };
+
     useEffect(() => {
-        if (decodedmathung) {
-            fetchData();
+        if (decodemodel && decodelot && decodecongdoan && decodesoluong_ok && decodesoluong) {
+            get_nhom_cap_2_cap_1();
         }
-    }, [decodedmathung]);    
+    }, [decodemodel, decodelot, decodecongdoan, decodesoluong_ok, decodesoluong]);
+  
     const columnDefs1: ColDef<DataNone>[] = [
         {
             headerName: 'Label',
             field: 'label',
             sortable: true,
             filter: true,
-            cellRenderer: (params: any) => (
-                <Link to={`/chi_tiet_label/${encodeURIComponent(params.value)}`}>
-                    {params.value}
-                </Link>
-            ),
         },
         {
             headerName: 'Trạng thái',
@@ -70,23 +81,30 @@ const ChitietThung: React.FC = () => {
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
                 <h5 className="fw-normal text-primary m-0">
-                    Chi tiết thùng <b style={{ color: 'red' }}>{decodedmathung}</b>
+                    Danh sách Label <b>{congdoan}</b> <i className="far fa-question-circle"></i>
                 </h5>
-                <div className="d-flex ms-auto">
-                    <div className="input-custom ms-2" style={{ visibility: 'hidden' }}>
+                <div className="d-flex ms-auto" style={{ visibility: 'hidden' }}>
+                    <div className="input-custom ms-2">
                         <div>
-                            <label className="form-label text-secondary">Model</label>
+                            <label className="form-label text-secondary">Mã nhóm cấp 2</label>
+                            <input type="search" className="form-control" />
+                        </div>
+                    </div>
+                    <div className="input-custom ms-2">
+                        <div>
+                            <label className="form-label text-secondary">Tên nhóm cấp 2</label>
+                            <input type="search" className="form-control" />
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>            
             <div className="p-3">
                 <div
                     className="ag-theme-quartz"
                     style={{ height: 'calc(100vh - 150px)', width: '100%' }}
                 >
                     <AgGridReact
-                        rowData={resultthung}
+                        rowData={result_none}
                         columnDefs={columnDefs1}
                         defaultColDef={{
                             sortable: true,
@@ -98,11 +116,12 @@ const ChitietThung: React.FC = () => {
                         pagination={true}
                         paginationPageSize={20}
                         rowDragManaged={true}
-                        rowDragEntireRow={true}                      
+                        rowDragEntireRow={true}                        
                     />
-                </div>               
+                </div>              
             </div>  
         </MenuComponent>
     );
 };
-export default ChitietThung;
+
+export default Get_label_cd_zm;

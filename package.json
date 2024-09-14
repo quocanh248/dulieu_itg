@@ -11,6 +11,7 @@
         "start:api": "node api/server.js"
     },
     "dependencies": {
+        "@elastic/elasticsearch": "^8.15.0",
         "@react-pdf-viewer/core": "^3.12.0",
         "ag-grid-react": "^32.1.0",
         "axios": "^1.7.3",

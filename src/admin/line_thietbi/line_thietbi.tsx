@@ -150,8 +150,18 @@ const LinePage = () => {
             field: 'maline',
             sortable: true,
             cellRenderer: (params: any) => (
-                <Link to={`/bar_code_thietbi_line/${encodeURIComponent(params.value)}`} target="_blank">
-                    In bar code
+                <Link to={`http://30.0.2.8:8002/in_qr_code_line/${encodeURIComponent(params.value)}`} target="_blank">
+                    In bar code thiết bị
+                </Link>
+            ),
+        },
+        {
+            headerName: '',
+            field: 'maline',
+            sortable: true,
+            cellRenderer: (params: any) => (
+                <Link to={`http://30.0.2.8:8002/in_qrcode_ma_line/${encodeURIComponent(params.value)}`} target="_blank">
+                    In bar code line
                 </Link>
             ),
         },
@@ -163,18 +173,21 @@ const LinePage = () => {
             checkboxSelection: true,
             headerName: '',
             width: 50,
+            flex: 1,
         },
         {
             headerName: 'Mã thiết bị',
             field: 'mathietbi',
             sortable: true,
             filter: true,
+            flex: 2,
         },
         {
             headerName: 'Tên thiết bị',
             field: 'tenthietbi',
             sortable: true,
             filter: true,
+            flex: 2,
         },
     ];
     const columnDefsNC1_nc2: ColDef<Datatb_not_line>[] = [
@@ -183,18 +196,21 @@ const LinePage = () => {
             checkboxSelection: true,
             headerName: '',
             width: 50,
+            flex: 1,
         },
         {
             headerName: 'Mã thiết bị',
             field: 'mathietbi',
             sortable: true,
             filter: true,
+            flex: 2,
         },
         {
             headerName: 'Tên thiết bị',
             field: 'tenthietbi',
             sortable: true,
             filter: true,
+            flex: 2,
         },
     ];
     const toggleScrollAndModal = (isOpen: boolean) => {
@@ -354,7 +370,7 @@ const LinePage = () => {
                         rowData={result_Line}
                         rowSelection="multiple"
                         pagination={true}
-                        paginationPageSize={11}
+                        paginationPageSize={20}
                         onRowClicked={handleRowClicked}
                     />
                 </div>

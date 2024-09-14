@@ -7,6 +7,8 @@ import userAPI from './user.mjs';
 import truynguyenAPI from './truynguyen.mjs';
 import ThietbiAPI from './thietbi.mjs';
 import Logzm from './log_zm.mjs';
+import personnel from './nhansu.mjs';
+import Zenbee_1 from './zenbee.mjs';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -43,23 +45,29 @@ export function queryMySQL(sql, args) {
 const authToken = async (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
     console.log(token);
-    const sql = `SELECT * FROM users_react Where access_token = ?`;
+    const sql = `SELECT role, access_token, manhansu FROM users_react Where access_token = ?`;
     const result = await queryMySQL(sql, [token]);
-    const master_password = 'xzdFoEI7KnES1p1kTr8opCXnKocgD0';
+    const master_password = 'xzdFoEI7KnES1p1kTr8opCXnKocgD0';  
 
-    result.length > 0 || token === master_password
-        ? next()
-        : res.status(203).json({
-              status: 203,
-              detail: 'Forbidden',
-          });
+    if(result.length > 0 || token === master_password)
+    {
+        req.user = result[0];
+        next();
+    }else{
+        res.status(203).json({
+            status: 203,
+            detail: 'Forbidden',
+        });
+    }    
 };
 
 app.use('/nang_suat', authToken, nangsuatAPI);
 app.use('/users', authToken, userAPI);
 app.use('/truynguyen', authToken, truynguyenAPI);
 app.use('/logzm', authToken, Logzm);
-app.use('/thietbi', ThietbiAPI);
+app.use('/thietbi',authToken, ThietbiAPI);
+app.use('/nhansu',authToken, personnel);
+app.use('/zenbee', Zenbee_1);
 // Route ví dụ để nhận ngày
 app.post('/api/search', authToken, (req, res) => {
     const { date } = req.body;

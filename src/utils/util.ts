@@ -219,8 +219,8 @@ export const sendAPIRequest = async (
     try {
         if (url === '/users/login' || localStorage.getItem('access_token')) {
             const response = await axios({
-                //baseURL: `http://30.0.2.8:8011${url}`,
-                baseURL: `http://localhost:3001${url}`,
+                baseURL: `http://30.0.2.8:8011${url}`,
+                // baseURL: `http://localhost:3001${url}`,
                 method,
                 headers: {
                     'Content-Type': 'application/json',
@@ -231,16 +231,14 @@ export const sendAPIRequest = async (
                 },
                 data: method !== 'GET' ? data : {},
             });
-            const res = response.data;
+            const res = response.data;         
             if (res.status == 203) {
                 localStorage.removeItem('access_token');
-                localStorage.removeItem('username');
-                localStorage.removeItem('role');
-                localStorage.removeItem('tmp_path');
-                localStorage.removeItem('expirationTime');
-                localStorage.removeItem('refestsh_token');
+                localStorage.removeItem('authState');                
                 window.location.href = '/login';
-            }
+            }else if(res.status == 202) {                       
+                window.location.href = '/default';
+            } 
             return response.data;
         }
         const path = window.location.pathname;

@@ -8,6 +8,7 @@ app.use(express.json());
 app.use(cors());
 
 // Route GET để lấy dữ liệu
+
 router.get('/get_nhom_cap_2', async (req, res) => {
     try {
         const { manhomcap2, tennhomcap2 } = req.query;

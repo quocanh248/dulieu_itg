@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
 import { Link, useParams } from 'react-router-dom';
@@ -17,7 +17,7 @@ interface Datatt {
 }
 interface DataNone {
     soluong: number;
-    soluong_da_chay: number;
+    soluong_da_chay: number;   
 }
 const Get_API_model_lot: React.FC = () => {
     const { model, lot } = useParams<{
@@ -35,6 +35,16 @@ const Get_API_model_lot: React.FC = () => {
     const [result_label, setrReslabel] = useState<RowData[]>([]);
     const [thongtin, setrResthongtin] = useState<Datatt[]>([]);
     const [resnone, setrResNone] = useState<DataNone[]>([]);
+    const gridRef = useRef<AgGridReact<RowData> | null>(null);
+
+    const clearFilters = useCallback(() => {
+        if (gridRef.current) {
+            const api = gridRef.current.api;
+            if (api) {
+                api.setFilterModel(null);
+            }
+        }
+    }, []);
     // Xử lý sự kiện thay đổi giá trị của input
     const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const model_change = e.target.value;
@@ -78,11 +88,18 @@ const Get_API_model_lot: React.FC = () => {
                 'GET',
                 undefined
             );
-            setrRescongdoan(response.congdoan);
-            setrReslabel(response.results);
-            setrResthongtin(response.info);
-            setrResNone(response.none || []);
-            console.log(response.none);
+            console.log(response);            
+            if(response.status == 500)
+            {
+                alert("Lấy dữ liệu không thành công!");
+            }else{
+                setrRescongdoan(response.congdoan);
+                setrReslabel(response.results);
+                setrResthongtin(response.info);
+                setrResNone(response.none || []);
+                console.log(response.none);
+            }
+           
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
         } finally {
@@ -111,10 +128,14 @@ const Get_API_model_lot: React.FC = () => {
         ...result_congdoan.map((congdoanItem) => ({
             headerName: congdoanItem,
             field: congdoanItem,
-            sortable: true,
-            cellRenderer: (params: any) => params.value || ' ',
+            sortable: true,           
+            valueGetter: (params: any) => {             
+                return params.data[congdoanItem] || 'None';
+            },
+            cellRenderer: (params: any) => params.value, 
+            filter: 'agTextColumnFilter',
         })),
-    ];  
+    ];
     const row_md_1 = result_congdoan.length + 1;
     let col2 = row_md_1 < 3 ? 12 : row_md_1 < 5 ? 6 : row_md_1 < 7 ? 4 : row_md_1 < 9 ? 3 : 2;
     return (
@@ -167,6 +188,11 @@ const Get_API_model_lot: React.FC = () => {
                     <div className="d-flex align-items-center justify-content-center p-2">
                         <button className="btn btn-primary" onClick={handleSearch}>
                             <i className="fas fa-search"></i> Tìm
+                        </button>
+                    </div>
+                    <div className="d-flex align-items-center justify-content-center p-2 border-start">
+                        <button className="btn" onClick={() => clearFilters()}>
+                            <i className="fas fa-redo"></i>
                         </button>
                     </div>
                 </div>
@@ -246,6 +272,7 @@ const Get_API_model_lot: React.FC = () => {
                             style={{ height: 'calc(100vh - 338px)', width: '100%' }}
                         >
                             <AgGridReact
+                                ref={gridRef}
                                 rowData={result_label}
                                 columnDefs={columnDefs}
                                 defaultColDef={{
@@ -256,7 +283,7 @@ const Get_API_model_lot: React.FC = () => {
                                     minWidth: 100,
                                 }}
                                 pagination={true}
-                                paginationPageSize={6}
+                                paginationPageSize={20}
                             />
                         </div>
                     </>

@@ -81,7 +81,7 @@ const Get_label_none: React.FC = () => {
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
                 <h5 className="fw-normal text-primary m-0">
-                    Danh sách Label chưa chạy <i className="far fa-question-circle"></i>
+                    Danh sách Label  <i className="far fa-question-circle"></i>
                 </h5>
                 <div className="d-flex ms-auto" style={{ visibility: 'hidden' }}>
                     <div className="input-custom ms-2">
@@ -114,7 +114,7 @@ const Get_label_none: React.FC = () => {
                             minWidth: 100,
                         }}
                         pagination={true}
-                        paginationPageSize={11}
+                        paginationPageSize={20}
                         rowDragManaged={true}
                         rowDragEntireRow={true}                        
                     />

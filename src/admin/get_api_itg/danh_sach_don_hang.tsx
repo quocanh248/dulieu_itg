@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
 import { Link } from 'react-router-dom';
@@ -6,17 +6,28 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { ColDef } from 'ag-grid-community';
-import { Datadonhang } from '../../utils/modelAPI';
+import { Datadonhang, CustomCSSProperties } from '../../utils/modelAPI';
 import React from 'react';
 
-const DSdonhangPage: React.FC = () => {    
-    const [lot, setLot] = useState('');   
+
+const DSdonhangPage: React.FC = () => {
+    const [lot, setLot] = useState('');
     const [result_lot, setrResLot] = useState([]);
-    const [result_donhang, setrResdonhang] = useState<Datadonhang[]>([]);    
+    const [result_donhang, setrResdonhang] = useState<Datadonhang[]>([]);
+    const gridRef = useRef<AgGridReact<Datadonhang> | null>(null);
+
+    const clearFilters = useCallback(() => {
+        if (gridRef.current) {
+            const api = gridRef.current.api;
+            if (api) {
+                api.setFilterModel(null);
+            }
+        }
+    }, []);
     const handleLotChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const lot_change = e.target.value;
-        setLot(lot_change);        
-    };    
+        setLot(lot_change);
+    };
     const fetchlot = async (filters = {}) => {
         try {
             const queryString = new URLSearchParams(filters).toString();
@@ -47,13 +58,13 @@ const DSdonhangPage: React.FC = () => {
         if (lot == '') {
             alert('Vui lòng chọn lot để tìm');
         } else {
-            get_don_hang({  lot });
+            get_don_hang({ lot });
         }
     };
 
-    useEffect(() => {      
+    useEffect(() => {
         fetchlot();
-    }, []);  
+    }, []);
     const columnDefs1: ColDef<Datadonhang>[] = [
         {
             headerName: 'Model',
@@ -87,7 +98,7 @@ const DSdonhangPage: React.FC = () => {
             filter: true,
             valueFormatter: (params) => {
                 const value = Number(params.value);
-                return isNaN(value) ? 'N/A' : value.toFixed(2);
+                return isNaN(value) ? '' : value.toFixed(0);
             },
         },
         {
@@ -97,23 +108,23 @@ const DSdonhangPage: React.FC = () => {
             valueGetter: (params: any) => {
                 const soluong = params.data.soluong;
                 const soluong_dt = params.data.soluong_dt;
-                return soluong !== 0
-                    ? ((soluong_dt / soluong) * 100).toFixed(2) + '%'
-                    : '0%';
+                return (soluong !== 0 && soluong !== null)
+                    ? ((soluong_dt / soluong) * 100).toFixed(1) + '%'
+                    : '';
             },
         },
         {
-            headerName: '% Trạng thái',
-            field: 'trangthai',
-            sortable: true,
-            filter: true,
-            valueGetter: (params: any) => {
-                const soluong = params.data.soluong;
-                const soluong_dt = params.data.soluong_dt;
-                return soluong !== 0
-                    ? ((soluong_dt / soluong) * 100).toFixed(2) + '%'
-                    : '0%';
+            headerName: '',              
+            cellRenderer: (params: any) => {
+                var td = (params.data.soluong !== 0 && params.data.soluong !== null)
+                ? Math.floor((params.data.soluong_dt / params.data.soluong) * 100)  : 0;             
+                return (
+                <div className="range" style={{ "--p": td }  as CustomCSSProperties}>
+                    <div className="range__label">Progress</div>
+                </div>
+                );
             },
+            flex: 2
         },
         {
             headerName: '',
@@ -122,7 +133,11 @@ const DSdonhangPage: React.FC = () => {
             filter: true,
             cellRenderer: (params: any) => {
                 return (
-                    <Link to={`/get_model_lot_api/${encodeURIComponent(params.data.model)}/${encodeURIComponent(params.data.lot)}`}>
+                    <Link
+                        to={`/get_model_lot_api/${encodeURIComponent(
+                            params.data.model
+                        )}/${encodeURIComponent(params.data.lot)}`}
+                    >
                         Chi tiết
                     </Link>
                 );
@@ -132,10 +147,10 @@ const DSdonhangPage: React.FC = () => {
     return (
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
-                <h4 className="fw-normal text-primary m-0">
+                <h5 className="fw-normal text-primary m-0">
                     Danh sách đơn hàng <i className="far fa-question-circle"></i>
-                </h4>
-                <div className="d-flex ms-auto">                    
+                </h5>
+                <div className="d-flex ms-auto">
                     <div className="input-custom ms-2">
                         <div>
                             <label className="form-label text-secondary">Lot</label>
@@ -161,30 +176,34 @@ const DSdonhangPage: React.FC = () => {
                             <i className="fas fa-search"></i> Tìm
                         </button>
                     </div>
+                    <div className="d-flex align-items-center justify-content-center p-2 border-start">
+                        <button className="btn" onClick={() => clearFilters()}>
+                            <i className="fas fa-redo"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-            <div className="p-3">                     
-                    <div
-                        className="ag-theme-quartz"
-                        style={{ height: 'calc(100vh - 150px)', width: '100%' }}
-                    >
-                        <AgGridReact
-                            rowData={result_donhang}
-                            columnDefs={columnDefs1}
-                            defaultColDef={{
-                                sortable: true,
-                                filter: true,
-                                resizable: true,
-                                flex: 1,
-                                minWidth: 100,
-                            }}
-                            pagination={true}
-                            paginationPageSize={11}
-                            rowDragManaged={true}
-                            rowDragEntireRow={true}                           
-                        />
-                    </div>
-                </div>            
+            <div className="p-3">
+                <div
+                    className="ag-theme-quartz"
+                    style={{ height: 'calc(100vh - 150px)', width: '100%' }}
+                >
+                    <AgGridReact
+                        ref={gridRef}
+                        rowData={result_donhang}
+                        columnDefs={columnDefs1}
+                        defaultColDef={{                          
+                            resizable: true,
+                            flex: 1,
+                            minWidth: 100,
+                        }}
+                        pagination={true}
+                        paginationPageSize={20}
+                        rowDragManaged={true}
+                        rowDragEntireRow={true}
+                    />
+                </div>
+            </div>
         </MenuComponent>
     );
 };

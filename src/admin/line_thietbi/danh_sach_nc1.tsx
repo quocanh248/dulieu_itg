@@ -7,6 +7,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { ColDef } from 'ag-grid-community';
 import { DataNC1 } from '../../utils/modelAPI';
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const NC1Page: React.FC = () => {
     const [tennhomcap1, setTennhomcap1] = useState('');    
@@ -189,7 +190,17 @@ const NC1Page: React.FC = () => {
             field: 'tennhomcap1',
             sortable: true,
             filter: true,
-        },        
+        },    
+        {
+            headerName: '',
+            field: 'manhomcap1',
+            sortable: true,
+            cellRenderer: (params: any) => (
+                <Link to={`http://30.0.2.8:8002/in_qr_code/${encodeURIComponent(params.value)}`} target="_blank">
+                    In bar code
+                </Link>
+            ),
+        },    
     ];
     return (
         <MenuComponent>
@@ -242,7 +253,7 @@ const NC1Page: React.FC = () => {
                         rowData={result_NC1}
                         rowSelection="multiple"
                         pagination={true}
-                        paginationPageSize={11}
+                        paginationPageSize={20}
                         onRowClicked={handleRowClicked}
                     />
                 </div>

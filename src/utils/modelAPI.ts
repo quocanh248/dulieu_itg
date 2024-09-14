@@ -123,3 +123,6 @@ export interface TableProps {
     get_ten_nhan_su: (chuoi: string) => Promise<NhanVien[]>;
 }
 //Chi tiết label
+export interface CustomCSSProperties extends React.CSSProperties {
+    '--p'?: number; // Thêm các thuộc tính CSS tùy chỉnh khác nếu cần
+}

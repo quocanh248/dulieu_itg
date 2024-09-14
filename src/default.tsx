@@ -4,9 +4,9 @@ const Default: React.FC = () => {
     return (
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
-                <h4 className="fw-normal text-primary m-0">
+                <h5 className="fw-normal text-primary m-0">
                     Trang chủ <i className="far fa-question-circle"></i>
-                </h4>
+                </h5>
                 <div className="d-flex ms-auto">
                     <div className="input-custom ms-2" style={{ visibility: 'hidden' }}>
                         <div>

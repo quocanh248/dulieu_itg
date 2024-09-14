@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
@@ -43,7 +43,16 @@ const Admin_nang_suat: React.FC = () => {
     const [result, setResult] = useState<ItemData[]>([]);
     const [resultth, setResultTH] = useState<Data_tonghop[]>([]);
     const [isFormEdit, setIsFormEdit] = useState<boolean>(false);
+    const gridRef = useRef<AgGridReact<Data_tonghop> | null>(null);
 
+    const clearFilters = useCallback(() => {
+        if (gridRef.current) {
+            const api = gridRef.current.api;
+            if (api) {
+                api.setFilterModel(null);
+            }
+        }
+    }, []);
     const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
         setDate(e.target.value);
     };
@@ -93,10 +102,10 @@ const Admin_nang_suat: React.FC = () => {
 
     const columnDefs1: ColDef<Data_tonghop>[] = [
         {
-            headerName: 'Mã nhân viên',
+            headerName: 'Mã nhân viên 1',
             field: 'manhansu',
             sortable: true,
-            filter: true,
+            filter: true, // Sử dụng Text Filter            
         },
         {
             headerName: 'Tên nhân viên',
@@ -289,9 +298,9 @@ const Admin_nang_suat: React.FC = () => {
     return (
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
-                <h4 className="fw-normal text-primary m-0">
+                <h5 className="fw-normal text-primary m-0">
                     Dữ liệu năng suất <i className="far fa-question-circle"></i>
-                </h4>
+                </h5>
                 <div className="d-flex ms-auto">
                     <div className="input-custom ms-2">
                         <input
@@ -306,9 +315,14 @@ const Admin_nang_suat: React.FC = () => {
                             <i className="fas fa-search"></i> Tìm
                         </button>
                     </div>
-                    <div className="d-flex align-items-center justify-content-center">
+                    <div className="d-flex align-items-center justify-content-center pr-2">
                         <button className="btn btn-success" onClick={handleExport}>
                             <i className="fas fa-download"></i> Excel
+                        </button>
+                    </div>
+                    <div className="d-flex align-items-center justify-content-center p-2 border-start">
+                        <button className="btn" onClick={() => clearFilters()}>
+                            <i className="fas fa-redo"></i>
                         </button>
                     </div>
                 </div>
@@ -319,6 +333,7 @@ const Admin_nang_suat: React.FC = () => {
                     style={{ height: 'calc(100vh - 150px)', width: '100%' }}
                 >
                     <AgGridReact
+                        ref={gridRef}
                         rowData={resultth}
                         columnDefs={columnDefs1}
                         defaultColDef={{
@@ -329,11 +344,10 @@ const Admin_nang_suat: React.FC = () => {
                             minWidth: 100,
                         }}
                         pagination={true}
-                        paginationPageSize={11}
+                        paginationPageSize={20}
                         rowDragManaged={true}
                         rowDragEntireRow={true}
                         onRowClicked={handleRowClicked}
-                       
                     />
                 </div>
             </div>

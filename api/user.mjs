@@ -1,12 +1,9 @@
 import express from 'express';
 import { queryMySQL } from './server.mjs';
-import bodyParser from 'body-parser';
 import crypto from 'crypto';
-import jwt from 'jsonwebtoken';
 const router = express.Router();
 import dotenv from 'dotenv';
 dotenv.config();
-import authenticateToken from './auth.mjs';
 
 function generateRandomString(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -17,7 +14,22 @@ function generateRandomString(length) {
     }
     return result;
 }
-
+const authorize = (roles = []) => {
+    // roles có thể là mảng hoặc chỉ một vai trò duy nhất
+    if (typeof roles === 'string') {
+        roles = [roles];
+    }
+    return (req, res, next) => {
+        if (!roles.length || roles.includes(req.user.role)) {            
+            next();
+        } else {              
+            res.status(202).json({
+                status: 202,
+                detail: 'Forbidden',
+            });
+        }
+    };
+};
 router.post('/login', async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -200,7 +212,7 @@ router.get('/ten_nhan_su', async (req, res) => {
 const hashPassword = (password) => {
     return crypto.createHash('md5').update(password).digest('hex');
 };
-router.post('/add', async (req, res) => {
+router.post('/add', authorize(['admin']), async (req, res) => {
     const { manhansu_acc, matkhau, vaitro } = req.body;
     //   if (matkhau.length < 6) {
     //     return res.status(400).json({ error: "Mật khẩu phải có ít nhất 6 ký tự." });
@@ -211,7 +223,7 @@ router.post('/add', async (req, res) => {
     res.status(201).json({ message: 'Thêm người dùng thành công!' });
 });
 
-router.post('/edit', async (req, res) => {
+router.post('/edit', authorize(['admin']), async (req, res) => {
     const { manhansu_edit, matkhau_edit, vaitro_edit } = req.body;
     let values = [];
     let sql = 'UPDATE users_react SET role = ?';
@@ -232,7 +244,7 @@ router.post('/edit', async (req, res) => {
     }
 });
 
-router.delete('/delete', async (req, res) => {
+router.delete('/delete', authorize(['admin']), async (req, res) => {
     const { userid } = req.body;
     try {
         const sql = 'DELETE FROM users_react WHERE manhansu = ?';

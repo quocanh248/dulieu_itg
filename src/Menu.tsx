@@ -8,13 +8,11 @@ interface Props {
 
 const MenuComponent: React.FC<Props> = ({ children }) => {
     const { userInfo, signOut } = useAuthStore();
-
     const handllogout = async () => {
         if (window.confirm('Bạn có chắc chắn muốn đăng xuất?')) {
             signOut();
         }
     };
-
     return (
         <>
             <header className="d-flex bg-dark">
@@ -23,116 +21,139 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                 </div>
                 <div className="nav flex-grow-1 scroll-x-view">
                     {userInfo && userInfo.role == 'admin' && (
-                        <div className="nav__item">
-                            <a href="#" className="nav__link">
-                                <i className="far fa-user"></i>
-                                <span>Quản trị</span>
-                            </a>
-                            <div className="nav__submenu">
-                                <div className="nav__item">
-                                    <Link to="/danh_sach_tai_khoan" className="nav__link">
-                                        <span>Danh sách tài khoản</span>
-                                    </Link>
-                                </div>
-                                <div className="nav__item">
-                                    <Link to="/danh_sach_cong_doan" className="nav__link">
-                                        <span>Danh sách công đoạn</span>
-                                    </Link>
-                                </div>
-                                <div className="nav__item">
-                                    <Link to="/them_don_hang" className="nav__link">
-                                        <span>Thêm đơn hàng</span>
-                                    </Link>
-                                </div>
-                                <div className="nav__item">
-                                    <Link to="/login" className="nav__link">
-                                        <span>Login</span>
-                                    </Link>
+                        <>
+                            <div className="nav__item">
+                                <a href="#" className="nav__link">
+                                    <i className="fa-solid fa-key"></i>
+                                    <span>Quản trị</span>
+                                </a>
+                                <div className="nav__submenu">
+                                    <div className="nav__item">
+                                        <Link to="/danh_sach_tai_khoan" className="nav__link">
+                                            <span>Danh sách tài khoản</span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/danh_sach_cong_doan" className="nav__link">
+                                            <span>Danh sách công đoạn</span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/them_don_hang" className="nav__link">
+                                            <span>Thêm đơn hàng</span>
+                                        </Link>
+                                    </div>                                    
                                 </div>
                             </div>
-                        </div>
+                            <div className="nav__item">
+                                <a href="#" className="nav__link">
+                                    <i className="far fa-user"></i>
+                                    <span>Nhân sự</span>
+                                </a>
+                                <div className="nav__submenu">
+                                    <div className="nav__item">
+                                        <Link to="/danh_sach_nhan_su" className="nav__link">
+                                            <span>Danh sách nhân sự</span>
+                                        </Link>
+                                    </div>                                   
+                                </div>
+                            </div>
+                        </>
                     )}
-                    <div className="nav__item">
-                        <a href="#" className="nav__link">
-                            <i className="fa-brands fa-product-hunt"></i>
-                            <span>Năng suất</span>
-                        </a>
-                        <div className="nav__submenu">
+                    {userInfo && (userInfo.role == 'admin' || userInfo.role == 'nangxuat') && (
+                        <>
                             <div className="nav__item">
-                                <Link to="/du_lieu_nang_suat" className="nav__link">
-                                    <span>Dữ liệu năng suất</span>
-                                </Link>
+                                <a href="#" className="nav__link">
+                                    <i className="fa-brands fa-product-hunt"></i>
+                                    <span>Năng suất</span>
+                                </a>
+                                <div className="nav__submenu">
+                                    <div className="nav__item">
+                                        <Link to="/du_lieu_nang_suat" className="nav__link">
+                                            <span>Dữ liệu năng suất</span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/them_du_lieu_nang_suat" className="nav__link">
+                                            <span>
+                                                Thêm dữ liệu năng suất <b>ITG</b>
+                                            </span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/them_du_lieu_nang_suat_zm" className="nav__link">
+                                            <span>
+                                                Thêm dữ liệu năng suất <b>ZM</b>
+                                            </span>
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
                             <div className="nav__item">
-                                <Link to="/them_du_lieu_nang_suat" className="nav__link">
-                                    <span>
-                                        Thêm dữ liệu năng suất <b>ITG</b>
-                                    </span>
-                                </Link>
+                                <a href="#" className="nav__link">
+                                    <i className="fa-solid fa-stairs"></i>
+                                    <span>Log IOT ZM</span>
+                                </a>
+                                <div className="nav__submenu">
+                                    <div className="nav__item">
+                                        <Link to="/get_logzm_model_lot" className="nav__link">
+                                            <span>Dữ liệu chạy hàng Model - lot</span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/get_data_line" className="nav__link">
+                                            <span>Dữ liệu chạy hàng theo line</span>
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
                             <div className="nav__item">
-                                <Link to="/them_du_lieu_nang_suat_zm" className="nav__link">
-                                    <span>
-                                        Thêm dữ liệu năng suất <b>ZM</b>
-                                    </span>
-                                </Link>
+                                <a href="#" className="nav__link">
+                                    <i className="fas fa-sticky-note"></i>
+                                    <span>Báo cáo</span>
+                                </a>
+                                <div className="nav__submenu">
+                                    <div className="nav__item">
+                                        <Link to="/danh_sach_don_hang" className="nav__link">
+                                            <span>Danh sách đơn hàng</span>
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="nav__item">
-                        <a href="#" className="nav__link">
-                            <i className="fa-solid fa-stairs"></i>
-                            <span>Log IOT ZM</span>
-                        </a>
-                        <div className="nav__submenu">
+                        </>
+                    )}
+                    {userInfo && (userInfo.role == 'admin' || userInfo.role == 'thietbi') && (
+                        <>
                             <div className="nav__item">
-                                <Link to="/get_logzm_model_lot" className="nav__link">
-                                    <span>Dữ liệu chạy hàng Model - lot</span>
-                                </Link>
+                                <a href="#" className="nav__link">
+                                    <i className="fa-solid fa-lines-leaning"></i>
+                                    <span>Thiết bị</span>
+                                </a>
+                                <div className="nav__submenu">
+                                    <div className="nav__item">
+                                        <Link to="/danh_sach_thiet_bi" className="nav__link">
+                                            <span>Danh sách thiết bị</span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/danh_sach_nhom_cap_1" className="nav__link">
+                                            <span>Danh sách nhóm cấp 1</span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/danh_sach_nhom_cap_2" className="nav__link">
+                                            <span>Danh sách nhóm cấp 2</span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/danh_sach_line" className="nav__link">
+                                            <span>Danh sách line</span>
+                                        </Link>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div className="nav__item">
-                        <a href="#" className="nav__link">
-                            <i className="fas fa-sticky-note"></i>
-                            <span>Báo cáo</span>
-                        </a>
-                        <div className="nav__submenu">
-                            <div className="nav__item">
-                                <Link to="/danh_sach_don_hang" className="nav__link">
-                                    <span>Danh sách đơn hàng</span>
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="nav__item">
-                        <a href="#" className="nav__link">
-                            <i className="fa-solid fa-lines-leaning"></i>
-                            <span>Thiết bị</span>
-                        </a>
-                        <div className="nav__submenu">
-                            <div className="nav__item">
-                                <Link to="/danh_sach_thiet_bi" className="nav__link">
-                                    <span>Danh sách thiết bị</span>
-                                </Link>
-                            </div>
-                            <div className="nav__item">
-                                <Link to="/danh_sach_nhom_cap_1" className="nav__link">
-                                    <span>Danh sách nhóm cấp 1</span>
-                                </Link>
-                            </div>
-                            <div className="nav__item">
-                                <Link to="/danh_sach_nhom_cap_2" className="nav__link">
-                                    <span>Danh sách nhóm cấp 2</span>
-                                </Link>
-                            </div>
-                            <div className="nav__item">
-                                <Link to="/danh_sach_line" className="nav__link">
-                                    <span>Danh sách line</span>
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
+                        </>
+                    )}
                 </div>
                 <div className="nav flex text-nowrap">
                     <div className="nav__item">

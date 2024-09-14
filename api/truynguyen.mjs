@@ -8,8 +8,24 @@ const router = express.Router();
 app.use(express.json());
 app.use(cors());
 
+const authorize = (roles = []) => {
+    // roles có thể là mảng hoặc chỉ một vai trò duy nhất
+    if (typeof roles === 'string') {
+        roles = [roles];
+    }
+    return (req, res, next) => {
+        if (!roles.length || roles.includes(req.user.role)) {
+            next();
+        } else {
+            res.status(202).json({
+                status: 202,
+                detail: 'Forbidden',
+            });
+        }
+    };
+};
 // Route GET để lấy dữ liệu
-router.get('/get_don_hang', async (req, res) => {
+router.get('/get_don_hang', authorize(['nangxuat', 'admin']), async (req, res) => {
     try {
         const { model, lot } = req.query;
         let sql = `
@@ -34,7 +50,7 @@ router.get('/get_don_hang', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-router.get('/get_api_model_lot', async (req, res) => {
+router.get('/get_api_model_lot', authorize(['nangxuat', 'admin']), async (req, res) => {
     const url = 'http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport';
     const token = 'f4ea1126-b5aa-4d8e-9e47-2851652b9056-Js8XeJgl4aq05cTQMDJz9H6GJIC7Ca';
     const { modelState, lotState } = req.query;
@@ -71,10 +87,13 @@ router.get('/get_api_model_lot', async (req, res) => {
         }
     } catch (error) {
         console.error('Lỗi khi lấy dữ liệu:', error);
-        res.status(500).json({ error: error.message });
+        res.json({
+            status: 500,
+            message: 'Lỗi khi lấy dữ liệu:',
+        });
     }
 });
-router.get('/get_label_none', async (req, res) => {
+router.get('/get_label_none', authorize(['nangxuat', 'admin']), async (req, res) => {
     const { model, lot, congdoan, soluong_ok, soluong } = req.query;
 
     // Validate and cast soluong to a number
@@ -119,7 +138,7 @@ router.get('/get_label_none', async (req, res) => {
                 sql += `AND congdoan = ? `;
                 params.push(congdoan);
             }
-            sql += `ORDER BY label, ngay DESC, giobatdau DESC`;
+            sql += `ORDER BY label, date DESC, giobatdau DESC`;
             const result = await queryMySQL(sql, params);
             const groupedResults = result.reduce((acc, item) => {
                 const { label, ketqua, ngay, giobatdau, gioketthuc } = item;
@@ -165,7 +184,6 @@ async function capNhatModelLot(data, res) {
         if (item.so_luong != 0) {
             total = item.so_luong;
         }
-        console.log(' item.stt_rec_dkv:' + item.stt_rec_dkv);
         const values = [
             'LSX: .......',
             item.so_ct,
@@ -190,6 +208,7 @@ async function capNhatModelLot(data, res) {
             congDoan?.stt ?? 99,
             8423001,
             congDoan?.thuoctinh ?? '{dandien: null,kichthuoc: null,ngoaiquan: null}',
+            item.create_date,
         ];
         await addData(values);
     });
@@ -203,20 +222,17 @@ async function thongTinModelLot(model, lot) {
     SELECT 
         label, 
         congdoan, 
-        ttcongdoan, 
-        ngay,
-        giobatdau,
+        ttcongdoan,        
         ketqua,
         soluong,
         COUNT(CASE WHEN ketqua = 'OK' THEN 1 END) OVER (PARTITION BY congdoan) AS so_luong_ok
     FROM 
         dulieu_itg_get_api
-    WHERE 
-        label = 'K64G-67-130_23_53202408130310' AND
+    WHERE        
         model = ? AND
         lot = ?
     ORDER BY 
-        ttcongdoan asc, ngay DESC, giobatdau DESC, congdoan, label;
+        ttcongdoan asc, date DESC, giobatdau DESC, congdoan, label;
   `;
     const result = await queryMySQL(sql, [model, lot]);
     // const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
@@ -292,8 +308,8 @@ async function addData(values) {
       lenhsanxuat, sochungtu, congdoan, ketqua, label, sanphammoi, model,
       soluong, lot, ngay, giobatdau, gioketthuc, manhanvien, tennhanvien,
       quanly, mathung, sttthung, mathietbi, vitri, noidungloi, ttcongdoan,
-      user, thuoctinh
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      user, thuoctinh, date
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
     await queryMySQL(sql, values);
 }
@@ -321,7 +337,7 @@ async function Update_soluong(soluong_dt, soluong, model, lot) {
         res.status(500).json({ message: 'Lỗi khi cập nhật công đoạn' });
     }
 }
-router.put('/capnhatcongdoan', async (req, res) => {
+router.put('/capnhatcongdoan', authorize(['admin']), async (req, res) => {
     const { macongdoan, thuoctinh } = req.body;
     console.log(macongdoan, thuoctinh);
     try {
@@ -340,7 +356,7 @@ router.put('/capnhatcongdoan', async (req, res) => {
         res.status(500).json({ message: 'Lỗi khi cập nhật công đoạn' });
     }
 });
-router.get('/list_model', async (req, res) => {
+router.get('/list_model', authorize(['nangxuat', 'admin']), async (req, res) => {
     try {
         const { lot_change } = req.query;
         let sql = `
@@ -358,7 +374,7 @@ router.get('/list_model', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-router.get('/list_lot', async (req, res) => {
+router.get('/list_lot', authorize(['nangxuat', 'admin']), async (req, res) => {
     try {
         const { model_change } = req.query;
         let sql = `
@@ -377,7 +393,7 @@ router.get('/list_lot', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-router.get('/chi_tiet_label', async (req, res) => {
+router.get('/chi_tiet_label', authorize(['nangxuat', 'admin']), async (req, res) => {
     try {
         const { label } = req.query;
         let sql_thongtin = `
@@ -393,6 +409,7 @@ router.get('/chi_tiet_label', async (req, res) => {
             sochungtu,
             mathung,
             ngay,
+            date,
             giobatdau
         FROM 
             dulieu_itg_get_api
@@ -400,19 +417,19 @@ router.get('/chi_tiet_label', async (req, res) => {
             label = ?
         ORDER BY 
             mathung DESC,
-            ngay DESC,
+            date DESC,
             giobatdau DESC
         LIMIT 1;`;
         const sql_chitiet = `
         SELECT 
-	        congdoan, ngay, giobatdau, gioketthuc, manhanvien, mathietbi, quanly, ketqua, thuoctinh, vitri, mathung
+	        congdoan, ngay, date, giobatdau, gioketthuc, manhanvien, mathietbi, quanly, ketqua, thuoctinh, vitri, mathung
         FROM 
             dulieu_itg_get_api 
         where 
                label = ?       
         ORDER BY
-            ngay,
-            giobatdau;`;
+            date asc,
+            giobatdau asc;`;
         try {
             const [thongtin, chitiet] = await Promise.all([
                 queryMySQL(sql_thongtin, [label]),
@@ -431,7 +448,7 @@ router.get('/chi_tiet_label', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-router.get('/chi_tiet_thung', async (req, res) => {
+router.get('/chi_tiet_thung', authorize(['nangxuat', 'admin']), async (req, res) => {
     try {
         const { mathung } = req.query;
         const sql_chitiet = `
@@ -443,14 +460,14 @@ router.get('/chi_tiet_thung', async (req, res) => {
             mathung = ?       
         ORDER BY
             label,
-            ngay`;
+            date`;
         const results = await queryMySQL(sql_chitiet, [mathung]);
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
-router.get('/listcongdoan', async (req, res) => {
+router.get('/listcongdoan', authorize(['nangxuat', 'admin']), async (req, res) => {
     try {
         const { macongdoan, tencongdoan } = req.query;
         let sql = `
@@ -468,7 +485,8 @@ const formatDate = (dateStr) => {
     const [year, month, day] = dateStr.split('-');
     return `${day}/${month}/${year}`;
 };
-router.get('/chitietcongdoan', async (req, res) => {
+
+router.get('/chitietcongdoan', authorize(['nangxuat', 'admin']), async (req, res) => {
     const { macongdoan } = req.query;
     try {
         let sql = `
@@ -483,43 +501,33 @@ router.get('/chitietcongdoan', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-router.post('/addDonhang', async (req, res) => {
+router.post('/addDonhang', authorize(['admin']), async (req, res) => {
     const { data } = req.body;
     try {
+        const sql_insert = `INSERT INTO model (model, lot, po, soluong) VALUES (?, ?, ?, ?)`;
+        let sql_update = `UPDATE  model SET soluong = ?  WHERE model = ? AND lot = ?`;
+        let sql = `SELECT  id  FROM model WHERE model = ? AND lot = ?`;
         for (const element of data) {
-            const model = `${element[0]}${element[1]}_${element[2]}`;
-            let week = element[4];
-            if (typeof week === 'string' && week.length === 1) {
-                week = '0' + week;
+            if(element[1] != undefined)
+            {
+                var model = `${element[1]}${element[2]}_${element[3]}`;
+                console.log(element[1], element[2], element[3]);
+                let week = element[5];
+                if (typeof week === 'string' && week.length === 1) {
+                    week = '0' + week;
+                }
+                var lot = `53${element[4]}${week}`;
+                var soluong = element[6];
+                var po = element[7];            
+                var results = await queryMySQL(sql, [model, lot]);
+                if (results && results.length > 0)
+                {          
+                    await queryMySQL(sql_update, [soluong, model, lot]);
+                } else {               
+                    await queryMySQL(sql_insert, [model, lot, po, soluong]);
+                }
             }
-            const lot = `53${element[3]}${week}`;
-            const soluong = element[5];
-            const po = element[6];
-            let sql = `
-        SELECT 
-          id 
-        FROM 
-          model  
-        WHERE 
-          model = ? AND
-          lot = ?
-      `;
-            var results = await queryMySQL(sql, [model, lot]);
-            if (results && results.length > 0) {
-                let sql_update = `
-          UPDATE  
-            model 
-          SET 
-            soluong = ?  
-          WHERE 
-            id = ?
-        `;
-                await queryMySQL(sql_update, [soluong, results[0].id]);
-            } else {
-                // Nếu không tồn tại, chèn bản ghi mới
-                const sql_insert = `INSERT INTO model (model, lot, po, soluong) VALUES (?, ?, ?, ?)`;
-                await queryMySQL(sql_insert, [model, lot, po, soluong]);
-            }
+            
         }
         res.status(200).json({ message: 'Cập nhật đơn hàng thành công!' });
     } catch (err) {

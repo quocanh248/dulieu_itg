@@ -521,7 +521,7 @@ const AdminPage: React.FC = () => {
                             minWidth: 100,
                         }}
                         pagination={true}
-                        paginationPageSize={11}
+                        paginationPageSize={20}
                         rowDragManaged={true}
                         rowDragEntireRow={true}
                         onRowClicked={handleRowClicked}

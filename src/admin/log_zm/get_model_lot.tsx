@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
 import { Link } from 'react-router-dom';
@@ -24,6 +24,16 @@ const Modelot_zm_Page: React.FC = () => {
     const [result_congdoan, setrRescongdoan] = useState([]);
     const [result_label, setrReslabel] = useState<RowData[]>([]);
     const [thongtin, setrResthongtin] = useState<Datatt[]>([]);
+    const gridRef = useRef<AgGridReact<RowData> | null>(null);
+
+    const clearFilters = useCallback(() => {
+        if (gridRef.current) {
+            const api = gridRef.current.api;
+            if (api) {
+                api.setFilterModel(null);
+            }
+        }
+    }, []);
     // Xử lý sự kiện thay đổi giá trị của input
     const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const model_change = e.target.value;
@@ -73,7 +83,7 @@ const Modelot_zm_Page: React.FC = () => {
                 soluong: response.info[key].soluong,
             }));
             console.log(thongtin_1);
-            
+
             // Cập nhật state với dữ liệu `thongtin`
             setrResthongtin(thongtin_1);
             setrRescongdoan(response.congdoan);
@@ -89,7 +99,7 @@ const Modelot_zm_Page: React.FC = () => {
     };
     useEffect(() => {
         fetchmodel();
-    }, []);   
+    }, []);
     const columnDefs = [
         {
             headerName: 'Label',
@@ -105,9 +115,13 @@ const Modelot_zm_Page: React.FC = () => {
             headerName: congdoanItem,
             field: congdoanItem,
             sortable: true,
-            cellRenderer: (params: any) => params.value || ' ',
+            valueGetter: (params: any) => {             
+                return params.data[congdoanItem] || 'None';
+            },
+            cellRenderer: (params: any) => params.value, 
+            filter: 'agTextColumnFilter',
         })),
-    ];  
+    ];
     const row_md_1 = result_congdoan.length;
     let col = row_md_1 < 3 ? 12 : row_md_1 < 5 ? 6 : row_md_1 < 7 ? 4 : row_md_1 < 9 ? 3 : 2;
 
@@ -163,6 +177,11 @@ const Modelot_zm_Page: React.FC = () => {
                             <i className="fas fa-search"></i> Tìm
                         </button>
                     </div>
+                    <div className="d-flex align-items-center justify-content-center p-2 border-start">
+                        <button className="btn" onClick={() => clearFilters()}>
+                            <i className="fas fa-redo"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div className="p-3">
@@ -184,7 +203,21 @@ const Modelot_zm_Page: React.FC = () => {
                                                 {it.so_luong_ok}/{it.soluong}
                                             </div>
                                             <div style={{ fontSize: '16px', marginTop: '4px' }}>
-                                                {it.congdoan}
+                                                <Link
+                                                    style={{ color: 'white' }}
+                                                    target="_blank"
+                                                    to={`/list_label_cd_zm/${encodeURIComponent(
+                                                        model || ''
+                                                    )}/${encodeURIComponent(
+                                                        lot || ''
+                                                    )}/${encodeURIComponent(
+                                                        it.congdoan || ''
+                                                    )}/${encodeURIComponent(
+                                                        it.so_luong_ok || ''
+                                                    )}/${encodeURIComponent(it.soluong || '')}`}
+                                                >
+                                                    {it.congdoan}
+                                                </Link>
                                             </div>
                                         </div>
                                     </div>
@@ -196,6 +229,7 @@ const Modelot_zm_Page: React.FC = () => {
                             style={{ height: 'calc(100vh - 338px)', width: '100%' }}
                         >
                             <AgGridReact
+                                ref={gridRef}
                                 rowData={result_label}
                                 columnDefs={columnDefs}
                                 defaultColDef={{
@@ -206,7 +240,7 @@ const Modelot_zm_Page: React.FC = () => {
                                     minWidth: 100,
                                 }}
                                 pagination={true}
-                                paginationPageSize={6}
+                                paginationPageSize={10}
                             />
                         </div>
                     </>

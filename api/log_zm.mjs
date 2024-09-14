@@ -1,5 +1,4 @@
 import express from 'express';
-import axios from 'axios';
 import cors from 'cors';
 import { queryMySQL } from './server.mjs';
 
@@ -10,9 +9,16 @@ app.use(cors());
 
 router.get('/get_log_zm_model_lot', async (req, res) => {
     const { model, lot } = req.query;
-
-    // Truy vấn dữ liệu từ bảng dulieu_itg
-    const sql = `
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const formattedMonth = currentMonth < 10 ? `0${currentMonth}` : currentMonth.toString();
+    const lot_check = '53' + currentYear + formattedMonth + '01';
+    let table = 'dulieu_itg';
+    if (lot < lot_check) {
+        table = 'dulieu_itg_old';
+    }
+    const sql =
+        `
     SELECT 
         label, 
         congdoan, 
@@ -20,16 +26,16 @@ router.get('/get_log_zm_model_lot', async (req, res) => {
         ketqua,
         soluong,
         COUNT(CASE WHEN ketqua = 'OK' THEN 1 END) OVER (PARTITION BY congdoan) AS so_luong_ok
-    FROM 
-        dulieu_itg
-    WHERE 
+    FROM ` +
+        table +
+        ` WHERE 
         model = ? AND
         lot = ?
     ORDER BY 
-        ttcongdoan asc, congdoan, label, ngay DESC, giobatdau DESC;
+        ttcongdoan asc, congdoan, label, date DESC, giobatdau DESC;
   `;
     try {
-        const result = await queryMySQL(sql, [model, lot]);        
+        const result = await queryMySQL(sql, [model, lot]);
         const congDoanMap = result.reduce((map, item) => {
             if (!map[item.congdoan]) {
                 map[item.congdoan] = item.ttcongdoan;
@@ -48,9 +54,9 @@ router.get('/get_log_zm_model_lot', async (req, res) => {
             const { congdoan, so_luong_ok, soluong } = item;
             if (!acc[congdoan]) {
                 acc[congdoan] = { so_luong_ok, soluong };
-            }        
+            }
             return acc;
-        },{});
+        }, {});
         console.log(resultCongDoan);
         res.json({
             results: Object.values(groupedResults),
@@ -62,42 +68,82 @@ router.get('/get_log_zm_model_lot', async (req, res) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
-async function Update_soluong(soluong_dt, soluong, model, lot) {
-    try {
-        const sql = `
-      UPDATE 
-        model 
-      SET 
-        soluong_dt = ?,
-        trangthai = ? 
-      WHERE 
-        model = ? AND 
-        lot = ?
-    `;
-        var trangthai = '';
-        if (soluong == soluong_dt) {
-            trangthai = 'Hoàn tất';
-        }
-        console.log(trangthai, soluong_dt, soluong);
-        await queryMySQL(sql, [soluong_dt, trangthai, model, lot]);
-    } catch (error) {
-        console.error('Lỗi khi cập nhật SL:', error);
-        res.status(500).json({ message: 'Lỗi khi cập nhật công đoạn' });
+router.get('/get_label_none', async (req, res) => {
+    const { model, lot, congdoan, soluong_ok, soluong } = req.query;
+
+    // Validate and cast soluong to a number
+    const quantity = parseInt(soluong, 10);
+    if (isNaN(quantity)) {
+        return res.status(400).json({ error: 'Invalid quantity provided' });
     }
-}
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const formattedMonth = currentMonth < 10 ? `0${currentMonth}` : currentMonth.toString();
+    const lot_check = '53' + currentYear + formattedMonth + '01';
+    let table = 'dulieu_itg';
+    if (lot < lot_check) {
+        table = 'dulieu_itg_old';
+    }
+    try {
+        const params = [model, lot, congdoan];
+        let sql =
+            `SELECT label, congdoan, ketqua, ngay, giobatdau, gioketthuc FROM ` +
+            table +
+            ` WHERE model = ? AND 
+            lot = ? AND 
+            congdoan = ? 
+            ORDER BY 
+            label, 
+            date DESC, 
+            giobatdau DESC`;
+
+        const result = await queryMySQL(sql, params);
+        const groupedResults = result.reduce((acc, item) => {
+            const { label, ketqua, ngay, giobatdau, gioketthuc } = item;
+            if (!acc[label]) {
+                acc[label] = {
+                    label: label,
+                    trangthai: ketqua,
+                    ngay: ngay,
+                    giobatdau: giobatdau,
+                    gioketthuc: gioketthuc,
+                };
+            }
+            return acc;
+        }, {});
+        const data = Object.values(groupedResults);
+        console.log(data);
+        res.json({ missingLabels: data });
+    } catch (error) {
+        console.error('Error fetching labels:', error);
+        res.status(500).json({ error: 'An error occurred while fetching labels' });
+    }
+});
 router.get('/chi_tiet_label', async (req, res) => {
     try {
         const { label } = req.query;
-        const sql_chitiet = `
+        const parts = label.split('_'); // Cắt chuỗi theo dấu _
+        const lastPart = parts[parts.length - 1]; // Lấy phần tử cuối cùng
+        const lot = lastPart.slice(0, -4);
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const formattedMonth = currentMonth < 10 ? `0${currentMonth}` : currentMonth.toString();
+        const lot_check = '53' + currentYear + formattedMonth + '01';
+        let table = 'dulieu_itg';
+        if (lot < lot_check) {
+            table = 'dulieu_itg_old';
+        }
+        const sql_chitiet =
+            `
         SELECT 
 	        congdoan, ngay, giobatdau, gioketthuc, manhanvien, mathietbi, quanly, ketqua, vitri, mathung
-        FROM 
-            dulieu_itg 
-        where 
+        FROM ` +
+            table +
+            ` where 
             label = ?       
         ORDER BY
-            ngay,
-            giobatdau;`;
+            date desc,
+            giobatdau desc;`;
         const results = await queryMySQL(sql_chitiet, [label]);
         res.json(results);
     } catch (err) {
@@ -107,16 +153,28 @@ router.get('/chi_tiet_label', async (req, res) => {
 router.get('/chi_tiet_thung', async (req, res) => {
     try {
         const { mathung } = req.query;
-        const sql_chitiet = `
+        const parts = mathung.split('_'); // Cắt chuỗi theo dấu _
+        const lastPart = parts[parts.length - 1]; // Lấy phần tử cuối cùng
+        const lot = lastPart.slice(0, -4);
+        const currentMonth = new Date().getMonth();
+        const currentYear = new Date().getFullYear();
+        const formattedMonth = currentMonth < 10 ? `0${currentMonth}` : currentMonth.toString();
+        const lot_check = '53' + currentYear + formattedMonth + '01';
+        let table = 'dulieu_itg';
+        if (lot < lot_check) {
+            table = 'dulieu_itg_old';
+        }
+        const sql_chitiet =
+            `
         SELECT 
 	        label, ngay, giobatdau, gioketthuc, ketqua as trangthai
-        FROM 
-            dulieu_itg 
-        where 
+        FROM ` +
+            table +
+            ` where 
             mathung = ?       
         ORDER BY
             label,
-            ngay`;
+            ngay desc`;
         const results = await queryMySQL(sql_chitiet, [mathung]);
         res.json(results);
     } catch (err) {
@@ -143,47 +201,66 @@ router.get('/chitietcongdoan', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
-router.post('/addDonhang', async (req, res) => {
-    const { data } = req.body;
+router.get('/get_data_line', async (req, res) => {
+    const { vitri, date } = req.query;
+    const date_c = new Date(date);
+    const year = date_c.getFullYear();
+    const month = date_c.getMonth();
+    const fm = month < 10 ? `0${month}` : month.toString();
+    const lot = '53' + year + fm + '20';
+
+    const currentMonth = new Date().getMonth();
+    const currentYear = new Date().getFullYear();
+    const formattedMonth = currentMonth < 10 ? `0${currentMonth}` : currentMonth.toString();
+    const lot_check = '53' + currentYear + formattedMonth + '01';
+    let table = 'dulieu_itg';
+    if (lot < lot_check) {
+        table = 'dulieu_itg_old';
+    }
+    const ngay = formatDate(date);
+    const sql = `
+    SELECT 
+        congdoan,
+        model,
+        soluong,
+        ngay,
+        lot,
+        vitri,
+        mathietbi,
+        COUNT(*) as so_luong_du_lieu
+    FROM 
+        dulieu_itg
+    WHERE 
+        vitri LIKE CONCAT('%', ?, '%') 
+        AND ngay = ?
+    GROUP BY 
+        congdoan, 
+        model, 
+        soluong, 
+        ngay,
+        lot,
+        vitri, 
+        mathietbi
+    ORDER BY 
+        model,
+        congdoan;
+    `;
     try {
-        for (const element of data) {
-            const model = `${element[0]}${element[1]}_${element[2]}`;
-            let week = element[4];
-            if (typeof week === 'string' && week.length === 1) {
-                week = '0' + week;
-            }
-            const lot = `53${element[3]}${week}`;
-            const soluong = element[5];
-            const po = element[6];
-            let sql = `
-        SELECT 
-          id 
-        FROM 
-          model  
-        WHERE 
-          model = ? AND
-          lot = ?
-      `;
-            var results = await queryMySQL(sql, [model, lot]);
-            if (results && results.length > 0) {
-                let sql_update = `
-          UPDATE  
-            model 
-          SET 
-            soluong = ?  
-          WHERE 
-            id = ?
-        `;
-                await queryMySQL(sql_update, [soluong, results[0].id]);
-            } else {
-                // Nếu không tồn tại, chèn bản ghi mới
-                const sql_insert = `INSERT INTO model (model, lot, po, soluong) VALUES (?, ?, ?, ?)`;
-                await queryMySQL(sql_insert, [model, lot, po, soluong]);
-            }
-        }
-        res.status(200).json({ message: 'Cập nhật đơn hàng thành công!' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
+        const result = await queryMySQL(sql, [vitri, ngay]);
+        res.json(result);
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+router.get('/get_line', async (req, res) => {
+    const sql = `SELECT distinct  vitri  FROM   model`;
+    try {
+        const result = await queryMySQL(sql, []);
+        res.json(result);
+    } catch (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 });
 app.use('/api', router);

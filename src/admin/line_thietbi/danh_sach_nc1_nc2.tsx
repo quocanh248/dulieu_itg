@@ -7,7 +7,6 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { ColDef, GridApi } from 'ag-grid-community';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 const NC1_NC2Page = () => {
     const [result_NC1_NC2, setResultNc2_Nc1] = useState<DataNC2_NC1[]>([]);
@@ -123,17 +122,7 @@ const NC1_NC2Page = () => {
             field: 'tennhomcap2',
             sortable: true,
             filter: true,
-        },
-        {
-            headerName: '',
-            field: 'manhomcap2',
-            sortable: true,
-            cellRenderer: (params: any) => (
-                <Link to={`/bar_code_nhomcap2/${encodeURIComponent(params.value)}`} target="_blank">
-                    In bar code
-                </Link>
-            ),
-        },
+        }        
     ];
     const columnDefsNC1ofnc2: ColDef<DataNC2ofNC1>[] = [
         {
@@ -141,18 +130,21 @@ const NC1_NC2Page = () => {
             checkboxSelection: true,
             headerName: '',
             width: 50,
+            flex: 1,
         },
         {
             headerName: 'Mã nhóm cấp 1',
             field: 'manhomcap1',
             sortable: true,
             filter: true,
+            flex: 2,
         },
         {
             headerName: 'Tên nhóm cấp 1',
             field: 'tennhomcap1',
             sortable: true,
             filter: true,
+            flex: 2,
         },
     ];
     const columnDefsNC1_nc2: ColDef<DataNC2_NC1>[] = [
@@ -161,18 +153,21 @@ const NC1_NC2Page = () => {
             checkboxSelection: true,
             headerName: '',
             width: 50,
+            flex: 1,
         },
         {
             headerName: 'Mã nhóm cấp 1',
             field: 'manhomcap1',
             sortable: true,
             filter: true,
+            flex: 2,
         },
         {
             headerName: 'Tên nhóm cấp 1',
             field: 'tennhomcap1',
             sortable: true,
             filter: true,
+            flex: 2,
         },
     ];
     const toggleScrollAndModal = (isOpen: boolean) => {
@@ -320,7 +315,7 @@ const NC1_NC2Page = () => {
                         rowData={result_NC2}
                         rowSelection="multiple"
                         pagination={true}
-                        paginationPageSize={11}
+                        paginationPageSize={20}
                         onRowClicked={handleRowClicked}
                     />
                 </div>

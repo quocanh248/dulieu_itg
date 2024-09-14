@@ -377,7 +377,7 @@ const Admin_danh_sach_cong_doan: React.FC = () => {
                             minWidth: 100,
                         }}
                         pagination={true}
-                        paginationPageSize={11}
+                        paginationPageSize={20}
                         rowDragManaged={true}
                         rowDragEntireRow={true}
                         onRowClicked={handleRowClicked}

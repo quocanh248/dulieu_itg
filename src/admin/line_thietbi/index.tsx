@@ -268,7 +268,7 @@ const ThietbiPage: React.FC = () => {
             field: 'mathietbi',
             sortable: true,
             cellRenderer: (params: any) => (
-                <Link to={`/bar_code_thiebi/${encodeURIComponent(params.value)}`} target='_blank'>
+                <Link to={`http://30.0.2.8:8002/bar_code_thiebi/${encodeURIComponent(params.value)}`} target='_blank'>
                     In bar code
                 </Link>
             ),
@@ -344,7 +344,7 @@ const ThietbiPage: React.FC = () => {
                         rowData={result_TB}
                         rowSelection="multiple"
                         pagination={true}
-                        paginationPageSize={11}
+                        paginationPageSize={20}
                         onRowClicked={handleRowClicked}
                     />
                 </div>
