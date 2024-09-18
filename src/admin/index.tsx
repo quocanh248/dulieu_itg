@@ -139,18 +139,7 @@ const AdminPage: React.FC = () => {
                                     onClick={() => toggleScrollAndModal(false, false, false)}
                                 ></button>
                             </div>
-                            <div className="modal-body">
-                                <ul className="nav nav-tabs">
-                                    <li className="nav-item">
-                                        <a
-                                            className="nav-link active"
-                                            data-bs-toggle="tab"
-                                            href="#basic"
-                                        >
-                                            Cơ bản
-                                        </a>
-                                    </li>
-                                </ul>
+                            <div className="modal-body">                               
                                 <div id="basic" className="tab-pane fade show active">
                                     <div className="row">
                                         <div className="col-md-6">
@@ -188,8 +177,7 @@ const AdminPage: React.FC = () => {
                                                 />
                                             </div>
                                         </div>
-                                    </div>
-                                    <hr />
+                                    </div>                             
                                     <div className="row">
                                         <div className="col-md-6">
                                             <div className="mb-3">
@@ -219,8 +207,7 @@ const AdminPage: React.FC = () => {
                                                 />
                                             </div>
                                         </div>
-                                    </div>
-                                    <hr />
+                                    </div>                                   
                                     <div className="row">
                                         <div className="col-md-12">
                                             <div className="mb-3">
@@ -324,18 +311,7 @@ const AdminPage: React.FC = () => {
                                     onClick={() => toggleScrollAndModal(false, false, false)}
                                 ></button>
                             </div>
-                            <div className="modal-body">
-                                <ul className="nav nav-tabs">
-                                    <li className="nav-item">
-                                        <a
-                                            className="nav-link active"
-                                            data-bs-toggle="tab"
-                                            href="#basic"
-                                        >
-                                            Cơ bản
-                                        </a>
-                                    </li>
-                                </ul>
+                            <div className="modal-body">                               
                                 <div id="basic" className="tab-pane fade show active">
                                     <div className="row">
                                         <div className="col-md-6">
@@ -366,8 +342,7 @@ const AdminPage: React.FC = () => {
                                                 />
                                             </div>
                                         </div>
-                                    </div>
-                                    <hr />
+                                    </div>                                   
                                     <div className="row">
                                         <div className="col-md-6">
                                             <div className="mb-3">
@@ -399,8 +374,7 @@ const AdminPage: React.FC = () => {
                                                 />
                                             </div>
                                         </div>
-                                    </div>
-                                    <hr />
+                                    </div>                                
                                     <div className="row">
                                         <div className="col-md-12">
                                             <div className="mb-3">

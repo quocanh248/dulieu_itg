@@ -42,7 +42,7 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                                         <Link to="/them_don_hang" className="nav__link">
                                             <span>Thêm đơn hàng</span>
                                         </Link>
-                                    </div>                                    
+                                    </div>
                                 </div>
                             </div>
                             <div className="nav__item">
@@ -55,7 +55,24 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                                         <Link to="/danh_sach_nhan_su" className="nav__link">
                                             <span>Danh sách nhân sự</span>
                                         </Link>
-                                    </div>                                   
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                    {userInfo && (userInfo.role == 'admin' || userInfo.role == 'kehoach') && (
+                        <>
+                            <div className="nav__item">
+                                <a href="#" className="nav__link">
+                                    <i className="fa-solid fa-bars-progress"></i>
+                                    <span>Kế hoạch</span>
+                                </a>
+                                <div className="nav__submenu">
+                                    <div className="nav__item">
+                                        <Link to="/kehoach" className="nav__link">
+                                            <span>Xem kế hoạch</span>
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         </>
@@ -148,6 +165,11 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                                     <div className="nav__item">
                                         <Link to="/danh_sach_line" className="nav__link">
                                             <span>Danh sách line</span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/model_nc1" className="nav__link">
+                                            <span>Model - nhóm cấp 1</span>
                                         </Link>
                                     </div>
                                 </div>

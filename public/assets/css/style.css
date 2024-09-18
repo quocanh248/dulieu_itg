@@ -1,12 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap');
-
 :root {
     --blue: #1565c0;
     --blue-light: #deeefe;
     --dark: #303030;
     --dark-opacity-50: rgb(48, 48, 48, 0.5);
 }
-
 * {
     box-sizing: border-box;
     margin: 0;

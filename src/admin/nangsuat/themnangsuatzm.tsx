@@ -67,7 +67,7 @@ const Admin_them_nang_suat_zm: React.FC = () => {
                     const workbook = new ExcelJS.Workbook();
                     await workbook.xlsx.load(buffer); // Sử dụng buffer thay vì file
                     const worksheet = workbook.worksheets[0];
-                    let startRow = 1;
+                    let startRow = 2;
                     worksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
                         if (rowNumber >= startRow) {
                             rows.push(row.values as RowData[]); // Chuyển đổi thành mảng hai chiều
@@ -122,12 +122,12 @@ const Admin_them_nang_suat_zm: React.FC = () => {
                     </div>
                     <div className="d-flex align-items-center justify-content-center p-2">
                         <button className="btn btn-primary" onClick={handleImport}>
-                            <i className="fas fa-plus"></i> Thêm data
+                            <i className="fas fa-plus"></i> Data
                         </button>
                     </div>
-                    <div className="d-flex align-items-center justify-content-center p-2">
+                    <div className="d-flex align-items-center justify-content-center">
                         <button className="btn btn-success" onClick={handleupdatetime}>
-                            <i className="fas fa-plus"></i> Thêm thời gian
+                            <i className="fas fa-plus"></i> Thời gian
                         </button>
                     </div>
                 </div>

@@ -1,7 +1,11 @@
 import express from 'express';
+import cors from 'cors';
 import { queryMySQL } from './server.mjs';
 
+const app = express();
 const router = express.Router();
+app.use(express.json());
+app.use(cors());
 
 router.get('/search', async (req, res) => {
     try {
@@ -111,79 +115,9 @@ router.get('/list/tags', async (req, res) => {
     }
 });
 
-router.post('/add', async (req, res) => {
-    let tagList = [];
-    if (req.body && req.body.tags) {
-        tagList = req.body.tags;
-        delete req.body.tags;
-    }
-
-    const fields = Object.keys(req.body);
-    const values = Object.values(req.body);
-
-    const placeholders = fields.map(() => '?').join(', ');
-    const sql = `INSERT INTO blog (${fields.join(', ')}) VALUES (${placeholders})`;
-
-    try {
-        const result = await queryMySQL(sql, values);
-
-        tagList.forEach(async (tag) => {
-            const sql = `INSERT INTO blog_tag (blog_id, tag_id) VALUES (?, ?)`;
-            await queryMySQL(sql, [result.insertId, tag]);
-        });
-
-        res.json({ message: 'Added successfully', id: result.insertId });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-router.put('/update/:id', async (req, res) => {
-    let tagList = [];
-    if (req.body && req.body.tags) {
-        tagList = req.body.tags;
-        delete req.body.tags;
-    }
-
-    const { id } = req.params;
-    const fields = Object.keys(req.body).map((field) => `${field} = ?`);
-    const values = Object.values(req.body);
-    const sql = `UPDATE blog SET ${fields.join(', ')} WHERE blog_id = ?`;
-    values.push(id);
-
-    try {
-        await queryMySQL(sql, values);
-
-        if (tagList.length > 0) {
-            await queryMySQL(`DELETE FROM blog_tag WHERE blog_id = ?`, [id]);
-            const tagInsertPromises = tagList.map((tag) =>
-                queryMySQL(`INSERT INTO blog_tag (blog_id, tag_id) VALUES (?, ?)`, [id, tag])
-            );
-            await Promise.all(tagInsertPromises);
-        }
-
-        res.json({ message: 'Updated successfully', id: id });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
-router.delete('/delete', async (req, res) => {
-    const { blog_id } = req.body;
-
-    try {
-        const sql = 'DELETE FROM blog WHERE blog_id = ?';
-        const result = await queryMySQL(sql, [blog_id]);
-        result.affectedRows > 0
-            ? res.json({ message: 'Deleted successfully', id: blog_id })
-            : res.status(404).json({ error: 'User not found' });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
 const formatDate = (dateStr) => {
     const [day, month, year] = dateStr.split('/');
-    return `${year}/${month}/${day}`;
+    return `${year}-${month}-${day}`;
 };
 const formatDate_zm = (dateStr) => {
     var [day, month, year] = dateStr.split('.');
@@ -193,34 +127,44 @@ const formatDate_zm = (dateStr) => {
 router.post('/upload', async (req, res) => {
     const data = req.body;
     const formattedDate = formatDate(data[0][2]);
-    console.log(formattedDate, data[0][2]);
     const sql_delete = "DELETE FROM nangsuat WHERE ngay = ? AND type = 'itg'";
     await queryMySQL(sql_delete, [formattedDate]);
-    const sql_insert =
-        'INSERT INTO nangsuat (ngay, type, congdoan, manhansu, model, lot, soluong, thoigianthuchien, thoigianquydoi, phutroi, vitri) VALUES ?';
+    const sql_insert = `
+      INSERT INTO nangsuat 
+      (ngay, type, congdoan, manhansu, model, lot, soluong, thoigianthuchien, thoigianquydoi, phutroi, vitri) 
+      VALUES ?
+    `;
     const type = 'itg';
-    const values = data.map((row) => [
-        formattedDate,
-        type,
-        row[12],
-        row[5], // manhansu
-        row[10],
-        row[9],
-        row[14], // soluong
-        row[15], // thời gian thực hiện
-        row[16], // Thời gian quy đổi
-        0, // phutroi
-        row[13], // vitri
-    ]);
+    const values = data.map((row) => {
+        // Chuyển đổi các giá trị thành chuỗi để sử dụng slice
+        const timeReal = String(row[15]); // Thời gian thực hiện
+        const timeConvert = String(row[16]);
+        return [
+            formattedDate,
+            type,
+            row[12], // congdoan
+            row[5], // manhansu
+            row[10], // model
+            row[9], // lot
+            row[14], // soluong
+            timeReal.slice(0, 6), // lấy 6 ký tự đầu của thời gian thực hiện
+            timeConvert.slice(0, 6), // lấy 6 ký tự đầu của thời gian quy đổi
+            0, // phutroi
+            row[13], // vitri
+        ];
+    });
 
     try {
-        const result = await queryMySQL(sql_insert, [values]);
+        await queryMySQL(sql_insert, [values]);
         res.json({ message: 'Added successfully', id: formattedDate });
     } catch (error) {
-        console.error('Lỗi khi thêm dữ liệu:', error);
-        res.status(500).json({ message: 'Failed to add data' });
+        console.error('Lỗi khi thêm dữ liệu:', error.message);
+        console.error('Chi tiết lỗi MySQL:', error.sqlMessage);
+        console.error('SQL đã thực thi:', error.sql);
+        res.status(500).json({ message: 'Failed to add data', error: error.sqlMessage });
     }
 });
+
 router.post('/upload_zm', async (req, res) => {
     const data = req.body;
     const formattedDate = formatDate_zm(data[0][1]);
@@ -236,8 +180,8 @@ router.post('/upload_zm', async (req, res) => {
         const manhansu = element[4];
         const congdoan = element[9];
         const soluong = element[10];
-        const thoigianthuchien = element[11];
-        const thoigianquydoi = element[12];
+        const thoigianthuchien = String(element[11]);
+        const thoigianquydoi = String(element[12]);
         const vitri = element[3];
 
         return [
@@ -248,8 +192,8 @@ router.post('/upload_zm', async (req, res) => {
             model,
             lot,
             soluong,
-            thoigianthuchien,
-            thoigianquydoi,
+            thoigianthuchien.slice(0, 6),
+            thoigianquydoi.slice(0, 6),
             0, // phutroi
             vitri,
         ];
@@ -265,11 +209,11 @@ router.post('/upload_zm', async (req, res) => {
 });
 router.post('/upload_time', async (req, res) => {
     const { data, date } = req.body;
+    const sql_update = 'update nangsuat set thoigianlamviec = ? where manhansu = ? and ngay = ?';
     data.map((element) => {
         var manhansu = element[1];
         var thoigianlamviec = element[3];
-        const sql_update =
-            'update nangsuat set thoigianlamviec = ? where manhansu = ? and ngay = ?';
+        console.log(manhansu, thoigianlamviec, date);        
         queryMySQL(sql_update, [thoigianlamviec, manhansu, date]);
     });
     res.json({ message: 'Added successfully', id: date });
@@ -281,4 +225,5 @@ router.post('/upload_time', async (req, res) => {
     //   res.status(500).json({ message: "Failed to add data" });
     // }
 });
+app.use('/api', router);
 export default router;

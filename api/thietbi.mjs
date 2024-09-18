@@ -379,4 +379,110 @@ router.post('/them_nc1', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+router.get('/get_ban_nc1', async (req, res) => {
+    try {
+        const { manhomcap1 } = req.query;
+        let sql = `
+        SELECT * FROM ban_nhomcap1`;
+        console.log('dô');
+        const params = []; 
+        if (manhomcap1) {
+            sql += ` AND manhomcap1 = ?`;
+            params.push(manhomcap1);
+        }
+        const results = await queryMySQL(sql, params);
+        console.log(results);
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+router.get('/get_model', async (req, res) => {
+    try {
+        const { mamodel } = req.query;
+        let sql = `
+        SELECT mamodel FROM model_nhomcap1`;
+        console.log('dô');
+        const params = []; 
+        if (mamodel) {
+            sql += ` AND mamodel = ?`;
+            params.push(mamodel);
+        }
+        const results = await queryMySQL(sql, params);
+        console.log(results);
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+router.get('/get_maban', async (req, res) => {
+    try {
+        const { manhomcap1 } = req.query;
+        let sql = `
+            SELECT manhomcap1 FROM nhomthietbicap1 where manhomcap1 like '%NHOMBAN%'`;       
+        const params = [];        
+        const results = await queryMySQL(sql, params);
+        console.log(results);
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+router.get('/get_nhomcap1', async (req, res) => {
+    try {
+        const { manhomcap1 } = req.query;
+        let sql = `
+            SELECT manhomcap1 
+            FROM nhomthietbicap1
+            where 
+                manhomcap1 not like '%NHOMBAN%' AND
+                manhomcap1 <> 'macdinh' AND
+                manhomcap1 <> 'macdinh1'`;       
+        const params = [];        
+        const results = await queryMySQL(sql, params);
+        console.log(results);
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+router.post('/them_model_nc1', async (req, res) => {
+    try {
+        const { mamodel, maban, manhomcap1 } = req.body;
+        let sql = `
+        SELECT 
+            manhomcap1
+        FROM 
+            ban_nhomcap1       
+        WHERE 
+            manhomcap1 = ? AND
+            maban = ?;
+      `;
+        const query = 'INSERT INTO ban_nhomcap1 (mamodel, maban, manhomcap1) VALUES (?, ?, ?)';
+        const results = await queryMySQL(sql, [manhomcap1, maban]);
+        if (results.length === 0) {
+            await queryMySQL(query, [mamodel, maban, manhomcap1]);
+        }
+        res.json({
+            status: 201,
+            message: 'Thêm nhóm cấp 1 thành công',
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+router.post('/cap_nhat_model_nc1', async (req, res) => {
+    const { id, mamodel, maban, manhomcap1 } = req.body;
+    const sql1 = `
+        UPDATE ban_nhomcap1 
+        SET mamodel = ?,
+            maban = ?,
+            manhomcap1 = ? 
+        WHERE id= ?`;
+    await queryMySQL(sql1, [mamodel, maban, manhomcap1, id]);
+    res.json({
+        status: 200,
+        id: id,
+    });
+});
 export default router;

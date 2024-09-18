@@ -9,6 +9,7 @@ import ThietbiAPI from './thietbi.mjs';
 import Logzm from './log_zm.mjs';
 import personnel from './nhansu.mjs';
 import Zenbee_1 from './zenbee.mjs';
+import api_kh from './kehoach.mjs';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -60,6 +61,8 @@ const authToken = async (req, res, next) => {
         });
     }    
 };
+
+app.use('/kehoach', api_kh);
 
 app.use('/nang_suat', authToken, nangsuatAPI);
 app.use('/users', authToken, userAPI);

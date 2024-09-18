@@ -32,6 +32,11 @@ import NC1_NC2Page from './admin/line_thietbi/danh_sach_nc1_nc2';
 import NC1Page from './admin/line_thietbi/danh_sach_nc1';
 import ThietbiPage from './admin/line_thietbi/index';
 import LinePage from './admin/line_thietbi/line_thietbi';
+import Model_nc1_Page from './admin/line_thietbi/model_nc1';
+
+
+//Kế hoạch
+import kehoach_Page from './admin/kehoach';
 
 export const App: React.FC = () => {
     const { isAuth, userInfo } = useAuthStore();
@@ -40,6 +45,7 @@ export const App: React.FC = () => {
     const Role_Admin = (Component: React.FC) => ((userInfo?.role == 'admin') ? <Component /> : <Navigate to="/default" />);
     const Role_thietbi = (Component: React.FC) => ((userInfo?.role == 'admin' || userInfo?.role == 'thietbi') ? <Component /> : <Navigate to="/default" />);
     const Role_ns = (Component: React.FC) => ((userInfo?.role == 'admin' || userInfo?.role == 'nangxuat') ? <Component /> : <Navigate to="/default" />);
+    const Role_kh = (Component: React.FC) => ((userInfo?.role == 'admin' || userInfo?.role == 'kehoach') ? <Component /> : <Navigate to="/default" />);
     console.log("userInfo?.role" + userInfo?.role);
     return (
         <Router>
@@ -89,6 +95,10 @@ export const App: React.FC = () => {
                 <Route path="/danh_sach_nhom_cap_1" element={Role_thietbi(NC1Page)} />  
                 <Route path="/danh_sach_thiet_bi" element={Role_thietbi(ThietbiPage)} />     
                 <Route path="/danh_sach_line" element={Role_thietbi(LinePage)} />            
+                <Route path="/model_nc1" element={Role_thietbi(Model_nc1_Page)} />            
+
+                {/* Kế hoạch */}
+                <Route path="/kehoach" element={Role_kh(kehoach_Page)} />
             </Routes>
         </Router>
     );

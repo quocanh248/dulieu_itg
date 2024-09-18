@@ -21,8 +21,7 @@ const Admin_them_nang_suat: React.FC = () => {
     const handleImport = async (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault(); // Ngăn chặn hành vi mặc định của nút bấm
         try {
-            let rows: RowData[][] = []; // Đổi thành mảng hai chiều
-
+            let rows: RowData[][] = []; 
             // Xử lý tệp Excel nếu có
             if (file) {
                 const fileReader = new FileReader();
@@ -41,8 +40,9 @@ const Admin_them_nang_suat: React.FC = () => {
                     });
                     // Gửi dữ liệu đến API để lưu vào cơ sở dữ liệu
                     if (rows.length > 0) {
-                        await sendAPIRequest('/nang_suat/upload', 'POST', rows);
-                        alert('Dữ liệu đã được lưu thành công');
+                        const respone = await sendAPIRequest('/nang_suat/upload', 'POST', rows);
+                        console.log(respone);
+                        alert(respone.message);
                         setFile(null);
                     }
                 };

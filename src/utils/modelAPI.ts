@@ -126,3 +126,11 @@ export interface TableProps {
 export interface CustomCSSProperties extends React.CSSProperties {
     '--p'?: number; // Thêm các thuộc tính CSS tùy chỉnh khác nếu cần
 }
+
+
+export interface Ban_NC1 {
+    id: string,
+    mamodel: string;
+    maban: string;
+    manhomcap1: string;   
+}
