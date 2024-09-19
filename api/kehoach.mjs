@@ -118,7 +118,7 @@ router.get('/xem_ke_hoach', async (req, res) => {
                             const hieu_gio = 6 - giotdHour;
                             const hieu_phut = 0 - giotdMinutes;
                             //giờ nghỉ tổ máy ngày soạn dây (trước ngày LR)
-                            
+
                             ngay_sub.setHours(item.giotomay.slice(0, 2) - hieu_gio); // Cộng phần giờ chênh lệch vào 15:30
                             ngay_sub.setMinutes(item.giotomay.slice(3, 5) - hieu_phut); // Điều chỉnh phút
 
@@ -134,9 +134,13 @@ router.get('/xem_ke_hoach', async (req, res) => {
                                 giotd: giotd, // Giờ sau khi điều chỉnh
                             });
                         } else {
-                            let ngay_sub = new Date(date_sub.setDate(date_sub.getDate())).toISOString().slice(0, 10);
+                            let ngay_sub = new Date(date_sub.setDate(date_sub.getDate()))
+                                .toISOString()
+                                .slice(0, 10);
                             if (item.line.startsWith('LR5')) {
-                                ngay_sub = new Date(date_sub.setDate(date_sub.getDate() - 1)).toISOString().slice(0, 10);
+                                ngay_sub = new Date(date_sub.setDate(date_sub.getDate() - 1))
+                                    .toISOString()
+                                    .slice(0, 10);
                             }
                             data.push({
                                 ngay: date_sls[0],
