@@ -134,9 +134,9 @@ router.get('/xem_ke_hoach', async (req, res) => {
                                 giotd: giotd, // Giờ sau khi điều chỉnh
                             });
                         } else {
-                            let ngay_sub = new Date(date_sub.setDate(date_sub.getDate()));
+                            let ngay_sub = new Date(date_sub.setDate(date_sub.getDate())).toISOString().slice(0, 10);
                             if (item.line.startsWith('LR5')) {
-                                ngay_sub = new Date(date_sub.setDate(date_sub.getDate() - 1));
+                                ngay_sub = new Date(date_sub.setDate(date_sub.getDate() - 1)).toISOString().slice(0, 10);
                             }
                             data.push({
                                 ngay: date_sls[0],

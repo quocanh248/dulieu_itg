@@ -180,7 +180,7 @@ const NC1_NC2Page = () => {
                 <div className="modal-dialog" style={{ width: '80%', maxWidth: 'none' }}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Chi tiết năng suất nhân sự</h5>
+                            <h5 className="modal-title">Chi tiết</h5>
                             <button
                                 type="button"
                                 className="btn-close"
@@ -279,7 +279,7 @@ const NC1_NC2Page = () => {
                 <h5 className="fw-normal text-primary m-0">
                     Danh sách nhóm cấp 2 <i className="far fa-question-circle"></i>
                 </h5>
-                <div className="d-flex ms-auto">
+                <div className="d-flex ms-auto" style={{visibility: "hidden"}}>
                     <div className="input-custom ms-2">
                         <div>
                             <label className="form-label text-secondary">Mã nhóm cấp 2</label>

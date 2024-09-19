@@ -3,6 +3,7 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-quartz.css';
 import { ColDef } from 'ag-grid-community';
+import exportToExcel from '../../utils/exporttoExcel_kh';
 import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
 
@@ -44,7 +45,7 @@ const KehoachPage: React.FC = () => {
     const [resultkh, setResultkh] = useState<data_TKH[]>([]);
     const [resulmap, setResulmap] = useState([]); // Map ngày nhận từ API
     const [tenkehoach, setTKH] = useState('');
-    const gridRef = useRef<AgGridReact<Data_tonghop> | null>(null);
+    const gridRef = useRef<AgGridReact | null>(null);
 
     const clearFilters = useCallback(() => {
         if (gridRef.current) {
@@ -76,13 +77,12 @@ const KehoachPage: React.FC = () => {
                 '/kehoach/get_ten_ke_hoach?' + queryString,
                 'GET',
                 undefined
-            );
-            console.log(response);
+            );          
             setResultkh(response);
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
         }
-    };    
+    };
     const handleSearch = () => {
         fetchkehoach({ tenkehoach, ngay_check });
     };
@@ -97,6 +97,7 @@ const KehoachPage: React.FC = () => {
         fetchtenkehoach();
         // fetchkehoach();
     }, []);
+
     const formatDM = (dateString: string) => {
         const date = new Date(dateString);
         const day = date.getDate();
@@ -121,7 +122,7 @@ const KehoachPage: React.FC = () => {
         },
         {
             headerName: 'NLLR', // Năng Lực Lắp Ráp
-            field: 'nangluclaprap',      
+            field: 'nangluclaprap',
             flex: 1,
         },
         {
@@ -155,6 +156,7 @@ const KehoachPage: React.FC = () => {
             const columns: any[] = [
                 {
                     headerName: formatted,
+                    field: formatted,
                     sortable: false,
                     valueGetter: (params: any) => {
                         // Tìm dữ liệu khớp với ngày từ parsed_data
@@ -166,6 +168,14 @@ const KehoachPage: React.FC = () => {
                     cellRenderer: (params: any) => {
                         return params.value;
                     },
+                    cellStyle: (params: any) => {
+                        const matchedData = params.data.parsed_data.find(
+                            (d: ParsedData) => d.ngay === ngayItem.ngay
+                        );
+                        return matchedData
+                            ? { backgroundColor: '#40dec7' } // Màu vàng
+                            : null; // Nếu không có giá trị, không áp dụng style
+                    },
                     flex: 1,
                 },
             ];
@@ -174,6 +184,7 @@ const KehoachPage: React.FC = () => {
                 columns.push(
                     {
                         headerName: 'GLR',
+                        field: 'Giờ láp ráp',
                         sortable: false,
                         valueGetter: (params: any) => {
                             const matchedData = params.data.parsed_data.find(
@@ -190,6 +201,7 @@ const KehoachPage: React.FC = () => {
                     },
                     {
                         headerName: 'NTD',
+                        field: 'Ngày test dây',
                         sortable: false,
                         valueGetter: (params: any) => {
                             const matchedData = params.data.parsed_data.find(
@@ -206,6 +218,7 @@ const KehoachPage: React.FC = () => {
                     },
                     {
                         headerName: 'GTD',
+                        field: 'Giờ test dây',
                         sortable: false,
                         valueGetter: (params: any) => {
                             const matchedData = params.data.parsed_data.find(
@@ -225,13 +238,40 @@ const KehoachPage: React.FC = () => {
             return columns;
         }),
     ];
+    const exportExcel = async ()  => {
+        const api = gridRef.current?.api;
 
+        if (!api) return;
+
+        const rowCount = api.getDisplayedRowCount();
+        const columnDefs = api.getColumnDefs();
+        const rowData: any[] = [];
+
+        if (columnDefs) {
+            for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                const rowNode = api.getDisplayedRowAtIndex(rowIndex);
+                const row: any = {};
+
+                // Duyệt qua từng cột
+                columnDefs.forEach((colDef: any) => {
+                    const colKey = colDef.field || colDef.colId;
+
+                    if (colKey && rowNode) {
+                        // Sử dụng api.getValue() để lấy giá trị cell
+                        const cellValue = api.getValue(colKey, rowNode);
+                        row[colKey] = cellValue;
+                    }
+                });
+                rowData.push(row);
+            }
+        }
+        const filename = `Dữ liệu kế hoạch PO ${tenkehoach}.xlsx`;
+        await exportToExcel(rowData, filename);
+    };
     return (
         <MenuComponent>
             <div className="d-flex align-items-center bg-white px-4 py-1">
-                <h5 className="fw-normal text-primary m-0">
-                    {tenkehoach}
-                </h5>
+                <h5 className="fw-normal text-primary m-0">{tenkehoach}</h5>
                 <div className="d-flex ms-auto">
                     <div className="input-custom ms-2">
                         <input
@@ -261,6 +301,11 @@ const KehoachPage: React.FC = () => {
                     <div className="d-flex align-items-center justify-content-center p-2">
                         <button className="btn btn-primary" onClick={handleSearch}>
                             <i className="fas fa-search"></i> Tìm
+                        </button>
+                    </div>
+                    <div className="d-flex align-items-center justify-content-center pr-2">
+                        <button className="btn btn-success" onClick={exportExcel}>
+                            <i className="fas fa-file-excel"></i> Excel
                         </button>
                     </div>
                     <div className="d-flex align-items-center justify-content-center p-2 border-start">
