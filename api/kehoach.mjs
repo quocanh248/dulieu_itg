@@ -24,6 +24,107 @@ router.get('/get_ten_ke_hoach', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+router.get('/get_po', async (req, res) => {
+    try {
+        let sql = `
+        SELECT 
+           distinct po, giotomay, ngay,  check_chunhat    
+        FROM
+            kehoach_laprap      
+        ORDER BY
+            ngay desc
+       `;
+        const result = await queryMySQL(sql, []);
+        res.json(result);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+router.post('/cap_nhat_giotm', async (req, res) => {
+    const { po, ngay, giotomay, check_chunhat } = req.body;
+    try {
+        let sql_update = `UPDATE  kehoach_laprap SET giotomay = ? WHERE ngay = ? AND po = ?`;
+        let sql_update_cn = `UPDATE  kehoach_laprap SET check_chunhat = ? WHERE po = ?`;
+        await queryMySQL(sql_update, [giotomay, ngay, po]);
+        await queryMySQL(sql_update_cn, [check_chunhat, po]);
+        res.status(200).json({ message: 'Cập nhật thành công!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+router.post('/themkehoach', async (req, res) => {
+    const { tenkehoach, data } = req.body;
+    try {
+        const sql_insert = `
+            INSERT INTO 
+                kehoach_laprap (
+                    model, 
+                    lotcatday1, 
+                    line, 
+                    version,
+                    nhomban, 
+                    ngay, 
+                    po, 
+                    nangluclaprap, 
+                    soluong, 
+                    giobatdau, 
+                    giotomay, 
+                    tenkehoach, 
+                    check_chunhat) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        let sql_update = `UPDATE  kehoach_laprap SET soluong = ?, nangluclaprap = ?  WHERE id = ?`;
+        let sql = `SELECT  id  FROM kehoach_laprap  WHERE model = ? AND line = ? AND po = ? AND ngay = ?`;
+        const giotomay = '15:00:00';
+        for (const [index, element] of data.entries()) {
+            console.log(element[0], element[7], data[0][7]);
+            if (element[0] != undefined) {
+                var model = element[0];
+                var line = element[1];
+                var version = element[2];
+                var nangluclaprap = element[3];
+                var nhomban = element[4];
+                var lotcatday1 = element[5];
+                let po = element[6];
+                let giobatdau = element[7];
+                for (var i = 8; i < 18; i++) {
+                    if (element[i] != undefined && element[i] != '' && index != 0) {
+                        var ngay = formatdate_addKH(data[0][i]);
+                        var results = await queryMySQL(sql, [model, line, po, ngay]);
+                        if (results && results.length > 0) {
+                            await queryMySQL(sql_update, [soluong, nangluclaprap, results[0].id]);
+                        } else {
+                            await queryMySQL(sql_insert, [
+                                model,
+                                lotcatday1,
+                                line,
+                                version,
+                                nhomban,
+                                ngay,
+                                po,
+                                nangluclaprap,
+                                element[i],
+                                giobatdau,
+                                giotomay,
+                                tenkehoach,
+                                'K',
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+        res.status(200).json({ message: 'Cập nhật đơn hàng thành công!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+function formatdate_addKH(dateStr) {
+    const [day, month] = dateStr.split('-');
+    const currentYear = new Date().getFullYear();
+    const date = new Date(`${currentYear}-${month}-${day}`);
+    const formattedDate = date.toISOString().split('T')[0];
+    return formattedDate;
+}
 router.get('/xem_ke_hoach', async (req, res) => {
     try {
         const { tenkehoach, ngay_check } = req.query;
@@ -43,6 +144,7 @@ router.get('/xem_ke_hoach', async (req, res) => {
             lotcatday1,
             giobatdau,
             giotomay,
+            version,
             line,
             nhomban,
             po,
@@ -60,6 +162,7 @@ router.get('/xem_ke_hoach', async (req, res) => {
             line, 
             po, 
             model, 
+            version,
             lotcatday1, 
             giobatdau, 
             giotomay, 
@@ -99,8 +202,7 @@ router.get('/xem_ke_hoach', async (req, res) => {
                         giobatdauDate.setSeconds(0);
                         giobatdauDate.setMilliseconds(0);
                         giobatdauDate.setHours(giobatdauDate.getHours() - 6); // Trừ đi 6 giờ
-                        const giotd = giobatdauDate.toTimeString().slice(0, 5); // Lấy giờ sau khi trừ
-
+                        const giotd = giobatdauDate.toTimeString().slice(0, 5);
                         const giotdHour = giobatdauDate.getHours();
                         const giotdMinutes = giobatdauDate.getMinutes();
 
@@ -123,14 +225,13 @@ router.get('/xem_ke_hoach', async (req, res) => {
                             ngay_sub.setMinutes(item.giotomay.slice(3, 5) - hieu_phut); // Điều chỉnh phút
 
                             const giotd = ngay_sub.toTimeString().slice(0, 5); // Chuyển lại định dạng 'HH:mm'
-                            const ngaytd = ngay_sub.toISOString().slice(0, 10); // Ngày sau khi trừ đi 1
+                            const ngaytd = ngay_sub.toISOString().slice(0, 10);
 
-                            // Push dữ liệu đã điều chỉnh vào mảng data
                             data.push({
                                 ngay: date_sls[0], // Ngày ban đầu
                                 soluong: date_sls[1], // Số lượng
                                 giobatdau: giobatdau, // Giờ bắt đầu gốc
-                                ngaytd: ngaytd, // Ngày được trừ đi 1
+                                ngaytd: formatNgay(ngaytd, giotd), // Ngày được trừ đi 1
                                 giotd: giotd, // Giờ sau khi điều chỉnh
                             });
                         } else {
@@ -142,12 +243,13 @@ router.get('/xem_ke_hoach', async (req, res) => {
                                     .toISOString()
                                     .slice(0, 10);
                             }
+                            console.log(giobatdau, ngay_sub, giotd);
                             data.push({
                                 ngay: date_sls[0],
                                 soluong: date_sls[1],
                                 giobatdau: giobatdau,
-                                ngaytd: ngay_sub, // Giữ nguyên ngày
-                                giotd: giotd, // Giờ sau khi trừ
+                                ngaytd: formatNgay(ngay_sub, giotd),
+                                giotd: giotd,
                             });
                         }
                         let nllr = item.nangluclaprap;
@@ -191,6 +293,46 @@ router.get('/xem_ke_hoach', async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 });
+function formatNgay(ngay, gio) {
+    // Tách ngày và giờ thành các phần
+    const [year, month, day] = ngay.split('-').map(Number);
+    const [hours, minutes] = gio.split(':').map(Number);
+    console.log('Chưa làm tròn ' + minutes);
+    // Làm tròn phút theo yêu cầu
+    let roundedMinutes = minutes;
+    let roundedHours = hours;
+
+    if (roundedMinutes < 15) {
+        roundedMinutes = 0;
+    } else if (roundedMinutes >= 15 && roundedMinutes < 45) {
+        roundedMinutes = 30;
+    } else {
+        roundedMinutes = 0;
+        roundedHours += 1; // Tăng giờ lên 1 nếu phút >= 45
+        if (roundedHours === 24) {
+            roundedHours = 0; // Nếu giờ vượt quá 23, quay lại 0
+            // Tăng ngày lên 1 nếu cần
+            day += 1;
+        }
+    }
+
+    console.log('Làm tròn phút: ' + roundedMinutes);
+
+    // Tạo lại đối tượng Date với giờ và phút đã được làm tròn
+    const updatedDate = new Date(year, month - 1, day, roundedHours, roundedMinutes);
+
+    // Định dạng lại thành YYYY/MM/DD HH:mm
+    const formattedDate =
+        `${updatedDate.getDate().toString().padStart(2, '0')}/${(updatedDate.getMonth() + 1)
+            .toString()
+            .padStart(2, '0')}/${updatedDate.getFullYear()} ` +
+        `${(roundedHours % 12 || 12).toString()}:${roundedMinutes
+            .toString().padStart(2, '0')}:00 ` +
+        `${roundedHours >= 12 ? 'PM' : 'AM'}`;
+
+    return formattedDate;
+}
+
 const groupNhomBan = (data) => {
     if (data.length === 0) {
         return [];

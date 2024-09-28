@@ -42,8 +42,8 @@ const Admin_them_nang_suat: React.FC = () => {
                     if (rows.length > 0) {
                         const respone = await sendAPIRequest('/nang_suat/upload', 'POST', rows);
                         console.log(respone);
-                        alert(respone.message);
                         setFile(null);
+                        alert(respone.message);
                     }
                 };
 

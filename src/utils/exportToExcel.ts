@@ -18,7 +18,7 @@ interface ItemData {
     thoigianlamviec: number;
 }
 
-async function exportToExcel(data: ItemData[], filename: string): Promise<void> {
+async function exportToExcel(data: ItemData[], filename: string, date: string): Promise<void> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Nang_suat');
 
@@ -28,8 +28,7 @@ async function exportToExcel(data: ItemData[], filename: string): Promise<void> 
 
     worksheet.getCell('A1').value = 'Công Ty TNHH MTV VIỆT TRẦN';
     worksheet.getCell('A2').value = 'Lô A, đường số 1, kcn Long Đức, xã Long Đức, tp Trà Vinh';
-    worksheet.getCell('A3').value =
-        `Dữ liệu năng suất ngày ${new Date().toISOString().split('T')[0]}`;
+    worksheet.getCell('A3').value = `Dữ liệu năng suất ngày ${date}`;
 
     worksheet.getCell('A1').font = { bold: true, size: 14 };
     worksheet.getCell('A2').font = { size: 12 };
@@ -66,7 +65,7 @@ async function exportToExcel(data: ItemData[], filename: string): Promise<void> 
     worksheet.columns = [
         { width: 12 },
         { width: 26 },
-        { width: 10 },
+        { width: 14 },
         { width: 18 },
         { width: 14 },
         { width: 12 },
@@ -79,20 +78,37 @@ async function exportToExcel(data: ItemData[], filename: string): Promise<void> 
     ];
 
     data.forEach((item) => {
-        worksheet.addRow([
+        let tgqd = ((item.thoigianthuchien / item.sum_time) * item.thoigianlamviec).toFixed(2);
+        const formattedDate = new Date(item.ngay).toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        });
+        const row = worksheet.addRow([
             item.manhansu,
             item.tennhansu,
             item.tennhom,
             item.model,
             item.lot,
-            item.ngay,
+            formattedDate,
             item.congdoan,
             item.vitri,
             item.soluong,
             item.thoigianthuchien,
-            item.thoigianquydoi,
+            tgqd,
             item.thoigianlamviec,
         ]);
+        row.eachCell((cell) => {
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' },
+            };
+            cell.alignment = {
+                horizontal: 'center',
+            };
+        });
     });
 
     const buffer = await workbook.xlsx.writeBuffer();

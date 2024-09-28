@@ -36,7 +36,7 @@ const ChitietThung: React.FC = () => {
             sortable: true,
             filter: true,
             cellRenderer: (params: any) => (
-                <Link to={`/chi_tiet_label/${encodeURIComponent(params.value)}`}>
+                <Link to={`/chi_tiet_label/${encodeURIComponent(params.value)}`} target="_blank">
                     {params.value}
                 </Link>
             ),

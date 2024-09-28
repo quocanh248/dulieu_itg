@@ -106,7 +106,7 @@ const Modelot_zm_Page: React.FC = () => {
             field: 'label',
             sortable: true,
             cellRenderer: (params: any) => (
-                <Link to={`/chi_tiet_label_zm/${encodeURIComponent(params.value)}`}>
+                <Link to={`/chi_tiet_label_zm/${encodeURIComponent(params.value)}`} target="_blank">
                     {params.value}
                 </Link>
             ),

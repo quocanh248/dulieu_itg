@@ -17,6 +17,7 @@ import AddDonhangPage from './admin/get_api_itg/them_don_hang';
 import Admin_danh_sach_cong_doan from './admin/get_api_itg/danh_sach_cong_doan';
 import ChitietLabel from './admin/get_api_itg/chi_tiet_label';
 import Get_label_none from './admin/get_api_itg/danh_sach_label_none';
+import Get_data_nv from './admin/get_api_itg/truy_xuat_nhan_vien';
 //log ZM
 import Modelot_zm_Page from './admin/log_zm/get_model_lot';
 import Get_API_model_lot from './admin/get_api_itg/get_model_lot';
@@ -37,7 +38,8 @@ import Model_nc1_Page from './admin/line_thietbi/model_nc1';
 
 //Kế hoạch
 import kehoach_Page from './admin/kehoach';
-
+import AddKehoachPage from './admin/kehoach/them_ke_hoach';
+import Gio_TM_Page from './admin/kehoach/gio_to_may';
 export const App: React.FC = () => {
     const { isAuth, userInfo } = useAuthStore();
 
@@ -74,6 +76,7 @@ export const App: React.FC = () => {
                 <Route path="/danh_sach_cong_doan" element={Role_ns(Admin_danh_sach_cong_doan)} />
                 <Route path="/chi_tiet_label/:label" element={Role_ns(ChitietLabel)} />
                 <Route path="/chi_tiet_thung/:mathung" element={Role_ns(ChitietThung)} />
+                <Route path="/truy_xuat_nhan_vien" element={Role_ns(Get_data_nv)} />
                 <Route
                     path="/get_model_lot_api/:model/:lot"
                     element={Role_ns(Get_API_model_lot)}
@@ -99,6 +102,8 @@ export const App: React.FC = () => {
 
                 {/* Kế hoạch */}
                 <Route path="/kehoach" element={Role_kh(kehoach_Page)} />
+                <Route path="/them_kehoach" element={Role_kh(AddKehoachPage)} />
+                <Route path="/gio_to_may" element={Role_kh(Gio_TM_Page)} />
             </Routes>
         </Router>
     );

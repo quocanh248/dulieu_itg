@@ -18,6 +18,7 @@ interface ParsedData {
 interface Data_tonghop {
     line: string;
     model: string;
+    version: string;
     lotcatday1: string;
     nhomban: string;
     po: string;
@@ -64,6 +65,7 @@ const KehoachPage: React.FC = () => {
                 'GET',
                 undefined
             );
+            console.log(response.data);
             setResultth(response.data); // Set resultth từ API trả về
             setResulmap(response.map_ngay); // Set map ngày từ API
         } catch (error) {
@@ -77,7 +79,7 @@ const KehoachPage: React.FC = () => {
                 '/kehoach/get_ten_ke_hoach?' + queryString,
                 'GET',
                 undefined
-            );          
+            );
             setResultkh(response);
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
@@ -99,19 +101,44 @@ const KehoachPage: React.FC = () => {
     }, []);
 
     const formatDM = (dateString: string) => {
-        const date = new Date(dateString);
-        const day = date.getDate();
-        const month = date.getMonth() + 1; // getMonth() trả về từ 0 đến 11 nên cần +1
-        return `${day}-${month}`;
+        const [datePart] = dateString.split(' ');
+        const [n, t] = datePart.split('/');
+        // Đảm bảo rằng đầu ra vẫn giữ nguyên định dạng
+        return `${n}/${t}`;
+    };
+    const formatDM_hd = (dateString: string) => {
+        const [_, t, d] = dateString.split('-');
+        // Đảm bảo rằng đầu ra vẫn giữ nguyên định dạng
+        return `${d}-${t}`;
     };
     // Cấu hình cột cho AG Grid
     const columnDefs: ColDef<Data_tonghop>[] = [
+        {
+            headerName: 'LOT CD',
+            field: 'lotcatday1',
+            sortable: true,
+            filter: 'agTextColumnFilter',
+            flex: 1.5,
+        },
         {
             headerName: 'MODEL',
             field: 'model',
             sortable: true,
             filter: 'agTextColumnFilter',
+            // valueGetter: (params: any) => {
+            //     // Nối chuỗi model và version    
+            //     const version = params.data.version ? params.data.version.trim() : '';
+            //     const chuoi =  params.data.version ? params.data.model.trim()+"_"+version : params.data.model.trim();     
+            //     return chuoi;
+            // },
             flex: 2,
+        },
+        {
+            headerName: 'Version',
+            field: 'version',
+            sortable: true,
+            filter: 'agTextColumnFilter',          
+            flex: 1,
         },
         {
             headerName: 'LINE',
@@ -133,13 +160,6 @@ const KehoachPage: React.FC = () => {
             flex: 1.5,
         },
         {
-            headerName: 'LOT CD',
-            field: 'lotcatday1',
-            sortable: true,
-            filter: 'agTextColumnFilter',
-            flex: 1.5,
-        },
-        {
             headerName: 'PO',
             field: 'po',
             sortable: true,
@@ -148,7 +168,7 @@ const KehoachPage: React.FC = () => {
         },
         // Xử lý dữ liệu ngày từ resulmap
         ...resulmap.flatMap((ngayItem: data_ngay) => {
-            const formatted = formatDM(ngayItem.ngay);
+            const formatted = formatDM_hd(ngayItem.ngay);
             const foundMatch = resultth.some((it) =>
                 it.parsed_data.some((parsedItem) => parsedItem.ngay === ngayItem.ngay)
             );
@@ -238,7 +258,7 @@ const KehoachPage: React.FC = () => {
             return columns;
         }),
     ];
-    const exportExcel = async ()  => {
+    const exportExcel = async () => {
         const api = gridRef.current?.api;
 
         if (!api) return;

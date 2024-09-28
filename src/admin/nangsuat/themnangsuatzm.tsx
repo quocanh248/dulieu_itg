@@ -41,8 +41,8 @@ const Admin_them_nang_suat_zm: React.FC = () => {
                     // Gửi dữ liệu đến API để lưu vào cơ sở dữ liệu
                     if (filteredRows.length > 0) {
                         await sendAPIRequest('/nang_suat/upload_zm', 'POST', filteredRows);
-                        alert('Dữ liệu đã được lưu thành công');
                         setFile(null);
+                        alert('Dữ liệu đã được lưu thành công');
                     }
                 };
 
@@ -80,6 +80,7 @@ const Admin_them_nang_suat_zm: React.FC = () => {
                             date: date,
                         };
                         await sendAPIRequest('/nang_suat/upload_time', 'POST', payload);
+                        setFile(null);
                         alert('Dữ liệu đã được lưu thành công');
                     }
                 };

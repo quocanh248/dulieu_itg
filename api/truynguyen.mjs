@@ -502,6 +502,61 @@ router.get('/chitietcongdoan', authorize(['nangxuat', 'admin']), async (req, res
         res.status(500).json({ error: err.message });
     }
 });
+router.get('/get_api_mnv', authorize(['nangxuat', 'admin']), async (req, res) => {
+    const url = 'http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport';
+    const token = 'f4ea1126-b5aa-4d8e-9e47-2851652b9056-Js8XeJgl4aq05cTQMDJz9H6GJIC7Ca';
+    const { manhansu, date } = req.query;
+    console.log(manhansu, date);
+    try {
+        const response = await axios.post(
+            url,
+            {
+                JSON: {
+                    searchDynamic: {
+                        dfrom: date,
+                        dto: date,
+                        step_code: '',
+                        product_code: '',
+                        lot: '',
+                        ma_nv: manhansu,
+                        machine_code: '',
+                    },
+                },
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
+        console.log(response.data);
+        await Get_data_nv(response.data, res);
+    } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu:', error);
+        res.json({
+            status: 500,
+            message: 'Lỗi khi lấy dữ liệu:',
+        });
+    }
+});
+async function Get_data_nv(data, res) {    
+    const promises = data.map(async (item) => {
+        return {
+            congdoan: item.step_code,
+            model: item.product_code,
+            lot: item.lot,
+            ngay: formatDate(item.create_date),
+            giobatdau: item.create_time,
+            gioketthuc: item.end_time,
+            label: item.id_tem,
+            ketqua: item.result,
+        };
+    });
+    const results = await Promise.all(promises);
+    res.json(results);
+}
 router.post('/addDonhang', authorize(['admin']), async (req, res) => {
     const { data } = req.body;
     try {

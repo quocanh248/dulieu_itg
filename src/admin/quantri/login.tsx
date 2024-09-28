@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import '../../../public/assets/css/table_data.css';
+import './style.css';
 import { sendAPIRequest } from '../../utils/util';
 import { useNavigate } from 'react-router-dom';
 import React from 'react';

@@ -62,7 +62,7 @@ const Admin_nang_suat: React.FC = () => {
             const res = await fetchexcel({ date });
             if (res && res.length > 0) {
                 const filename = `Dữ liệu năng suất ngày ${date}.xlsx`;
-                await exportToExcel(res, filename);
+                await exportToExcel(res, filename, date);
             } else {
                 console.log('Không có dữ liệu để xuất');
             }
