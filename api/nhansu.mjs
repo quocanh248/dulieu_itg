@@ -67,12 +67,17 @@ router.get('/cap_nhat_nhan_su', async (req, res) => {
             var source = hit._source;
             var nhom_lv = source.workgroup;            
             var manhansu = source.id;
+            if(manhansu == 8424544)
+            {
+              console.log(manhansu);
+            }
             var ktr_nhansu = await queryMySQL(sql_ktr, [manhansu]);
             if(ktr_nhansu.length > 0)
             {
                 return;
             }
             var get_ma_nhom = await queryMySQL(sql, [nhom_lv]);
+           
             const values = [
                  manhansu,
                  source.name,
@@ -89,7 +94,7 @@ router.get('/cap_nhat_nhan_su', async (req, res) => {
                  formatTimestampToDate(source.startingDate) || '1900-01-01',
                  formatTimestampToDate(source.contractDate) || '1900-01-01',
                  source.gender,
-                 source.phones && source.phones.length > 0 ? source.phones[0] : '',
+                 source.phones && source.phones.length > 0 ? source.phones[0] : 0,
                  source.religion || '',
                  '',
                  source.labels && source.labels.length > 0 ? source.labels[0] : '',

@@ -502,11 +502,10 @@ router.get('/chitietcongdoan', authorize(['nangxuat', 'admin']), async (req, res
         res.status(500).json({ error: err.message });
     }
 });
-router.get('/get_api_mnv', authorize(['nangxuat', 'admin']), async (req, res) => {
+router.get('/get_api_mnv', async (req, res) => {
     const url = 'http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport';
     const token = 'f4ea1126-b5aa-4d8e-9e47-2851652b9056-Js8XeJgl4aq05cTQMDJz9H6GJIC7Ca';
-    const { manhansu, date } = req.query;
-    console.log(manhansu, date);
+    const { manhansu, date } = req.query;   
     try {
         const response = await axios.post(
             url,
@@ -542,8 +541,12 @@ router.get('/get_api_mnv', authorize(['nangxuat', 'admin']), async (req, res) =>
     }
 });
 async function Get_data_nv(data, res) {    
+    // ma_nv: '8410119',
+    // ten_nv: 'NGUYỄN THỊ CẨM CHI',
     const promises = data.map(async (item) => {
         return {
+            ma_nv: item.ma_nv,
+            ten_nv: item.ten_nv,
             congdoan: item.step_code,
             model: item.product_code,
             lot: item.lot,

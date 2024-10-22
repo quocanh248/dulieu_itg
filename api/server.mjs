@@ -10,6 +10,7 @@ import Logzm from './log_zm.mjs';
 import personnel from './nhansu.mjs';
 import Zenbee_1 from './zenbee.mjs';
 import api_kh from './kehoach.mjs';
+import deviceAPI from './device.mjs';
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -72,6 +73,7 @@ app.use('/logzm', authToken, Logzm);
 app.use('/thietbi',authToken, ThietbiAPI);
 app.use('/nhansu',authToken, personnel);
 app.use('/zenbee', Zenbee_1);
+app.use('/device', deviceAPI);
 // Route ví dụ để nhận ngày
 app.post('/api/search', authToken, (req, res) => {
     const { date } = req.body;

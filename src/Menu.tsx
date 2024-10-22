@@ -58,6 +58,19 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                                     </div>
                                 </div>
                             </div>
+                            <div className="nav__item">
+                                <a href="#" className="nav__link">                                    
+                                    <i className="fa-solid fa-tablet"></i>
+                                    <span>OI</span>
+                                </a>
+                                <div className="nav__submenu">
+                                    <div className="nav__item">
+                                        <Link to="/danh_sach_oi" className="nav__link">
+                                            <span>Danh sách OI</span>
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
                         </>
                     )}
                     {userInfo && (userInfo.role == 'admin' || userInfo.role == 'kehoach') && (
@@ -143,6 +156,11 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                                     <div className="nav__item">
                                         <Link to="/danh_sach_don_hang" className="nav__link">
                                             <span>Danh sách đơn hàng</span>
+                                        </Link>
+                                    </div>
+                                    <div className="nav__item">
+                                        <Link to="/get_model_lot_api//" className="nav__link">
+                                            <span>Dữ liệu chạy hàng Model - lot</span>
                                         </Link>
                                     </div>
                                     <div className="nav__item">

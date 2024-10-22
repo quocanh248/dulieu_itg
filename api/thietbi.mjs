@@ -185,6 +185,9 @@ router.get('/get_thietbi', async (req, res) => {
 });
 router.post('/them_thiet_bi', async (req, res) => {
     const { mathietbi, tenthietbi, manhomcap1 } = req.body;
+    if (!mathietbi || mathietbi.trim() === '' || mathietbi.includes(' ')) {
+        return res.status(400).json({ message: 'Mã thiết bị không được chứa khoảng trắng.' });
+    }
     const query = 'INSERT INTO thietbi (mathietbi, tenthietbi, manhomcap1) VALUES (?, ?, ?)';
     await queryMySQL(query, [mathietbi, tenthietbi, manhomcap1]);
     res.status(201).json({ message: 'Thêm thiết bị thành công!' });
@@ -237,7 +240,7 @@ router.get('/get_line', async (req, res) => {
 });
 router.get('/get_thietbi_not_of_line', async (req, res) => {
     try {
-        const { maline } = req.query;        
+        const { maline } = req.query;
         let sql = `
         SELECT 
             tb.mathietbi, 
@@ -250,7 +253,7 @@ router.get('/get_thietbi_not_of_line', async (req, res) => {
         WHERE 
             ltb.maline IS NULL;
       `;
-        const results = await queryMySQL(sql, [maline]);        
+        const results = await queryMySQL(sql, [maline]);
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -258,7 +261,7 @@ router.get('/get_thietbi_not_of_line', async (req, res) => {
 });
 router.get('/get_thietbi_of_line', async (req, res) => {
     try {
-        const { maline } = req.query;       
+        const { maline } = req.query;
         let sql = `
         SELECT 
             tb.mathietbi, 
@@ -270,7 +273,7 @@ router.get('/get_thietbi_of_line', async (req, res) => {
         WHERE
             ltb.maline = ?;
       `;
-        const results = await queryMySQL(sql, [maline]);      
+        const results = await queryMySQL(sql, [maline]);
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -280,9 +283,9 @@ router.post('/them_line', async (req, res) => {
     const { maline, tenline } = req.body;
     const query = 'INSERT INTO line (maline, tenline) VALUES (?, ?)';
     await queryMySQL(query, [maline, tenline]);
-    res.json({ 
+    res.json({
         status: 201,
-        message: 'Thêm Line thành công!' 
+        message: 'Thêm Line thành công!',
     });
 });
 router.post('/cap_nhat_line', async (req, res) => {
@@ -311,7 +314,7 @@ router.post('/cap_nhat_line', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
-})
+});
 router.post('/clear_tb_line', async (req, res) => {
     try {
         const { maline, selectedRows } = req.body;
@@ -385,7 +388,7 @@ router.get('/get_ban_nc1', async (req, res) => {
         let sql = `
         SELECT * FROM ban_nhomcap1`;
         console.log('dô');
-        const params = []; 
+        const params = [];
         if (manhomcap1) {
             sql += ` AND manhomcap1 = ?`;
             params.push(manhomcap1);
@@ -403,7 +406,7 @@ router.get('/get_model', async (req, res) => {
         let sql = `
         SELECT mamodel FROM model_nhomcap1`;
         console.log('dô');
-        const params = []; 
+        const params = [];
         if (mamodel) {
             sql += ` AND mamodel = ?`;
             params.push(mamodel);
@@ -419,8 +422,8 @@ router.get('/get_maban', async (req, res) => {
     try {
         const { manhomcap1 } = req.query;
         let sql = `
-            SELECT manhomcap1 FROM nhomthietbicap1 where manhomcap1 like '%NHOMBAN%'`;       
-        const params = [];        
+            SELECT manhomcap1 FROM nhomthietbicap1 where manhomcap1 like '%NHOMBAN%'`;
+        const params = [];
         const results = await queryMySQL(sql, params);
         console.log(results);
         res.json(results);
@@ -437,8 +440,8 @@ router.get('/get_nhomcap1', async (req, res) => {
             where 
                 manhomcap1 not like '%NHOMBAN%' AND
                 manhomcap1 <> 'macdinh' AND
-                manhomcap1 <> 'macdinh1'`;       
-        const params = [];        
+                manhomcap1 <> 'macdinh1'`;
+        const params = [];
         const results = await queryMySQL(sql, params);
         console.log(results);
         res.json(results);

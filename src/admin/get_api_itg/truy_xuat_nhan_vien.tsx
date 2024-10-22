@@ -8,6 +8,8 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import React from 'react';
 
 interface Data_API_mnv {
+    ma_nv: string;
+    ten_nv: string;
     model: string;
     lot: string;
     label: string;
@@ -76,6 +78,18 @@ const Get_data_nv: React.FC = () => {
         fetchmodel();
     }, []);
     const columnDefs1: ColDef<Data_API_mnv>[] = [
+        {
+            headerName: 'Mã nhân sự',
+            field: 'ma_nv',
+            sortable: true,
+            filter: true,
+        },
+        {
+            headerName: 'Tên nhân sự',
+            field: 'ten_nv',
+            sortable: true,
+            filter: true,
+        },
         {
             headerName: 'Model',
             field: 'model',

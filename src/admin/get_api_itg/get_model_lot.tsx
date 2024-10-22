@@ -45,6 +45,7 @@ const Get_API_model_lot: React.FC = () => {
             }
         }
     }, []);
+    
     // Xử lý sự kiện thay đổi giá trị của input
     const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const model_change = e.target.value;
@@ -110,9 +111,7 @@ const Get_API_model_lot: React.FC = () => {
         get_api_itg({ modelState, lotState });
     };
     useEffect(() => {
-        if (decodemodel && decodelot) {
-            fetchmodel();
-        }
+        fetchmodel();
     }, [decodemodel, decodelot]);
     const columnDefs = [
         {
@@ -271,7 +270,7 @@ const Get_API_model_lot: React.FC = () => {
                             className="ag-theme-alpine"
                             style={{ height: 'calc(100vh - 338px)', width: '100%' }}
                         >
-                            <AgGridReact
+                            <AgGridReact                                
                                 ref={gridRef}
                                 rowData={result_label}
                                 columnDefs={columnDefs}
@@ -280,7 +279,7 @@ const Get_API_model_lot: React.FC = () => {
                                     filter: true,
                                     resizable: true,
                                     flex: 1,
-                                    minWidth: 100,
+                                    minWidth: 200,
                                 }}
                                 pagination={true}
                                 paginationPageSize={20}

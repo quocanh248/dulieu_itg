@@ -60,6 +60,10 @@ const ThietbiPage: React.FC = () => {
         if (!manhomcap1 || !tenthietbi || !mathietbi) {
             alert('Vui lòng điền đầy đủ thông tin.');
             return;
+        }else if(mathietbi.trim() === '' || mathietbi.includes(' '))
+        {
+            alert('Mã thiết bị không được có khoảng trắng!');
+            return;
         }
         try {
             const data = {
