@@ -143,7 +143,7 @@ router.post('/upload', async (req, res) => {
             formattedDate,
             type,
             row[12], // congdoan
-            row[5], // manhansu
+            row[5].trim(), // manhansu
             row[10], // model
             row[9], // lot
             row[14], // soluong
@@ -156,12 +156,12 @@ router.post('/upload', async (req, res) => {
 
     try {
         await queryMySQL(sql_insert, [values]);
-        res.json({ message: 'Added successfully', id: formattedDate });
+        res.json({ message: 'Added successfully', status: 200 });
     } catch (error) {
         console.error('Lỗi khi thêm dữ liệu:', error.message);
         console.error('Chi tiết lỗi MySQL:', error.sqlMessage);
         console.error('SQL đã thực thi:', error.sql);
-        res.status(500).json({ message: 'Failed to add data', error: error.sqlMessage });
+        res.status(500).json({ message: 'Failed to add data', status: 500, error: error.sqlMessage });
     }
 });
 

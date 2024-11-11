@@ -26,7 +26,6 @@ const Admin_them_nang_suat: React.FC = () => {
             if (file) {
                 const fileReader = new FileReader();
                 fileReader.readAsArrayBuffer(file);
-
                 fileReader.onload = async () => {
                     const buffer = fileReader.result as ArrayBuffer;
                     const workbook = new ExcelJS.Workbook();
@@ -41,9 +40,14 @@ const Admin_them_nang_suat: React.FC = () => {
                     // Gửi dữ liệu đến API để lưu vào cơ sở dữ liệu
                     if (rows.length > 0) {
                         const respone = await sendAPIRequest('/nang_suat/upload', 'POST', rows);
-                        console.log(respone);
-                        setFile(null);
-                        alert(respone.message);
+                        if(respone.status == 500)
+                        {
+                            alert(respone.error);
+                        } else{
+                            setFile(null);
+                            alert(respone.message);
+                        }                     
+                       
                     }
                 };
 

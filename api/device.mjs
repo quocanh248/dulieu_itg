@@ -204,7 +204,11 @@ router.get('/get_step', async (req, res) => {
 router.post('/Job', async (req, res) => {
     const data  = req.body;
     console.log(data); 
-    res.send('Data received');
+    setTimeout(() => {
+        console.log("Phản hồi sau 7s");
+        res.send('Response after 7 seconds');
+    }, 7000); // 7000 ms = 7 seconds
+   
 });
 
 export default router;
