@@ -258,59 +258,66 @@ const ChitietLabel: React.FC = () => {
                     {resultChitiet &&
                         resultChitiet.map((item, index) => (
                             <>
-                            <div key={index} className="row p-3">
-                                <div className="col-3 text-end p-3">
-                                    <label className="text-primary">Ngày: {item.ngay}</label> <br />{' '}
-                                    <br />
-                                    <label className="text-primary">
-                                        Công đoạn: <b>{item.congdoan}</b>
-                                    </label>
-                                    <br /> <br />
-                                    <label>
-                                        Vị trí: <b>{item.vitri}</b>
-                                    </label>
+                                <div key={index} className="row p-3">
+                                    <div className="col-3 text-end p-3">
+                                        <label className="text-primary">Ngày: {item.ngay}</label>{' '}
+                                        <br /> <br />
+                                        <label className="text-primary">
+                                            Công đoạn: <b>{item.congdoan}</b>
+                                        </label>
+                                        <br /> <br />
+                                        <label>
+                                            Vị trí: <b>{item.vitri}</b>
+                                        </label>
+                                    </div>
+                                    <div className="col-md-9 border-start p-3">
+                                        <label className="text-primary">Thời gian:</label>
+                                        <br />
+                                        <br />
+                                        <table className="table_label">
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <img
+                                                            className="img_info"
+                                                            src="/assets/img/clock.png"
+                                                            alt=""
+                                                        />
+                                                    </td>
+                                                    <td>
+                                                        <label style={{ marginLeft: '120px' }}>
+                                                            {item.giobatdau} &rarr;{' '}
+                                                            {item.gioketthuc}
+                                                        </label>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        <label className="text-primary">Quản lý:</label>
+                                        <br />
+                                        <br />
+                                        <TableQuanLy
+                                            item={item}
+                                            get_ten_nhan_su={get_ten_nhan_su}
+                                        />
+                                        <label className="text-primary">Nhân viên:</label>
+                                        <br />
+                                        <br />
+                                        <TableNhanVien
+                                            item={item}
+                                            get_ten_nhan_su={get_ten_nhan_su}
+                                        />
+                                        <label className="text-primary">Thiết bị:</label>
+                                        <br />
+                                        <br />
+                                        <Tablethietbi item={item} />
+                                        <label className="text-primary">Kết quả kiểm tra:</label>
+                                        <br />
+                                        <br />
+                                        <Tableketqua item={item} />
+                                    </div>
                                 </div>
-                                <div className="col-md-9 border-start p-3">
-                                    <label className="text-primary">Thời gian:</label>
-                                    <br />
-                                    <br />
-                                    <table className="table_label">
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <img
-                                                        className="img_info"
-                                                        src="/assets/img/clock.png"
-                                                        alt=""
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <label style={{ marginLeft: '120px' }}>
-                                                        {item.giobatdau} &rarr; {item.gioketthuc}
-                                                    </label>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <label className="text-primary">Quản lý:</label>
-                                    <br />
-                                    <br />
-                                    <TableQuanLy item={item} get_ten_nhan_su={get_ten_nhan_su} />
-                                    <label className="text-primary">Nhân viên:</label>
-                                    <br />
-                                    <br />
-                                    <TableNhanVien item={item} get_ten_nhan_su={get_ten_nhan_su} />
-                                    <label className="text-primary">Thiết bị:</label>
-                                    <br />
-                                    <br />
-                                    <Tablethietbi item={item} />
-                                    <label className="text-primary">Kết quả kiểm tra:</label>
-                                    <br />
-                                    <br />
-                                    <Tableketqua item={item} />
-                                </div>
-                            </div> 
-                            <hr />
+                                <hr />
                             </>
                         ))}
                 </div>
@@ -414,7 +421,12 @@ const TableNhanVien: React.FC<TableProps> = ({ item, get_ten_nhan_su }) => {
                                 <img className="img_info" src={nv.img_nv} />
                             </td>
                             <td>
-                                <label style={{ marginLeft: '120px' }}>{nv.ten_nv}</label>
+                                <label style={{ marginLeft: '120px' }}>
+                                    <b>{nv.mnv}</b>
+                                </label>
+                            </td>
+                            <td>
+                                <label style={{ marginLeft: '165px' }}>{nv.ten_nv}</label>
                             </td>
                         </tr>
                     ))
@@ -446,7 +458,12 @@ const TableQuanLy: React.FC<TableProps> = ({ item, get_ten_nhan_su }) => {
                                 <img className="img_info" src={nv.img_nv} />
                             </td>
                             <td>
-                                <label style={{ marginLeft: '120px' }}>{nv.ten_nv}</label>
+                                <label style={{ marginLeft: '120px' }}>
+                                    <b>{nv.mnv}</b>
+                                </label>
+                            </td>
+                            <td>
+                                <label style={{ marginLeft: '165px' }}>{nv.ten_nv}</label>
                             </td>
                         </tr>
                     ))

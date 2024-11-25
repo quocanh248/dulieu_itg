@@ -15,16 +15,16 @@ import deviceAPI from './device.mjs';
 const app = express();
 const port = process.env.PORT || 3001;
 
+
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
 app.use(cors());
 app.use(bodyParser.json());
 
-app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-
 const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
+    host: '30.0.2.8',
+    user: 'itvt',
+    password: 'itvt',
     database: 'quanlymanhinh',
 });
 
@@ -70,7 +70,7 @@ app.use('/nang_suat', authToken, nangsuatAPI);
 app.use('/users', authToken, userAPI);
 app.use('/truynguyen', authToken, truynguyenAPI);
 app.use('/logzm', authToken, Logzm);
-app.use('/thietbi',authToken, ThietbiAPI);
+app.use('/thietbi', ThietbiAPI);
 app.use('/nhansu',authToken, personnel);
 app.use('/zenbee', Zenbee_1);
 app.use('/device', deviceAPI);

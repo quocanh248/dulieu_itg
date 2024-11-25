@@ -170,6 +170,19 @@ const MenuComponent: React.FC<Props> = ({ children }) => {
                                     </div>
                                 </div>
                             </div>
+                            {/* <div className="nav__item">
+                                <a href="#" className="nav__link">
+                                    <i className="fas fa-sticky-note"></i>
+                                    <span>Data</span>
+                                </a>
+                                <div className="nav__submenu">
+                                    <div className="nav__item">
+                                        <Link to="/them_data_vn" className="nav__link">
+                                            <span>Thêm dữ liệu VN</span>
+                                        </Link>
+                                    </div>                                  
+                                </div>
+                            </div> */}
                         </>
                     )}
                     {userInfo && (userInfo.role == 'admin' || userInfo.role == 'thietbi') && (

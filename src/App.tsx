@@ -11,6 +11,8 @@ import personnelPage from './admin/nhansu';
 import Admin_nang_suat from './admin/nangsuat';
 import Admin_them_nang_suat from './admin/nangsuat/themnangsuat';
 import Admin_them_nang_suat_zm from './admin/nangsuat/themnangsuatzm';
+import Admin_them_data_vn from './admin/nangsuat/them_data_vn';
+import Admin_them_lot from './admin/nangsuat/them_lot';
 //API ITG
 import DSdonhangPage from './admin/get_api_itg/danh_sach_don_hang';
 import AddDonhangPage from './admin/get_api_itg/them_don_hang';
@@ -81,6 +83,8 @@ export const App: React.FC = () => {
                 <Route path="/danh_sach_tai_khoan" element={Role_Admin(AdminPage)} />
                 <Route path="/them_don_hang" element={Role_Admin(AddDonhangPage)} />
                 <Route path="/them_du_lieu_nang_suat" element={Role_Admin(Admin_them_nang_suat)} />
+                <Route path="/them_data_vn" element={Role_ns(Admin_them_data_vn)} />
+                <Route path="/them_lot" element={Role_Admin(Admin_them_lot)} />
                 <Route
                     path="/them_du_lieu_nang_suat_zm"
                     element={Role_Admin(Admin_them_nang_suat_zm)}

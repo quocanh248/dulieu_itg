@@ -24,7 +24,6 @@ const authorize = (roles = []) => {
         }
     };
 };
-
 // Route GET để lấy dữ liệu
 router.get('/get_don_hang', authorize(['nangxuat', 'admin']), async (req, res) => {
     try {
@@ -236,9 +235,9 @@ async function thongTinModelLot(model, lot) {
         ttcongdoan asc, date DESC, giobatdau DESC, congdoan, label;
   `;
     const result = await queryMySQL(sql, [model, lot]);
-    // const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
-    // const ressldachay = await queryMySQL(sql_none, [model, lot]);
     console.log(result);
+    // const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
+    // const ressldachay = await queryMySQL(sql_none, [model, lot]);    
     var soluong = 0;
     const congDoanMap = result.reduce((map, item) => {
         const cd = item.ttcongdoan < 10 ? 'Sửa chữa' : item.congdoan;
@@ -502,10 +501,11 @@ router.get('/chitietcongdoan', authorize(['nangxuat', 'admin']), async (req, res
         res.status(500).json({ error: err.message });
     }
 });
-router.get('/get_api_mnv', async (req, res) => {
+router.get('/get_api_mnv', authorize(['nangxuat', 'admin']), async (req, res) => {
     const url = 'http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport';
     const token = 'f4ea1126-b5aa-4d8e-9e47-2851652b9056-Js8XeJgl4aq05cTQMDJz9H6GJIC7Ca';
-    const { manhansu, date } = req.query;   
+    const { manhansu, date } = req.query;
+    console.log(manhansu, date);
     try {
         const response = await axios.post(
             url,
@@ -567,7 +567,8 @@ router.post('/addDonhang', authorize(['admin']), async (req, res) => {
         let sql_update = `UPDATE  model SET soluong = ?  WHERE model = ? AND lot = ?`;
         let sql = `SELECT  id  FROM model WHERE model = ? AND lot = ?`;
         for (const element of data) {
-            if (element[1] != undefined) {
+            if(element[1] != undefined)
+            {
                 var model = `${element[1]}${element[2]}_${element[3]}`;
                 console.log(element[1], element[2], element[3]);
                 let week = element[5];
@@ -576,14 +577,16 @@ router.post('/addDonhang', authorize(['admin']), async (req, res) => {
                 }
                 var lot = `53${element[4]}${week}`;
                 var soluong = element[6];
-                var po = element[7];
+                var po = element[7];            
                 var results = await queryMySQL(sql, [model, lot]);
-                if (results && results.length > 0) {
+                if (results && results.length > 0)
+                {          
                     await queryMySQL(sql_update, [soluong, model, lot]);
-                } else {
+                } else {               
                     await queryMySQL(sql_insert, [model, lot, po, soluong]);
                 }
             }
+            
         }
         res.status(200).json({ message: 'Cập nhật đơn hàng thành công!' });
     } catch (err) {

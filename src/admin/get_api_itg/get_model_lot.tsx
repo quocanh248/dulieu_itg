@@ -3,6 +3,7 @@ import MenuComponent from '../../Menu';
 import { sendAPIRequest } from '../../utils/util';
 import { Link, useParams } from 'react-router-dom';
 import { AgGridReact } from 'ag-grid-react';
+import exportToExcel from '../../utils/exportToExcel_model';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import React from 'react';
@@ -17,8 +18,25 @@ interface Datatt {
 }
 interface DataNone {
     soluong: number;
-    soluong_da_chay: number;   
+    soluong_da_chay: number;
 }
+
+interface ItemData {
+    congdoan: string;
+    ketqua: string;
+    label: string;
+    model: string;
+    version: string;
+    lot: string;
+    sttlabel: string;
+    ngay: string;
+    giobatdau: string;
+    manhanvien: string;   
+    mathung: string;
+    sttthung: string;
+    mathietbi: string;
+}
+
 const Get_API_model_lot: React.FC = () => {
     const { model, lot } = useParams<{
         model: string;
@@ -45,7 +63,34 @@ const Get_API_model_lot: React.FC = () => {
             }
         }
     }, []);
-    
+    const handleExport = async () => {
+        try {
+            const res = await fetchexcel({  modelState, lotState });
+            if (res && res.length > 0) {
+                const filename = `Dữ liệu ${modelState} - ${lotState}.xlsx`;
+                await exportToExcel(res, filename, modelState, lotState);
+            } else {
+                console.log('Không có dữ liệu để xuất');
+            }
+        } catch (error) {
+            console.error('Đã xảy ra lỗi:', error);
+        }
+    };
+
+    const fetchexcel = async (filters: Record<string, any>): Promise<ItemData[]> => {
+        try {
+            const queryString = new URLSearchParams(filters).toString();
+            const response = await sendAPIRequest(
+                '/nang_suat/search_model?' + queryString,
+                'GET',
+                undefined
+            );
+            return response;
+        } catch (error) {
+            console.error('Lỗi khi lấy dữ liệu năng suất:', error);
+            return [];
+        }
+    };
     // Xử lý sự kiện thay đổi giá trị của input
     const handleModelChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const model_change = e.target.value;
@@ -89,18 +134,16 @@ const Get_API_model_lot: React.FC = () => {
                 'GET',
                 undefined
             );
-            console.log(response);            
-            if(response.status == 500)
-            {
-                alert("Lấy dữ liệu không thành công!");
-            }else{
+            console.log(response);
+            if (response.status == 500) {
+                alert('Lấy dữ liệu không thành công!');
+            } else {
                 setrRescongdoan(response.congdoan);
                 setrReslabel(response.results);
                 setrResthongtin(response.info);
                 setrResNone(response.none || []);
                 console.log(response.none);
             }
-           
         } catch (error) {
             console.error('Lỗi khi lấy dữ liệu:', error);
         } finally {
@@ -127,11 +170,11 @@ const Get_API_model_lot: React.FC = () => {
         ...result_congdoan.map((congdoanItem) => ({
             headerName: congdoanItem,
             field: congdoanItem,
-            sortable: true,           
-            valueGetter: (params: any) => {             
+            sortable: true,
+            valueGetter: (params: any) => {
                 return params.data[congdoanItem] || 'None';
             },
-            cellRenderer: (params: any) => params.value, 
+            cellRenderer: (params: any) => params.value,
             filter: 'agTextColumnFilter',
         })),
     ];
@@ -187,6 +230,11 @@ const Get_API_model_lot: React.FC = () => {
                     <div className="d-flex align-items-center justify-content-center p-2">
                         <button className="btn btn-primary" onClick={handleSearch}>
                             <i className="fas fa-search"></i> Tìm
+                        </button>
+                    </div>
+                    <div className="d-flex align-items-center justify-content-center pr-2">
+                        <button className="btn btn-success" onClick={handleExport}>
+                            <i className="fas fa-download"></i> Excel
                         </button>
                     </div>
                     <div className="d-flex align-items-center justify-content-center p-2 border-start">
@@ -270,7 +318,7 @@ const Get_API_model_lot: React.FC = () => {
                             className="ag-theme-alpine"
                             style={{ height: 'calc(100vh - 338px)', width: '100%' }}
                         >
-                            <AgGridReact                                
+                            <AgGridReact
                                 ref={gridRef}
                                 rowData={result_label}
                                 columnDefs={columnDefs}

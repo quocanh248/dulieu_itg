@@ -8,6 +8,17 @@ app.use(express.json());
 app.use(cors());
 
 // Route GET để lấy dữ liệu
+router.get('/test_cron_tab', async (req, res) => {      
+    console.log("chạy");
+    const sql1 = `
+        UPDATE tag 
+        SET test = 7
+        WHERE manhansu = '8423001'`;
+    await queryMySQL(sql1, []);
+    res.json({
+        status: 200,        
+    });
+});
 
 router.get('/get_nhom_cap_2', async (req, res) => {
     try {
