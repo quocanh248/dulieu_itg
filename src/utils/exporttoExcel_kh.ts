@@ -46,6 +46,7 @@ async function exportToExcel(data: ItemData[], filename: string): Promise<void> 
                     fgColor: { argb: 'FFFF00' }, // Màu vàng
                 };
             }
+            
             const isDateColumn = /^\d{1,2}-\d{1,2}$/.test(column);
             if (isDateColumn && cell.value) {
                 cell.fill = {

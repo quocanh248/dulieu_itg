@@ -43,8 +43,7 @@ router.get('/get_don_hang', authorize(['nangxuat', 'admin']), async (req, res) =
             sql += `AND lot = ?`;
             parmas.push(lot);
         }
-        const results = await queryMySQL(sql, parmas);
-        console.log(results);
+        const results = await queryMySQL(sql, parmas);        
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -53,8 +52,7 @@ router.get('/get_don_hang', authorize(['nangxuat', 'admin']), async (req, res) =
 router.get('/get_api_model_lot', authorize(['nangxuat', 'admin']), async (req, res) => {
     const url = 'http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport';
     const token = 'f4ea1126-b5aa-4d8e-9e47-2851652b9056-Js8XeJgl4aq05cTQMDJz9H6GJIC7Ca';
-    const { modelState, lotState } = req.query;
-    console.log('model, lot' + modelState, lotState);
+    const { modelState, lotState } = req.query;   
     try {
         const check = await checkDonHang(modelState, lotState);
         if (check === 0) {
@@ -63,8 +61,8 @@ router.get('/get_api_model_lot', authorize(['nangxuat', 'admin']), async (req, r
                 {
                     JSON: {
                         searchDynamic: {
-                            dfrom: '1900-01-01',
-                            dto: '1900-01-01',
+                            dfrom: `${lotState.substring(2, 6)}-${Number(lotState.substring(6, 8)) - 1}-15`,
+                            dto: `${lotState.substring(2, 6)}-${Number(lotState.substring(6, 8)) + 1}-15`,
                             step_code: '',
                             product_code: modelState,
                             lot: lotState,
@@ -81,11 +79,12 @@ router.get('/get_api_model_lot', authorize(['nangxuat', 'admin']), async (req, r
                     },
                 }
             );
+            console.log(response.data);
             await capNhatModelLot(response.data, res);
         } else {
             res.json(await thongTinModelLot(modelState, lotState));
         }
-    } catch (error) {
+    } catch (error) {       
         console.error('Lỗi khi lấy dữ liệu:', error);
         res.json({
             status: 500,
@@ -110,13 +109,11 @@ router.get('/get_label_none', authorize(['nangxuat', 'admin']), async (req, res)
         WHERE model = ? AND lot = ?
       `;
             const result = await queryMySQL(sql, [model, lot]);
-            const existingLabels = new Set(result.map((item) => item.label));
-            console.log(existingLabels);
+            const existingLabels = new Set(result.map((item) => item.label));          
             const data = [];
             for (let i = 1; i <= quantity; i++) {
                 let formattedIndex = i.toString().padStart(4, '0');
-                let labelToCheck = `${model}_${lot}${formattedIndex}`;
-                console.log(labelToCheck);
+                let labelToCheck = `${model}_${lot}${formattedIndex}`;              
                 if (!existingLabels.has(labelToCheck)) {
                     data.push({
                         label: labelToCheck,
@@ -126,8 +123,7 @@ router.get('/get_label_none', authorize(['nangxuat', 'admin']), async (req, res)
                         gioketthuc: '',
                     });
                 }
-            }
-            console.log(data);
+            }           
             res.json({ missingLabels: data });
         } else {
             const params = [model, lot];
@@ -153,8 +149,7 @@ router.get('/get_label_none', authorize(['nangxuat', 'admin']), async (req, res)
                 }
                 return acc;
             }, {});
-            const data = Object.values(groupedResults);
-            console.log(data);
+            const data = Object.values(groupedResults);       
             res.json({ missingLabels: data });
         }
     } catch (error) {
@@ -235,7 +230,6 @@ async function thongTinModelLot(model, lot) {
         ttcongdoan asc, date DESC, giobatdau DESC, congdoan, label;
   `;
     const result = await queryMySQL(sql, [model, lot]);
-    console.log(result);
     // const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
     // const ressldachay = await queryMySQL(sql_none, [model, lot]);    
     var soluong = 0;
@@ -293,7 +287,7 @@ async function thongTinModelLot(model, lot) {
 async function getCongDoan(macongdoan) {
     const sql = 'SELECT * FROM congdoan WHERE macongdoan = ?';
     const result = await queryMySQL(sql, [macongdoan]);
-    if (result.length === 0) {
+    if (result.length === 0) {        
         throw new Error('No matching record found');
     }
     return result[0];
@@ -329,8 +323,7 @@ async function Update_soluong(soluong_dt, soluong, model, lot) {
         var trangthai = '';
         if (soluong == soluong_dt) {
             trangthai = 'Hoàn tất';
-        }
-        console.log(trangthai, soluong_dt, soluong);
+        }       
         await queryMySQL(sql, [soluong, soluong_dt, trangthai, model, lot]);
     } catch (error) {
         console.error('Lỗi khi cập nhật SL:', error);
@@ -338,8 +331,7 @@ async function Update_soluong(soluong_dt, soluong, model, lot) {
     }
 }
 router.put('/capnhatcongdoan', authorize(['admin']), async (req, res) => {
-    const { macongdoan, thuoctinh } = req.body;
-    console.log(macongdoan, thuoctinh);
+    const { macongdoan, thuoctinh } = req.body;   
     try {
         const sql = `
       UPDATE 
@@ -434,8 +426,7 @@ router.get('/chi_tiet_label', authorize(['nangxuat', 'admin']), async (req, res)
             const [thongtin, chitiet] = await Promise.all([
                 queryMySQL(sql_thongtin, [label]),
                 queryMySQL(sql_chitiet, [label]),
-            ]);
-            console.log(thongtin);
+            ]);           
             res.json({
                 thongtin,
                 chitiet,
@@ -494,8 +485,7 @@ router.get('/chitietcongdoan', authorize(['nangxuat', 'admin']), async (req, res
             FROM congdoan            
             WHERE macongdoan = ?       
         `;
-        const results = await queryMySQL(sql, [macongdoan]);
-        console.log(results);
+        const results = await queryMySQL(sql, [macongdoan]);    
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -504,8 +494,7 @@ router.get('/chitietcongdoan', authorize(['nangxuat', 'admin']), async (req, res
 router.get('/get_api_mnv', authorize(['nangxuat', 'admin']), async (req, res) => {
     const url = 'http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport';
     const token = 'f4ea1126-b5aa-4d8e-9e47-2851652b9056-Js8XeJgl4aq05cTQMDJz9H6GJIC7Ca';
-    const { manhansu, date } = req.query;
-    console.log(manhansu, date);
+    const { manhansu, date } = req.query;   
     try {
         const response = await axios.post(
             url,
@@ -529,8 +518,7 @@ router.get('/get_api_mnv', authorize(['nangxuat', 'admin']), async (req, res) =>
                     'Content-Type': 'application/json',
                 },
             }
-        );
-        console.log(response.data);
+        );       
         await Get_data_nv(response.data, res);
     } catch (error) {
         console.error('Lỗi khi lấy dữ liệu:', error);
@@ -569,8 +557,7 @@ router.post('/addDonhang', authorize(['admin']), async (req, res) => {
         for (const element of data) {
             if(element[1] != undefined)
             {
-                var model = `${element[1]}${element[2]}_${element[3]}`;
-                console.log(element[1], element[2], element[3]);
+                var model = `${element[1]}${element[2]}_${element[3]}`;               
                 let week = element[5];
                 if (typeof week === 'string' && week.length === 1) {
                     week = '0' + week;
