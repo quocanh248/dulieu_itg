@@ -43,7 +43,7 @@ router.get('/get_don_hang', authorize(['nangxuat', 'admin']), async (req, res) =
             sql += `AND lot = ?`;
             parmas.push(lot);
         }
-        const results = await queryMySQL(sql, parmas);        
+        const results = await queryMySQL(sql, parmas);
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -52,7 +52,16 @@ router.get('/get_don_hang', authorize(['nangxuat', 'admin']), async (req, res) =
 router.get('/get_api_model_lot', authorize(['nangxuat', 'admin']), async (req, res) => {
     const url = 'http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport';
     const token = 'f4ea1126-b5aa-4d8e-9e47-2851652b9056-Js8XeJgl4aq05cTQMDJz9H6GJIC7Ca';
-    const { modelState, lotState } = req.query;   
+    const { modelState, lotState } = req.query;
+    let monthFrom =
+        Number(lotState.substring(6, 8)) - 1 > 0 ? Number(lotState.substring(6, 8)) - 1 : 12;
+
+    let yearFrom =
+        monthFrom === 12 ? Number(lotState.substring(2, 6)) - 1 : Number(lotState.substring(2, 6));
+
+    let monthTo = Number(lotState.substring(6, 8)) == 12 ? 1 : Number(lotState.substring(6, 8)) + 1;
+    let yearTo = Number(lotState.substring(6, 8)) == 12 ? Number(lotState.substring(2, 6)) + 1 : Number(lotState.substring(2, 6));
+    console.log(`${yearTo}-${String(monthTo).padStart(2, '0')}-15`, `${yearFrom}-${String(monthFrom).padStart(2, '0')}-15`);
     try {
         const check = await checkDonHang(modelState, lotState);
         if (check === 0) {
@@ -61,8 +70,8 @@ router.get('/get_api_model_lot', authorize(['nangxuat', 'admin']), async (req, r
                 {
                     JSON: {
                         searchDynamic: {
-                            dfrom: `${lotState.substring(2, 6)}-${Number(lotState.substring(6, 8)) - 1}-15`,
-                            dto: `${lotState.substring(2, 6)}-${Number(lotState.substring(6, 8)) + 1}-15`,
+                            dfrom: `${yearFrom}-${String(monthFrom).padStart(2, '0')}-15`,
+                            dto: `${yearTo}-${String(monthTo).padStart(2, '0')}-15`,
                             step_code: '',
                             product_code: modelState,
                             lot: lotState,
@@ -79,12 +88,11 @@ router.get('/get_api_model_lot', authorize(['nangxuat', 'admin']), async (req, r
                     },
                 }
             );
-            console.log(response.data);
             await capNhatModelLot(response.data, res);
         } else {
             res.json(await thongTinModelLot(modelState, lotState));
         }
-    } catch (error) {       
+    } catch (error) {
         console.error('Lỗi khi lấy dữ liệu:', error);
         res.json({
             status: 500,
@@ -109,11 +117,11 @@ router.get('/get_label_none', authorize(['nangxuat', 'admin']), async (req, res)
         WHERE model = ? AND lot = ?
       `;
             const result = await queryMySQL(sql, [model, lot]);
-            const existingLabels = new Set(result.map((item) => item.label));          
+            const existingLabels = new Set(result.map((item) => item.label));
             const data = [];
             for (let i = 1; i <= quantity; i++) {
                 let formattedIndex = i.toString().padStart(4, '0');
-                let labelToCheck = `${model}_${lot}${formattedIndex}`;              
+                let labelToCheck = `${model}_${lot}${formattedIndex}`;
                 if (!existingLabels.has(labelToCheck)) {
                     data.push({
                         label: labelToCheck,
@@ -123,7 +131,7 @@ router.get('/get_label_none', authorize(['nangxuat', 'admin']), async (req, res)
                         gioketthuc: '',
                     });
                 }
-            }           
+            }
             res.json({ missingLabels: data });
         } else {
             const params = [model, lot];
@@ -149,7 +157,7 @@ router.get('/get_label_none', authorize(['nangxuat', 'admin']), async (req, res)
                 }
                 return acc;
             }, {});
-            const data = Object.values(groupedResults);       
+            const data = Object.values(groupedResults);
             res.json({ missingLabels: data });
         }
     } catch (error) {
@@ -231,7 +239,7 @@ async function thongTinModelLot(model, lot) {
   `;
     const result = await queryMySQL(sql, [model, lot]);
     // const resultCongDoan = await queryMySQL(sqlCongDoan, [model, lot]);
-    // const ressldachay = await queryMySQL(sql_none, [model, lot]);    
+    // const ressldachay = await queryMySQL(sql_none, [model, lot]);
     var soluong = 0;
     const congDoanMap = result.reduce((map, item) => {
         const cd = item.ttcongdoan < 10 ? 'Sửa chữa' : item.congdoan;
@@ -287,7 +295,7 @@ async function thongTinModelLot(model, lot) {
 async function getCongDoan(macongdoan) {
     const sql = 'SELECT * FROM congdoan WHERE macongdoan = ?';
     const result = await queryMySQL(sql, [macongdoan]);
-    if (result.length === 0) {        
+    if (result.length === 0) {
         throw new Error('No matching record found');
     }
     return result[0];
@@ -323,7 +331,7 @@ async function Update_soluong(soluong_dt, soluong, model, lot) {
         var trangthai = '';
         if (soluong == soluong_dt) {
             trangthai = 'Hoàn tất';
-        }       
+        }
         await queryMySQL(sql, [soluong, soluong_dt, trangthai, model, lot]);
     } catch (error) {
         console.error('Lỗi khi cập nhật SL:', error);
@@ -331,7 +339,7 @@ async function Update_soluong(soluong_dt, soluong, model, lot) {
     }
 }
 router.put('/capnhatcongdoan', authorize(['admin']), async (req, res) => {
-    const { macongdoan, thuoctinh } = req.body;   
+    const { macongdoan, thuoctinh } = req.body;
     try {
         const sql = `
       UPDATE 
@@ -422,11 +430,13 @@ router.get('/chi_tiet_label', authorize(['nangxuat', 'admin']), async (req, res)
         ORDER BY
             date asc,
             giobatdau asc;`;
+            
         try {
             const [thongtin, chitiet] = await Promise.all([
                 queryMySQL(sql_thongtin, [label]),
                 queryMySQL(sql_chitiet, [label]),
-            ]);           
+            ]);
+            
             res.json({
                 thongtin,
                 chitiet,
@@ -485,7 +495,7 @@ router.get('/chitietcongdoan', authorize(['nangxuat', 'admin']), async (req, res
             FROM congdoan            
             WHERE macongdoan = ?       
         `;
-        const results = await queryMySQL(sql, [macongdoan]);    
+        const results = await queryMySQL(sql, [macongdoan]);
         res.json(results);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -494,7 +504,7 @@ router.get('/chitietcongdoan', authorize(['nangxuat', 'admin']), async (req, res
 router.get('/get_api_mnv', authorize(['nangxuat', 'admin']), async (req, res) => {
     const url = 'http://30.1.1.2:8085/ServiceAPI/api/Device/GetJsonReportAPI/GetJsonReport';
     const token = 'f4ea1126-b5aa-4d8e-9e47-2851652b9056-Js8XeJgl4aq05cTQMDJz9H6GJIC7Ca';
-    const { manhansu, date } = req.query;   
+    const { manhansu, date } = req.query;
     try {
         const response = await axios.post(
             url,
@@ -518,7 +528,7 @@ router.get('/get_api_mnv', authorize(['nangxuat', 'admin']), async (req, res) =>
                     'Content-Type': 'application/json',
                 },
             }
-        );       
+        );
         await Get_data_nv(response.data, res);
     } catch (error) {
         console.error('Lỗi khi lấy dữ liệu:', error);
@@ -528,7 +538,7 @@ router.get('/get_api_mnv', authorize(['nangxuat', 'admin']), async (req, res) =>
         });
     }
 });
-async function Get_data_nv(data, res) {    
+async function Get_data_nv(data, res) {
     // ma_nv: '8410119',
     // ten_nv: 'NGUYỄN THỊ CẨM CHI',
     const promises = data.map(async (item) => {
@@ -555,25 +565,22 @@ router.post('/addDonhang', authorize(['admin']), async (req, res) => {
         let sql_update = `UPDATE  model SET soluong = ?  WHERE model = ? AND lot = ?`;
         let sql = `SELECT  id  FROM model WHERE model = ? AND lot = ?`;
         for (const element of data) {
-            if(element[1] != undefined)
-            {
-                var model = `${element[1]}${element[2]}_${element[3]}`;               
+            if (element[1] != undefined) {
+                var model = `${element[1]}${element[2]}_${element[3]}`;
                 let week = element[5];
                 if (typeof week === 'string' && week.length === 1) {
                     week = '0' + week;
                 }
                 var lot = `53${element[4]}${week}`;
                 var soluong = element[6];
-                var po = element[7];            
+                var po = element[7];
                 var results = await queryMySQL(sql, [model, lot]);
-                if (results && results.length > 0)
-                {          
+                if (results && results.length > 0) {
                     await queryMySQL(sql_update, [soluong, model, lot]);
-                } else {               
+                } else {
                     await queryMySQL(sql_insert, [model, lot, po, soluong]);
                 }
             }
-            
         }
         res.status(200).json({ message: 'Cập nhật đơn hàng thành công!' });
     } catch (err) {
